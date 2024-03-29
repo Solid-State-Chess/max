@@ -3,6 +3,7 @@
 #include <string.h>
 
 /// Lookup table to convert between 0 based LERF square indices and 10x12 board indices
+/// and to iterate through valid squares on a 10x12 board efficiently
 static uint8_t index_lookup_10x12[64] = {
     21, 22, 23, 24, 25, 26, 27, 28,
     31, 32, 33, 34, 35, 36, 37, 38,

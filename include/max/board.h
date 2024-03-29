@@ -35,6 +35,8 @@ enum {
     /// Sentinel value for invalid squares is zero to take advantage of
     /// ARM cortex M4 branch if zero instruction to avoid an extra comparison
     MAX_INVALID_SQUARE = 0b00000000,
+    /// Empty squares are the same as invalid squares, except that their color bit must be
+    /// set to differentiate them from invalid squares
     MAX_EMPTY_SQUARE   = (MAX_COLOR_EMPTY | MAX_PIECE_EMPTY)
 };
 
