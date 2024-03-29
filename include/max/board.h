@@ -28,21 +28,18 @@ enum {
     MAX_COLOR_MASK     = 0b00001000,
     MAX_COLOR_WHITE    = 0b00001000,
     MAX_COLOR_BLACK    = 0b00000000,
-    MAX_COLOR_EMPTY    = MAX_COLOR_WHITE,
 
     MAX_QCASTLE_MASK   = 0b000100000,
     MAX_KCASTLE_MASK   = 0b001000000,
     
     /// Sentinel value for invalid squares is zero to take advantage of
     /// ARM cortex M4 branch if zero instruction to avoid an extra comparison
-    MAX_INVALID_SQUARE = 0b00000000,
-    /// Empty squares are the same as invalid squares, except that their color bit must be
-    /// set to differentiate them from invalid squares
-    MAX_EMPTY_SQUARE   = (MAX_COLOR_EMPTY | MAX_PIECE_EMPTY)
+    MAX_INVALID_SQUARE = (int8_t)0b10000000,
+    MAX_EMPTY_SQUARE   = 0b00000000,
 };
 
 /// A single square stored in the 10x12 board array
-typedef uint8_t max_square_t;
+typedef int8_t max_square_t;
 
 /// Chessboard representation with side to move, castling rights
 typedef struct {
@@ -52,7 +49,7 @@ typedef struct {
 
 
 /// Lookup table for valid squares on a 10x12 board
-extern max_square_idx_t lookup_index_10x12[64];
+extern const max_square_idx_t lookup_index_10x12[64];
 
 /// Create an empty chessboard with NO pieces, only sentinel values in array and empty squares
 /// at their valid indices

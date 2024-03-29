@@ -4,7 +4,7 @@
 
 /// Lookup table to convert between 0 based LERF square indices and 10x12 board indices
 /// and to iterate through valid squares on a 10x12 board efficiently
-static uint8_t index_lookup_10x12[64] = {
+const uint8_t lookup_index_10x12[64] = {
     21, 22, 23, 24, 25, 26, 27, 28,
     31, 32, 33, 34, 35, 36, 37, 38,
     41, 42, 43, 44, 45, 46, 47, 48,
@@ -16,7 +16,7 @@ static uint8_t index_lookup_10x12[64] = {
 };
 
 void max_board_new(max_board_t *const board) {
-    memset(board->grid, 0, sizeof(board->grid));
+    memset(board->grid, MAX_INVALID_SQUARE, sizeof(board->grid));
 
     //0-initializing the board makes all squares invalid
     for(uint8_t i = 0; i < 64; ++i) {
