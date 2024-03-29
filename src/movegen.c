@@ -54,6 +54,8 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         PAWN_MOVEGEN(-, MAX_COLOR_WHITE);
         continue;
 
+    #undef PAWN_MOVEGEN
+
     knight: {
         uint8_t color = piece & MAX_COLOR_MASK;
         #define KNIGHTATTACK(idx) do {                                                                  \
@@ -72,16 +74,54 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         KNIGHTATTACK(i - 8);
         KNIGHTATTACK(i + 8);
         KNIGHTATTACK(i - 12);
-        
+
+        #undef KNIGHTATTACK
     }
-    bishop:
+    bishop: {
+        uint8_t color = piece & MAX_COLOR_MASK;
+        #define RAYATTACK(dir, delta)                                                                       \
+        do {                                                                                                \
+            for(max_square_idx_t next = i dir delta;;i dir##= delta) {                                      \
+                max_square_t sq = board->grid[next];                                                        \
+                if(sq <= MAX_INVALID_SQUARE) { break; }                                                     \
+                if(sq == MAX_EMPTY_SQUARE) {                                                                \
+                    max_movelist_add(moves, (max_move_t){.from = i, .to = next, .flags = 0});               \
+                } else {                                                                                    \
+                    if((sq & MAX_COLOR_MASK) != color) {                                                    \
+                        max_movelist_add(moves, (max_move_t){.from = i, .to = next, .flags = 0});           \
+                    }                                                                                       \
+                    break;                                                                                  \
+                }                                                                                           \
+            }                                                                                               \
+        } while(0)
 
-    rook:
-
-    queen:
-
+        RAYATTACK(+, 11);
+        RAYATTACK(+, 9);
+        RAYATTACK(-, 9);
+        RAYATTACK(-, 11);
+        continue;
+    }
+    rook: {
+        uint8_t color = piece & MAX_COLOR_MASK;
+        RAYATTACK(+, 10);
+        RAYATTACK(-, 10);
+        RAYATTACK(+, 1);
+        RAYATTACK(-, 1);
+        continue;
+    }
+    queen: {
+        uint8_t color = piece & MAX_COLOR_MASK;
+        RAYATTACK(+, 11);
+        RAYATTACK(+, 9);
+        RAYATTACK(-, 9);
+        RAYATTACK(-, 11);
+        RAYATTACK(+, 10);
+        RAYATTACK(-, 10);
+        RAYATTACK(+, 1);
+        RAYATTACK(-, 1);
+        continue;
+    }
     king:
-        #undef PAWN_MOVEGEN
     
     }
 }
