@@ -20,7 +20,7 @@ void max_board_new(max_board_t *const board) {
 
     //0-initializing the board makes all squares invalid
     for(uint8_t i = 0; i < 64; ++i) {
-        board->grid[index_lookup_10x12[i]] = MAX_EMPTY_SQUARE;
+        board->grid[lookup_index_10x12[i]] = MAX_EMPTY_SQUARE;
     }
 }
 

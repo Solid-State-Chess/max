@@ -1,4 +1,5 @@
 #pragma once
+#include "max/move.h"
 #include <stdint.h>
 
 /// Piece codes used in the lower 3 bits of a byte position
@@ -40,6 +41,7 @@ enum {
     MAX_EMPTY_SQUARE   = (MAX_COLOR_EMPTY | MAX_PIECE_EMPTY)
 };
 
+/// A single square stored in the 10x12 board array
 typedef uint8_t max_square_t;
 
 /// Chessboard representation with side to move, castling rights
@@ -47,6 +49,10 @@ typedef struct {
     /// Grid including sentinel ranks and files used to speed up out of bounds detection
     max_square_t grid[120];
 } max_board_t;
+
+
+/// Lookup table for valid squares on a 10x12 board
+extern max_square_idx_t lookup_index_10x12[64];
 
 /// Create an empty chessboard with NO pieces, only sentinel values in array and empty squares
 /// at their valid indices
