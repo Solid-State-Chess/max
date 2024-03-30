@@ -24,8 +24,8 @@ void max_board_new(max_board_t *const board) {
         board->grid[lookup_index_10x12[i]] = MAX_EMPTY_SQUARE;
     }
 
-    memset(board->capture_stack.array, MAX_PIECE_EMPTY, sizeof(board->capture_stack.array));
-    board->capture_stack.head = 0;
+    memset(board->stack, MAX_PIECE_EMPTY, sizeof(board->stack));
+    board->ply = 0;
 }
 
 void max_board_reset(max_board_t *const board) {
@@ -59,26 +59,42 @@ void max_board_reset(max_board_t *const board) {
 }
 
 void max_board_make_move(max_board_t *const board, max_move_t move) {
+    #define MOVE(from, to) do {                     \
+        board->grid[(to)] = board->grid[(from)];    \
+        board->grid[(from)] = MAX_EMPTY_SQUARE;     \
+    } while(0)
+
     switch(move.attr) {
         case MAX_MOVE_NORMAL: {
-            board->grid[move.to] = board->grid[move.from];
-            board->grid[move.from] = MAX_EMPTY_SQUARE;
-
-            board->stack[board->ply++] = board->stack[board->ply] & ~(MAX_STATE_CAPTURED_MASK);
+            MOVE(move.from, move.to);
+            board->stack[board->ply + 1] = board->stack[board->ply] & ~(MAX_STATE_CAPTURED_MASK);
         } break;
 
         case MAX_MOVE_CAPTURE: {
             max_square_t captured = board->grid[move.to];
-            board->grid[move.to] = board->grid[move.from];
-            board->grid[move.from] = MAX_EMPTY_SQUARE;
+            MOVE(move.from, move.to);
 
-            board->stack[board->ply++] = (board->stack[board->ply++] & ~MAX_STATE_CAPTURED_MASK) | captured;
+            board->stack[board->ply + 1] = (board->stack[board->ply] & ~MAX_STATE_CAPTURED_MASK) | captured;
         } break;
 
         case MAX_MOVE_KCASTLE: {
+            MOVE(move.from, move.to);
+            MOVE(move.from + 1, move.to + 1);
 
+            board->stack[board->ply + 1] = (board->stack[board->ply]) & ~(MAX_STATE_WCASTLE_MASK << ((board->ply & 1) << 1));
         } break;
+
+        case MAX_MOVE_QCASTLE: {
+            MOVE(move.from, move.to);
+            MOVE(move.from - 1, move.to - 1);
+            
+            board->stack[board->ply + 1] = (board->stack[board->ply]) & ~(MAX_STATE_WCASTLE_MASK << ((board->ply & 1) << 1));
+        }
     }
+
+    board->ply += 1;
+
+    #undef MOVE
 }
 
 #if !defined(MAX_CONSOLE)

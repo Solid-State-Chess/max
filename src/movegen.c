@@ -18,23 +18,31 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         [MAX_QUEEN]  = &&queen,
         [MAX_KING]   = &&king,
     };
-
+    
+    uint8_t color_to_move = (~board->ply & 1) << 3;
     for(max_square_idx_t k = 0; k < 64; ++k) {
         max_square_idx_t i = lookup_index_10x12[k];
         max_square_t piece = board->grid[i];
         uint8_t code = piece & MAX_PIECECODE_MASK;
-        if(code == MAX_EMPTY_SQUARE) {
+        uint8_t color = piece & MAX_COLOR_MASK;
+        if(code == MAX_EMPTY_SQUARE || color != color_to_move) {
             continue;
         }
-
+        
         goto *JUMPTBL[code];
 
-        #define PAWN_MOVEGEN(dir, enemy) do {                                                           \
+        #define PAWN_MOVEGEN(dir, enemy, homerow) do {                                                  \
             uint8_t next = i dir 10;                                                                    \
             max_square_t above = board->grid[next];                                                     \
             if(above != MAX_INVALID_SQUARE) {                                                           \
                 if(above == MAX_EMPTY_SQUARE) {                                                         \
                     max_movelist_add(moves, (max_move_t){.from = i, .to = next, .attr = MAX_MOVE_NORMAL});            \
+                    if((k & ~(0b00000111)) == (homerow)) {                                              \
+                        uint8_t dmove = next dir 10;                                                    \
+                        if(board->grid[dmove] == MAX_EMPTY_SQUARE) {                                    \
+                            max_movelist_add(moves, (max_move_t){.from = i, .to = dmove, .attr = MAX_MOVE_NORMAL});   \
+                        }                                                                               \
+                    }                                                                                   \
                 }                                                                                       \
                 max_square_t right = board->grid[next + 1];                                             \
                 max_square_t left  = board->grid[next - 1];                                             \
@@ -48,16 +56,15 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         } while(0)
 
     wpawn:
-        PAWN_MOVEGEN(+, MAX_COLOR_BLACK);
+        PAWN_MOVEGEN(+, MAX_COLOR_BLACK, 0b00001000);
         continue;
     bpawn:
-        PAWN_MOVEGEN(-, MAX_COLOR_WHITE);
+        PAWN_MOVEGEN(-, MAX_COLOR_WHITE, 0b11000000);
         continue;
 
     #undef PAWN_MOVEGEN
 
     knight: {
-        uint8_t color = piece & MAX_COLOR_MASK;
         #define KNIGHTATTACK(idx) do {                                                                  \
             max_square_t sq = board->grid[(idx)];                                                       \
             if(sq >= MAX_EMPTY_SQUARE && (sq & MAX_COLOR_MASK) != color || sq == MAX_EMPTY_SQUARE) {    \
@@ -76,7 +83,6 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         KNIGHTATTACK(i - 12);
     }
     bishop: {
-        uint8_t color = piece & MAX_COLOR_MASK;
         #define RAYATTACK(dir, delta)                                                                       \
         do {                                                                                                \
             for(max_square_idx_t next = i dir delta;;i dir##= delta) {                                      \
@@ -100,7 +106,6 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         continue;
     }
     rook: {
-        uint8_t color = piece & MAX_COLOR_MASK;
         RAYATTACK(+, 10);
         RAYATTACK(-, 10);
         RAYATTACK(+, 1);
@@ -108,7 +113,6 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         continue;
     }
     queen: {
-        uint8_t color = piece & MAX_COLOR_MASK;
         RAYATTACK(+, 11);
         RAYATTACK(+, 9);
         RAYATTACK(-, 9);
@@ -120,7 +124,6 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         continue;
     }
     king: {
-        uint8_t color = piece & MAX_COLOR_MASK;
         KNIGHTATTACK(i + 9);
         KNIGHTATTACK(i + 10);
         KNIGHTATTACK(i + 11);
@@ -129,7 +132,9 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         KNIGHTATTACK(i - 11);
         KNIGHTATTACK(i - 9);
 
-        if((piece & MAX_KCASTLE) && (board->grid[i + 1] | board->grid[i + 2]) == MAX_EMPTY_SQUARE) {
+        uint8_t castle_rights = (board->stack[board->ply] >> (4 + ((board->ply & 1) << 1)));
+
+        if((castle_rights & 1) && (board->grid[i + 1] | board->grid[i + 2]) == MAX_EMPTY_SQUARE) {
             max_movelist_add(
                 moves,
                 (max_move_t) {
@@ -139,7 +144,7 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
                 }
             );
         }
-        if((piece & MAX_QCASTLE) && (board->grid[i - 1] | board->grid[i - 2] | board->grid[i - 3]) == MAX_EMPTY_SQUARE) {
+        if((castle_rights & 2) && (board->grid[i - 1] | board->grid[i - 2] | board->grid[i - 3]) == MAX_EMPTY_SQUARE) {
             max_movelist_add(
                 moves,
                 (max_move_t) {
