@@ -29,9 +29,6 @@ enum {
     MAX_COLOR_MASK     = 0b00001000,
     MAX_COLOR_WHITE    = 0b00001000,
     MAX_COLOR_BLACK    = 0b00000000,
-
-    MAX_QCASTLE_MASK   = 0b000100000,
-    MAX_KCASTLE_MASK   = 0b001000000,
     
     MAX_INVALID_SQUARE = (int8_t)0b10000000,
     MAX_EMPTY_SQUARE   = 0b00000000,
@@ -40,17 +37,26 @@ enum {
 /// A single square stored in the 10x12 board array
 typedef int8_t max_square_t;
 
+enum {
+    /// Bitmask for a stack plate with the piece code, if any, of a captured piece with color bit
+    MAX_STATE_CAPTURED_MASK = 0b00001111,
+    MAX_STATE_WCASTLE_MASK  = 0b00110000,
+    MAX_STATE_BCASTLE_MASK  = 0b11000000,
+};
+
+typedef uint8_t max_state_t;
+
 /// Chessboard representation with side to move, castling rights
 typedef struct {
     /// Grid including sentinel ranks and files used to speed up out of bounds detection
     max_square_t grid[120];
-
-    struct {
-        /// A queue of all pieces that have been captured
-        max_square_t array[MAX_BOARD_PIECES_COUNT];
-        /// Index of the stack head
-        uint8_t head;
-    } capture_stack;
+    
+    /// Stack for all irreversible state changed when making moves
+    max_state_t stack[MAX_BOARD_MAX_PLY];
+    
+    /// Current ply count, indexes the state stack
+    /// If the LSB is set (ply is odd), then black is to move
+    uint16_t ply;
 } max_board_t;
 
 /// Lookup table for valid squares on a 10x12 board

@@ -61,19 +61,18 @@ void max_board_reset(max_board_t *const board) {
 void max_board_make_move(max_board_t *const board, max_move_t move) {
     switch(move.attr) {
         case MAX_MOVE_NORMAL: {
-            max_square_t captured = board->grid[move.to];
-            if(captured != MAX_PIECE_EMPTY) {
-                board->capture_stack.array[board->capture_stack.head] = board->grid[move.to];
-                board->capture_stack.head += 1;
-            }
-
             board->grid[move.to] = board->grid[move.from];
             board->grid[move.from] = MAX_EMPTY_SQUARE;
+
+            board->stack[board->ply++] = board->stack[board->ply] & ~(MAX_STATE_CAPTURED_MASK);
         } break;
 
         case MAX_MOVE_CAPTURE: {
-                        board->grid[move.to] = board->grid[move.from];
+            max_square_t captured = board->grid[move.to];
+            board->grid[move.to] = board->grid[move.from];
             board->grid[move.from] = MAX_EMPTY_SQUARE;
+
+            board->stack[board->ply++] = (board->stack[board->ply++] & ~MAX_STATE_CAPTURED_MASK) | captured;
         } break;
 
         case MAX_MOVE_KCASTLE: {

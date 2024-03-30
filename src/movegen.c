@@ -23,7 +23,7 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         max_square_idx_t i = lookup_index_10x12[k];
         max_square_t piece = board->grid[i];
         uint8_t code = piece & MAX_PIECECODE_MASK;
-        if(code == 0) {
+        if(code == MAX_EMPTY_SQUARE) {
             continue;
         }
 
@@ -128,6 +128,27 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         KNIGHTATTACK(i - 1);
         KNIGHTATTACK(i - 11);
         KNIGHTATTACK(i - 9);
+
+        if((piece & MAX_KCASTLE) && (board->grid[i + 1] | board->grid[i + 2]) == MAX_EMPTY_SQUARE) {
+            max_movelist_add(
+                moves,
+                (max_move_t) {
+                    .from = i,
+                    .to = i + 2,
+                    .attr = MAX_MOVE_KCASTLE,
+                }
+            );
+        }
+        if((piece & MAX_QCASTLE) && (board->grid[i - 1] | board->grid[i - 2] | board->grid[i - 3]) == MAX_EMPTY_SQUARE) {
+            max_movelist_add(
+                moves,
+                (max_move_t) {
+                    .from = i,
+                    .to = i - 3,
+                    .attr = MAX_MOVE_QCASTLE
+                }
+            );
+        }
 
         #undef KNIGHTATTACK
         continue;

@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_BOARD_MAX_PLY (60)
+#define MAX_BOARD_MAX_PLY (300)
 /// Maximum number of pieces that may be on a chessboard
 #define MAX_BOARD_PIECES_COUNT (32)
 
