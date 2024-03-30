@@ -58,12 +58,12 @@ void max_board_reset(max_board_t *const board) {
     board->grid[MAX_E8] = MAX_KING | MAX_COLOR_BLACK;
 }
 
-void max_board_make_move(max_board_t *const board, max_move_t move) {
-    #define MOVE(from, to) do {                     \
+#define MOVE(from, to) do {                         \
         board->grid[(to)] = board->grid[(from)];    \
         board->grid[(from)] = MAX_EMPTY_SQUARE;     \
     } while(0)
 
+void max_board_make_move(max_board_t *const board, max_move_t move) {
     switch(move.attr) {
         case MAX_MOVE_NORMAL: {
             MOVE(move.from, move.to);
@@ -94,8 +94,32 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
 
     board->ply += 1;
 
-    #undef MOVE
+
 }
+
+void max_board_unmake_move(max_board_t *const board, max_move_t move) {
+    switch(move.attr) {
+        case MAX_MOVE_NORMAL: {
+            MOVE(move.to, move.from);
+        } break;
+        case MAX_MOVE_CAPTURE: {
+            board->grid[move.from] = board->grid[move.to];
+            board->grid[move.to] = board->stack[board->ply] & MAX_STATE_CAPTURED_MASK;
+        } break;
+        case MAX_MOVE_KCASTLE: {
+            MOVE(move.to, move.from);
+            MOVE(move.to + 1, move.from + 1);
+        } break;
+        case MAX_MOVE_QCASTLE: {
+            MOVE(move.to, move.from);
+            MOVE(move.to - 1, move.from - 1);
+        } break;
+    }
+
+    board->ply -= 1;
+}
+
+#undef MOVE
 
 #if !defined(MAX_CONSOLE)
 

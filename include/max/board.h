@@ -72,6 +72,9 @@ void max_board_reset(max_board_t *const board);
 /// Make the given move on a chessboard, with NO CHECK for move validity (assumes valid moves taken from max_movegen)
 void max_board_make_move(max_board_t *const board, max_move_t move);
 
+/// Unmake the given move, restoring any captured pieces and ep / castling state
+void max_board_unmake_move(max_board_t *const board, max_move_t move);
+
 #if defined(MAX_CONSOLE)
 
 /// Print the given chessboard to the console
