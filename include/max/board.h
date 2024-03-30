@@ -1,4 +1,5 @@
 #pragma once
+#include "max/def.h"
 #include "max/move.h"
 #include <stdint.h>
 
@@ -32,8 +33,6 @@ enum {
     MAX_QCASTLE_MASK   = 0b000100000,
     MAX_KCASTLE_MASK   = 0b001000000,
     
-    /// Sentinel value for invalid squares is zero to take advantage of
-    /// ARM cortex M4 branch if zero instruction to avoid an extra comparison
     MAX_INVALID_SQUARE = (int8_t)0b10000000,
     MAX_EMPTY_SQUARE   = 0b00000000,
 };
@@ -45,8 +44,14 @@ typedef int8_t max_square_t;
 typedef struct {
     /// Grid including sentinel ranks and files used to speed up out of bounds detection
     max_square_t grid[120];
-} max_board_t;
 
+    struct {
+        /// A queue of all pieces that have been captured
+        max_square_t array[MAX_BOARD_PIECES_COUNT];
+        /// Index of the stack head
+        uint8_t head;
+    } capture_stack;
+} max_board_t;
 
 /// Lookup table for valid squares on a 10x12 board
 extern const max_square_idx_t lookup_index_10x12[64];
@@ -57,6 +62,9 @@ void max_board_new(max_board_t *const board);
 
 /// Reset the given chessboard to the starting configuration
 void max_board_reset(max_board_t *const board);
+
+/// Make the given move on a chessboard, with NO CHECK for move validity (assumes valid moves taken from max_movegen)
+void max_board_make_move(max_board_t *const board, max_move_t move);
 
 #if defined(MAX_CONSOLE)
 

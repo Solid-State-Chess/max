@@ -1,4 +1,5 @@
 #include "max/board.h"
+#include "max/move.h"
 #include "max/square.h"
 #include <string.h>
 
@@ -22,6 +23,9 @@ void max_board_new(max_board_t *const board) {
     for(uint8_t i = 0; i < 64; ++i) {
         board->grid[lookup_index_10x12[i]] = MAX_EMPTY_SQUARE;
     }
+
+    memset(board->capture_stack.array, MAX_PIECE_EMPTY, sizeof(board->capture_stack.array));
+    board->capture_stack.head = 0;
 }
 
 void max_board_reset(max_board_t *const board) {
@@ -54,6 +58,29 @@ void max_board_reset(max_board_t *const board) {
     board->grid[MAX_E8] = MAX_KING | MAX_COLOR_BLACK;
 }
 
+void max_board_make_move(max_board_t *const board, max_move_t move) {
+    switch(move.attr) {
+        case MAX_MOVE_NORMAL: {
+            max_square_t captured = board->grid[move.to];
+            if(captured != MAX_PIECE_EMPTY) {
+                board->capture_stack.array[board->capture_stack.head] = board->grid[move.to];
+                board->capture_stack.head += 1;
+            }
+
+            board->grid[move.to] = board->grid[move.from];
+            board->grid[move.from] = MAX_EMPTY_SQUARE;
+        } break;
+
+        case MAX_MOVE_CAPTURE: {
+                        board->grid[move.to] = board->grid[move.from];
+            board->grid[move.from] = MAX_EMPTY_SQUARE;
+        } break;
+
+        case MAX_MOVE_KCASTLE: {
+
+        } break;
+    }
+}
 
 #if !defined(MAX_CONSOLE)
 
@@ -76,7 +103,7 @@ void max_board_debugprint(max_board_t const* board) {
             max_square_t sq = board->grid[rank * 10 + 10 + file];
             char code = piece_chars[sq & MAX_PIECECODE_MASK];
 
-            if((sq & MAX_COLOR_MASK) != MAX_COLOR_WHITE) {
+            if((sq & MAX_PIECECODE_MASK) != MAX_PIECE_EMPTY && (sq & MAX_COLOR_MASK) != MAX_COLOR_WHITE) {
                 code = (code - 'a') + 'A';
             }
 

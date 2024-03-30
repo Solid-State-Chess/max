@@ -9,25 +9,27 @@
 /// Index into a 10x12 chess board
 typedef uint8_t max_square_idx_t;
 
-typedef uint8_t max_move_flags_t;
+typedef uint8_t max_move_attr_t;
 
 enum {
-    MAX_MOVE_EN_PASSANT = 0b00000001,
-    MAX_MOVE_QCASTLE    = 0b00000010,
-    MAX_MOVE_KCASTLE    = 0b00000100
+    MAX_MOVE_NORMAL = 0,
+    MAX_MOVE_CAPTURE = 0b0000001,
+    MAX_MOVE_EN_PASSANT,  
+    MAX_MOVE_QCASTLE,
+    MAX_MOVE_KCASTLE,
 };
 
 typedef struct {
     max_square_idx_t from;
     max_square_idx_t to;
-    max_move_flags_t flags;
+    max_move_attr_t attr;
 } max_move_t;
 
-#define MAX_MOVELIST_MAX_MOVES (50)
+#define MAX_MOVELIST_LEN (50)
 
 /// A statically-allocated list of moves to append to when searching a move tree
 typedef struct {
-    max_move_t moves[MAX_MOVELIST_MAX_MOVES];
+    max_move_t moves[MAX_MOVELIST_LEN];
     uint8_t len;
 } max_movelist_t;
 

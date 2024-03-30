@@ -34,15 +34,15 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
             max_square_t above = board->grid[next];                                                     \
             if(above != MAX_INVALID_SQUARE) {                                                           \
                 if(above == MAX_EMPTY_SQUARE) {                                                         \
-                    max_movelist_add(moves, (max_move_t){.from = i, .to = next, .flags = 0});           \
+                    max_movelist_add(moves, (max_move_t){.from = i, .to = next, .attr = MAX_MOVE_NORMAL});            \
                 }                                                                                       \
                 max_square_t right = board->grid[next + 1];                                             \
                 max_square_t left  = board->grid[next - 1];                                             \
                 if(right > MAX_EMPTY_SQUARE && (right & MAX_COLOR_MASK) == enemy) {                     \
-                    max_movelist_add(moves, (max_move_t){.from = i, .to = next + 1, .flags = 0});       \
+                    max_movelist_add(moves, (max_move_t){.from = i, .to = next + 1, .attr = MAX_MOVE_CAPTURE});        \
                 }                                                                                       \
                 if(right > MAX_EMPTY_SQUARE && (left & MAX_COLOR_MASK) == enemy) {                      \
-                    max_movelist_add(moves, (max_move_t){.from = i, .to = next - 1, .flags = 0});       \
+                    max_movelist_add(moves, (max_move_t){.from = i, .to = next - 1, .attr = MAX_MOVE_CAPTURE});        \
                 }                                                                                       \
             }                                                                                           \
         } while(0)
@@ -61,7 +61,7 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         #define KNIGHTATTACK(idx) do {                                                                  \
             max_square_t sq = board->grid[(idx)];                                                       \
             if(sq >= MAX_EMPTY_SQUARE && (sq & MAX_COLOR_MASK) != color || sq == MAX_EMPTY_SQUARE) {    \
-                max_movelist_add(moves, (max_move_t){.from = i, .to = (idx), .flags = 0});              \
+                max_movelist_add(moves, (max_move_t){.from = i, .to = (idx), .attr = (sq | (sq >> 1) | (sq >> 2)) & 1}); \
             }                                                                                           \
         } while(0)
 
@@ -74,8 +74,6 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         KNIGHTATTACK(i - 8);
         KNIGHTATTACK(i + 8);
         KNIGHTATTACK(i - 12);
-
-        #undef KNIGHTATTACK
     }
     bishop: {
         uint8_t color = piece & MAX_COLOR_MASK;
@@ -85,10 +83,10 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
                 max_square_t sq = board->grid[next];                                                        \
                 if(sq <= MAX_INVALID_SQUARE) { break; }                                                     \
                 if(sq == MAX_EMPTY_SQUARE) {                                                                \
-                    max_movelist_add(moves, (max_move_t){.from = i, .to = next, .flags = 0});               \
+                    max_movelist_add(moves, (max_move_t){.from = i, .to = next, .attr = MAX_MOVE_NORMAL});          \
                 } else {                                                                                    \
                     if((sq & MAX_COLOR_MASK) != color) {                                                    \
-                        max_movelist_add(moves, (max_move_t){.from = i, .to = next, .flags = 0});           \
+                        max_movelist_add(moves, (max_move_t){.from = i, .to = next, .attr = MAX_MOVE_CAPTURE});     \
                     }                                                                                       \
                     break;                                                                                  \
                 }                                                                                           \
@@ -121,7 +119,18 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         RAYATTACK(-, 1);
         continue;
     }
-    king:
-    
+    king: {
+        uint8_t color = piece & MAX_COLOR_MASK;
+        KNIGHTATTACK(i + 9);
+        KNIGHTATTACK(i + 10);
+        KNIGHTATTACK(i + 11);
+        KNIGHTATTACK(i + 1);
+        KNIGHTATTACK(i - 1);
+        KNIGHTATTACK(i - 11);
+        KNIGHTATTACK(i - 9);
+
+        #undef KNIGHTATTACK
+        continue;
+    }
     }
 }
