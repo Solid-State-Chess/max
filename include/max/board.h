@@ -14,8 +14,6 @@ enum {
 
 typedef uint8_t max_state_t;
 
-typedef uint8_t max_lidx_t;
-
 /// All state for one side of a chess game
 typedef struct {
     max_pieces_t piecelist;

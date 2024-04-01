@@ -1,6 +1,5 @@
 #include "max.h"
 #include "max/board.h"
-#include "max/def.h"
 #include "max/move.h"
 #include "max/piece.h"
 #include "max/square.h"
@@ -8,7 +7,7 @@
 
 void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
     //Homerow lookup table, indexed by the current side to move
-    static max_bidx_t PAWN_HOMEROW[2] = {MAX_RANK_2, MAX_RANK_7};
+    static max_bidx_t PAWN_HOMEROW[2]  = {MAX_RANK_2, MAX_RANK_7};
     static max_increment_t PAWN_INC[2] = {MAX_INCREMENT_UP, MAX_INCREMENT_DOWN};
     
     uint8_t side = board->ply & 1;
