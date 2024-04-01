@@ -16,6 +16,7 @@ enum {
     MAX_MOVE_EN_PASSANT  = 2,  
     MAX_MOVE_QCASTLE     = 3,
     MAX_MOVE_KCASTLE     = 4,
+    MAX_MOVE_DOUBLE      = 5,
 };
 
 /// A move with specification for 'special' moves that require additional processing

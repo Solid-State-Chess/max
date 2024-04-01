@@ -5,14 +5,11 @@
 #include <stdint.h>
 
 
-enum {
-    /// Bitmask for a stack plate with the piece code, if any, of a captured piece with color bit
-    MAX_STATE_CAPTURED_MASK = 0b00001111,
-    MAX_STATE_WCASTLE_MASK  = 0b00110000,
-    MAX_STATE_BCASTLE_MASK  = 0b11000000,
-};
-
-typedef uint8_t max_state_t;
+/// Stack structure holding all pieces that have been captured, used for move unmaking
+typedef struct {
+    max_piececode_t captures[MAX_BOARD_PIECES_COUNT];
+    uint8_t head;
+} max_board_capturestack_t;
 
 /// All state for one side of a chess game
 typedef struct {
@@ -22,6 +19,7 @@ typedef struct {
 
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
+    /// Piece lists for white and black, tracking list position by square and square position by list position
     union {
         struct {
             max_sidestate_t white;
@@ -30,11 +28,12 @@ typedef struct {
 
         max_sidestate_t sides[2];
     };
-
+    
+    /// Piece code 0x88 array for directly looking up piece by square
     max_piececode_t pieces[MAX_BOARD_0x88_LEN];
     
-    /// Stack for all irreversible state changed when making moves
-    max_state_t stack[MAX_BOARD_MAX_PLY];
+    /// Tracking for the last captured piece for move unmaking
+    max_board_capturestack_t captures;
     
     /// Current ply count, indexes the state stack
     /// If the LSB is set (ply is odd), then black is to move

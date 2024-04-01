@@ -24,6 +24,10 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         if(max_bidx_valid(up)) {
             if(board->pieces[up.bits] == MAX_PIECECODE_EMPTY) {
                 max_movelist_add(moves, max_move_normal(pos, up));
+                max_bidx_t up2 = max_bidx_inc(up, PAWN_INC[side]);
+                if(board->pieces[up2.bits] == MAX_PIECECODE_EMPTY) {
+                    max_movelist_add(moves, max_move_new(pos, up2, MAX_MOVE_DOUBLE));
+                }
             }
 
             max_bidx_t right = max_bidx_inc(up, MAX_INCREMENT_RIGHT);
@@ -39,16 +43,16 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
 
     }
 
-    #define NORMALMOVE(to) do {     \
-        max_bidx_t dest = (to);     \
-        if(max_bidx_valid(dest)) {  \
-            max_piececode_t piece = board->pieces[dest.bits]; \
-            if(piece == MAX_PIECECODE_EMPTY) {                \
-                max_movelist_add(moves, max_move_normal(pos, dest)); \
-            } else if(piece & enemy_color) { \
+    #define NORMALMOVE(to) do {                                       \
+        max_bidx_t dest = (to);                                       \
+        if(max_bidx_valid(dest)) {                                    \
+            max_piececode_t piece = board->pieces[dest.bits];         \
+            if(piece == MAX_PIECECODE_EMPTY) {                        \
+                max_movelist_add(moves, max_move_normal(pos, dest));  \
+            } else if(piece & enemy_color) {                          \
                 max_movelist_add(moves, max_move_capture(pos, dest)); \
-            } \
-        } \
+            }                                                         \
+        }                                                             \
     } while(0)
 
     for(max_lidx_t i = 0; i < state->piecelist.knights.len; ++i) {
