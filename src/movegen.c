@@ -1,9 +1,58 @@
 #include "max.h"
 #include "max/board.h"
+#include "max/def.h"
 #include "max/move.h"
 #include "max/piece.h"
 #include "max/square.h"
 #include <stdbool.h>
+
+/// Generate a sliding attack in the given direction
+static MAX_INLINE_ALWAYS void max_slidegen(
+    max_movelist_t *const moves,
+    max_board_t *const board,
+    max_piececode_t enemy,
+    max_bidx_t start,
+    max_increment_t dir
+) {
+    max_bidx_t pos = start;
+    for(;;) {
+        pos = max_bidx_inc(pos, dir);
+        if(!max_bidx_valid(pos)) { break; }
+        max_piececode_t square = board->pieces[pos.bits];
+        if(square == MAX_PIECECODE_EMPTY) {
+            max_movelist_add(moves, max_move_normal(start, pos));
+        } else {
+            if(square & enemy) {
+                max_movelist_add(moves, max_move_capture(start, pos));
+            }
+            break;
+        }
+    }
+}
+
+static MAX_INLINE_ALWAYS void max_bishopgen(
+    max_movelist_t *const moves,
+    max_board_t *const board,
+    max_piececode_t enemy,
+    max_bidx_t start
+) {
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_UP + MAX_INCREMENT_RIGHT);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_UP + MAX_INCREMENT_LEFT);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT);
+}
+
+static MAX_INLINE_ALWAYS void max_rookgen(
+    max_movelist_t *const moves,
+    max_board_t *const board,
+    max_piececode_t enemy,
+    max_bidx_t start
+) {
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_UP);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_RIGHT);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_DOWN);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_LEFT);
+}
 
 void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
     //Homerow lookup table, indexed by the current side to move
@@ -69,5 +118,18 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
 
         NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT + MAX_INCREMENT_UP));
         NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT + MAX_INCREMENT_DOWN));
+    }
+
+    for(max_lidx_t i = 0; i < state->piecelist.bishops.len; ++i) {
+        max_bishopgen(moves, board, enemy_color, state->piecelist.bishops.pos[i]);
+    }
+
+    for(max_lidx_t i = 0; i < state->piecelist.rooks.len; ++i) {
+        max_rookgen(moves, board, enemy_color, state->piecelist.rooks.pos[i]);
+    }
+
+    for(max_lidx_t i = 0; i < state->piecelist.queens.len; ++i) {
+        max_rookgen(moves, board, enemy_color, state->piecelist.queens.pos[i]);
+        max_bishopgen(moves, board, enemy_color, state->piecelist.queens.pos[i]);
     }
 }
