@@ -1,21 +1,12 @@
 #pragma once
 #include <stdint.h>
+#include "max/square.h"
 
 #define MAX_TOTAL_PAWNS (8)
 #define MAX_TOTAL_KNIGHTS (10)
 #define MAX_TOTAL_BISHOPS (10)
 #define MAX_TOTAL_ROOKS (10)
 #define MAX_TOTAL_QUEENS (9)
-
-/// Index into a 0x88 board
-typedef union {
-    struct {
-        uint8_t file : 4;
-        uint8_t rank : 4;
-    } parts;
-
-    uint8_t bits;
-} max_bidx_t;
 
 /// A complete list of the positions of all the pieces on one side of a chess game
 typedef struct {

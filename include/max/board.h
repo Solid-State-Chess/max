@@ -16,13 +16,24 @@ typedef uint8_t max_state_t;
 
 typedef uint8_t max_lidx_t;
 
+/// All state for one side of a chess game
+typedef struct {
+    max_pieces_t piecelist;
+    max_lidx_t   index[MAX_BOARD_0x88_LEN];
+} max_sidestate_t;
+
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
-    max_pieces_t white;
-    max_pieces_t black;
-    max_lidx_t white_index[128];
-    max_lidx_t black_index[128];
-    max_piececode_t pieces[128];
+    union {
+        struct {
+            max_sidestate_t white;
+            max_sidestate_t black;
+        };
+
+        max_sidestate_t sides[2];
+    };
+
+    max_piececode_t pieces[MAX_BOARD_0x88_LEN];
     
     /// Stack for all irreversible state changed when making moves
     max_state_t stack[MAX_BOARD_MAX_PLY];

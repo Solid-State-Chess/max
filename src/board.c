@@ -5,9 +5,12 @@
 #include <string.h>
 
 
+static void max_board_init_lists(max_board_t *const board);
+
 void max_board_new(max_board_t *const board) {
     board->ply = 0;
     memset(&board->pieces, MAX_PIECECODE_INVAL, sizeof(board->pieces));
+    memset(board->sides, 0, sizeof(board->sides));
 }
 
 void max_board_reset(max_board_t *const board) {
@@ -38,6 +41,40 @@ void max_board_reset(max_board_t *const board) {
 
     board->pieces[MAX_E1] = MAX_PIECECODE_KING | MAX_PIECECODE_WHITE;
     board->pieces[MAX_E8] = MAX_PIECECODE_KING | MAX_PIECECODE_BLACK;
+
+    max_board_init_lists(board);
+}
+
+/// Initialize piece lists for each side by iterating through each square
+static void max_board_init_lists(max_board_t *const board) {
+    for(uint8_t x = 0; x < 8; ++x) {
+        for(uint8_t y = 0; y < 8; ++y) {
+            max_bidx_t pos = (max_bidx_t){.parts.file = x, .parts.rank = y};
+            max_piececode_t piece = board->pieces[pos.bits];
+            
+            if(piece == MAX_PIECECODE_INVAL) {
+                board->pieces[pos.bits] = MAX_PIECECODE_EMPTY;
+                continue;
+            }
+
+            max_bidx_t *array = NULL;
+            max_lidx_t *len      = NULL;
+            max_sidestate_t *state = &board->sides[(piece & MAX_PIECECODE_BLACK) >> 6];
+
+            switch(piece & MAX_PIECECODE_TYPE_MASK) {
+                case MAX_PIECECODE_PAWN: {
+                    array = state->piecelist.pawns;
+                    len   = &state->piecelist.pawn_count;
+                } break;
+            }
+            
+            if(array != NULL) {
+            array[*len] = pos;
+            state->index[pos.bits] = *len;
+            *len += 1;
+            }
+        }
+    }
 }
 
 #define MOVE(from, to) do {                         \

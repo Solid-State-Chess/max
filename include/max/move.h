@@ -1,27 +1,27 @@
 #pragma once
 #include "max/def.h"
+#include "max/square.h"
 #include <stdint.h>
 
 #ifdef MAX_DEBUG
 #include <assert.h>
 #endif
 
-/// Index into a 10x12 chess board
-typedef uint8_t max_square_idx_t;
 
 typedef uint8_t max_move_attr_t;
 
 enum {
-    MAX_MOVE_NORMAL = 0,
-    MAX_MOVE_CAPTURE = 0b0000001,
-    MAX_MOVE_EN_PASSANT,  
-    MAX_MOVE_QCASTLE,
-    MAX_MOVE_KCASTLE,
+    MAX_MOVE_NORMAL      = 0,
+    MAX_MOVE_CAPTURE     = 1,
+    MAX_MOVE_EN_PASSANT  = 2,  
+    MAX_MOVE_QCASTLE     = 3,
+    MAX_MOVE_KCASTLE     = 4,
 };
 
+/// A move with specification for 'special' moves that require additional processing
 typedef struct {
-    max_square_idx_t from;
-    max_square_idx_t to;
+    max_bidx_t from;
+    max_bidx_t to;
     max_move_attr_t attr;
 } max_move_t;
 
@@ -51,4 +51,19 @@ MAX_INLINE_ALWAYS void max_movelist_add(max_movelist_t *const list, max_move_t m
 
     list->moves[list->len] = move;
     list->len += 1;
+}
+
+/// Create a new move with custom attributes
+MAX_INLINE_ALWAYS max_move_t max_move_new(max_bidx_t from, max_bidx_t to, max_move_attr_t attr) {
+    return (max_move_t){.from = from, .to = to, .attr = attr};
+}
+
+/// Create a new normal (no captures) move
+MAX_INLINE_ALWAYS max_move_t max_move_normal(max_bidx_t from, max_bidx_t to) {
+    return max_move_new(from, to, MAX_MOVE_NORMAL);
+}
+
+/// Create a move which captures a piece
+MAX_INLINE_ALWAYS max_move_t max_move_capture(max_bidx_t from, max_bidx_t to) {
+    return max_move_new(from, to, MAX_MOVE_CAPTURE);
 }

@@ -4,6 +4,9 @@
 /// Maximum number of pieces that may be on a chessboard
 #define MAX_BOARD_PIECES_COUNT (32)
 
+/// Length of a one-dimensional array representing a chessboard
+#define MAX_BOARD_0x88_LEN (128)
+
 #ifdef __GNUC__
 
 #define MAX_INLINE_ALWAYS inline __attribute__((always_inline))
