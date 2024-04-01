@@ -11,6 +11,7 @@ void max_board_new(max_board_t *const board) {
     board->ply = 0;
     memset(&board->pieces, MAX_PIECECODE_INVAL, sizeof(board->pieces));
     memset(board->sides, 0, sizeof(board->sides));
+    memset(&board->captures, 0, sizeof(board->captures));
 }
 
 void max_board_reset(max_board_t *const board) {
@@ -66,11 +67,57 @@ static void max_board_postinit(max_board_t *const board) {
 
 
 void max_board_make_move(max_board_t *const board, max_move_t move) {
+    max_piececode_t piece = board->pieces[move.from.bits];
+    max_sidestate_t *side = max_board_get_to_move(board);
+    max_piecelist_t *list = max_pieces_get_list(&side->piecelist, piece);
 
+
+    max_lidx_t index = side->index[move.from.bits];
+
+    switch(move.attr) {
+        case MAX_MOVE_CAPTURE: {
+            max_sidestate_t *enemy = max_board_get_enemy(board);
+
+            max_piececode_t captured = board->pieces[move.to.bits];
+            max_lidx_t captured_idx  = enemy->index[move.to.bits];
+
+            max_capturestack_push(&board->captures, captured);
+
+            max_piecelist_remove(max_pieces_get_list(&enemy->piecelist, captured), captured_idx);
+        } break;
+    }
+
+    board->pieces[move.to.bits] = piece;
+    board->pieces[move.from.bits] = MAX_PIECECODE_EMPTY;
+    side->index[move.to.bits] = index;
+    list->pos[index] = move.to;
+    board->ply += 1;
 }
 
 void max_board_unmake_move(max_board_t *const board, max_move_t move) {
+    board->ply -= 1;
+    max_piececode_t piece = board->pieces[move.to.bits];
+    max_sidestate_t *side = max_board_get_to_move(board);
+    max_piecelist_t *list = max_pieces_get_list(&side->piecelist, piece);
+    max_lidx_t index = side->index[move.to.bits];
 
+    switch(move.attr) {
+        case MAX_MOVE_NORMAL:
+        case MAX_MOVE_DOUBLE: {
+            board->pieces[move.to.bits] = MAX_PIECECODE_EMPTY;
+        } break;
+        case MAX_MOVE_CAPTURE: {
+            max_sidestate_t *enemy = max_board_get_enemy(board);
+            max_piececode_t captured = max_capturestack_pop(&board->captures);
+            max_lidx_t captured_idx = max_piecelist_add(max_pieces_get_list(&enemy->piecelist, captured), move.to);
+            enemy->index[move.to.bits] = captured_idx;
+            board->pieces[move.to.bits] = captured;
+        } break;
+    }
+
+    board->pieces[move.from.bits] = piece;
+    side->index[move.from.bits]  = index;
+    list->pos[index] = move.from;
 }
 
 

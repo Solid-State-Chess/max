@@ -1,3 +1,4 @@
+#include "max/square.h"
 #define MAX_CONSOLE
 #include "max.h"
 #include "max/move.h"
@@ -22,6 +23,7 @@ size_t board_recur(max_board_t *board, unsigned n) {
     return count;
 }
 
+
 int board_tests(void) {
     max_board_t board;
     max_board_reset(&board);
@@ -29,11 +31,13 @@ int board_tests(void) {
     max_movelist_t moves;
     max_movelist_new(&moves);
     max_movegen(&moves, &board);
-    size_t count = board_recur(&board, 2);
-
-    max_board_debugprint(&board);
+    
+    size_t count = board_recur(&board, 7);
 
     printf("%zu POSITIONS\n", count);
+
+
+    max_board_debugprint(&board);
 
     for(unsigned i = 0; i < moves.len; ++i) {
         max_bidx_t from = moves.moves[i].from;
