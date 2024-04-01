@@ -89,7 +89,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
             MOVE(move.from - 1, move.to - 1);
             
             board->stack[board->ply + 1] = (board->stack[board->ply]) & ~(MAX_STATE_WCASTLE_MASK << ((board->ply & 1) << 1));
-        }
+        } break;
     }
 
     board->ply += 1;

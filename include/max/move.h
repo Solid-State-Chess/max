@@ -25,7 +25,7 @@ typedef struct {
     max_move_attr_t attr;
 } max_move_t;
 
-#define MAX_MOVELIST_LEN (50)
+#define MAX_MOVELIST_LEN (256)
 
 /// A statically-allocated list of moves to append to when searching a move tree
 typedef struct {
