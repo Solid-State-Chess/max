@@ -57,16 +57,9 @@ static void max_board_postinit(max_board_t *const board) {
                 continue;
             }
             
-
             max_sidestate_t *state = &board->sides[(piece & MAX_PIECECODE_BLACK) >> 6];
-
-            max_bidx_t *array = max_pieces_get_array(&state->piecelist, piece);
-            max_lidx_t *len      = NULL;
-
-
-            array[*len] = pos;
-            state->index[pos.bits] = *len;
-            *len += 1;
+            max_piecelist_t *list = max_pieces_get_list(&state->piecelist, piece);
+            state->index[pos.bits] = max_piecelist_add(list, pos);
         }
     }
 }

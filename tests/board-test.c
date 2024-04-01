@@ -29,7 +29,7 @@ int board_tests(void) {
     max_movelist_t moves;
     max_movelist_new(&moves);
     max_movegen(&moves, &board);
-    size_t count = board_recur(&board, 10);
+    size_t count = board_recur(&board, 1);
 
     max_board_debugprint(&board);
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include "max/def.h"
 #include "max/square.h"
 
 #define MAX_TOTAL_PAWNS (8)
@@ -17,6 +18,12 @@ typedef struct {
     max_lidx_t len;
     max_bidx_t pos[];
 } max_piecelist_t;
+
+/// Add the given board position to this piece list
+MAX_INLINE_ALWAYS max_lidx_t max_piecelist_add(max_piecelist_t *list, max_bidx_t pos) {
+    list->pos[list->len] = pos;
+    return list->len++;
+}
 
 #define PIECELIST(size) struct { max_lidx_t len; max_bidx_t pos[(size)]; }
 
@@ -60,5 +67,5 @@ MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max
         [MAX_PIECECODE_KING]   = offsetof(max_pieces_t, king)
     };
 
-    return (max_piecelist_t*)(pieces + lookup[piece & MAX_PIECECODE_TYPE_MASK]);
+    return (max_piecelist_t*)((void*)pieces + lookup[piece & MAX_PIECECODE_TYPE_MASK]);
 }
