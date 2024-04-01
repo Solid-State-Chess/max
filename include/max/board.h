@@ -1,41 +1,9 @@
 #pragma once
 #include "max/def.h"
 #include "max/move.h"
+#include "max/piece.h"
 #include <stdint.h>
 
-/// Piece codes used in the lower 3 bits of a byte position
-enum {
-    MAX_PIECE_EMPTY = 0,
-    /// White and black pawns have separate piece codes to speed up lookup table
-    /// driven move generation (pawns are the only piece whose move direction is affected by color)
-    MAX_WPAWN   = 1,
-    MAX_BPAWN   = 2,
-    MAX_KNIGHT  = 3,
-    MAX_BISHOP  = 4,
-    MAX_ROOK    = 5,
-    MAX_QUEEN   = 6,
-    MAX_KING    = 7,
-};
-
-/// Square index packed into one byte
-typedef struct {
-    uint8_t file : 3;
-    uint8_t rank : 3;
-} max_packed_idx_t;
-
-enum {
-    MAX_PIECECODE_MASK = 0b00000111,
-   
-    MAX_COLOR_MASK     = 0b00001000,
-    MAX_COLOR_WHITE    = 0b00001000,
-    MAX_COLOR_BLACK    = 0b00000000,
-    
-    MAX_INVALID_SQUARE = (int8_t)0b10000000,
-    MAX_EMPTY_SQUARE   = 0b00000000,
-};
-
-/// A single square stored in the 10x12 board array
-typedef int8_t max_square_t;
 
 enum {
     /// Bitmask for a stack plate with the piece code, if any, of a captured piece with color bit
@@ -46,10 +14,15 @@ enum {
 
 typedef uint8_t max_state_t;
 
-/// Chessboard representation with side to move, castling rights
+typedef uint8_t max_lidx_t;
+
+/// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
-    /// Grid including sentinel ranks and files used to speed up out of bounds detection
-    max_square_t grid[120];
+    max_pieces_t white;
+    max_pieces_t black;
+    max_lidx_t white_index[128];
+    max_lidx_t black_index[128];
+    max_piececode_t pieces[128];
     
     /// Stack for all irreversible state changed when making moves
     max_state_t stack[MAX_BOARD_MAX_PLY];
@@ -59,8 +32,6 @@ typedef struct {
     uint16_t ply;
 } max_board_t;
 
-/// Lookup table for valid squares on a 10x12 board
-extern const max_square_idx_t lookup_index_10x12[64];
 
 /// Create an empty chessboard with NO pieces, only sentinel values in array and empty squares
 /// at their valid indices
