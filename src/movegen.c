@@ -1,4 +1,3 @@
-#include "max.h"
 #include "max/board.h"
 #include "max/def.h"
 #include "max/move.h"
@@ -37,10 +36,10 @@ static MAX_INLINE_ALWAYS void max_bishopgen(
     max_piececode_t enemy,
     max_bidx_t start
 ) {
-    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_UP + MAX_INCREMENT_RIGHT);
-    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT);
-    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_UP + MAX_INCREMENT_LEFT);
-    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_UR);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_DR);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_UL);
+    max_slidegen(moves, board, enemy, start, MAX_INCREMENT_DL);
 }
 
 static MAX_INLINE_ALWAYS void max_rookgen(
@@ -55,7 +54,8 @@ static MAX_INLINE_ALWAYS void max_rookgen(
     max_slidegen(moves, board, enemy, start, MAX_INCREMENT_LEFT);
 }
 
-void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
+MAX_HOT
+void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const moves) {
     //Homerow lookup table, indexed by the current side to move
     static max_bidx_t PAWN_HOMEROW[2]  = {MAX_RANK_2, MAX_RANK_7};
     //Rank that an enemy pawn would be en passanted at
@@ -119,18 +119,18 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
 
     for(max_lidx_t i = 0; i < state->piecelist.knights.len; ++i) {
         max_bidx_t pos = state->piecelist.knights.pos[i];
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UP + MAX_INCREMENT_RIGHT));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UP + MAX_INCREMENT_LEFT));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UR));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UL));
 
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DR));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DL));
 
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_RIGHT + MAX_INCREMENT_UP));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_RIGHT + MAX_INCREMENT_DOWN));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_UR));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_DR));
 
 
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT + MAX_INCREMENT_UP));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT + MAX_INCREMENT_DOWN));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_UL));
+        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_DL));
     }
 
     for(max_lidx_t i = 0; i < state->piecelist.bishops.len; ++i) {
@@ -151,8 +151,8 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
     NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN));
     NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT));
     NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_LEFT));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_RIGHT));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UR));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UL));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DR));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DL));
 }

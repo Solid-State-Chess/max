@@ -68,7 +68,7 @@ static void max_board_postinit(max_board_t *const board) {
     }
 }
 
-
+MAX_HOT
 void max_board_make_move(max_board_t *const board, max_move_t move) {
     static uint8_t KCASTLE_ROOK_SQUARE[2] = {MAX_H1, MAX_H8};
     static uint8_t QCASTLE_ROOK_SQUARE[2] = {MAX_A1, MAX_A8};
@@ -149,6 +149,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     #undef CAPTUREPIECE
 }
 
+MAX_HOT
 void max_board_unmake_move(max_board_t *const board, max_move_t move) {
     board->ply -= 1;
     uint8_t side_to_move = board->ply & 1;

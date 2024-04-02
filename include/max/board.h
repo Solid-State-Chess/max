@@ -73,6 +73,9 @@ MAX_INLINE_ALWAYS max_sidestate_t* max_board_get_enemy(max_board_t *board) {
 /// at their valid indices
 void max_board_new(max_board_t *const board);
 
+/// Generate all pseudo-valid moves for the current side to move on the given board
+void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const moves);
+
 /// Reset the given chessboard to the starting configuration
 void max_board_reset(max_board_t *const board);
 
@@ -82,11 +85,13 @@ void max_board_make_move(max_board_t *const board, max_move_t move);
 /// Unmake the given move, restoring any captured pieces and ep / castling state
 void max_board_unmake_move(max_board_t *const board, max_move_t move);
 
+/// Add a piece to the given capture stack
 MAX_INLINE_ALWAYS void max_capturestack_push(max_board_capturestack_t *stack, max_piececode_t piece) {
     stack->captures[stack->head] = piece;
     stack->head += 1;
 }
 
+/// Pop the top element from the capture stack
 MAX_INLINE_ALWAYS max_piececode_t max_capturestack_pop(max_board_capturestack_t *stack) {
     stack->head -= 1;
     max_piececode_t piece = stack->captures[stack->head];

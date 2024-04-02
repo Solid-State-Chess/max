@@ -11,12 +11,16 @@
 
 #define MAX_INLINE_ALWAYS inline __attribute__((always_inline))
 
+#define MAX_HOT __attribute__((hot))
+
 #elif defined(_MSC_VER)
 
 #define MAX_INLINE_ALWAYS inline __forceinline
+#define MAX_HOT
 
 #else
 
 #define MAX_INLINE_ALWAYS inline
+#define MAX_HOT
 
 #endif

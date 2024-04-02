@@ -2,34 +2,37 @@
 #include <stdlib.h>
 #include <string.h>
 #define MAX_CONSOLE
-#include "max.h"
 #include "max/move.h"
 #include "test.h"
 #include "max/board.h"
 
 
-size_t board_recur(max_board_t *board, unsigned n) {
+size_t perft(max_board_t *board, unsigned n) {
     size_t count = 0;
     if(n == 0) { return 1; }
     max_movelist_t moves;
     max_movelist_new(&moves);
     
-    max_movegen(&moves, board);
+    max_board_movegen_pseudo(board, &moves);
 
     for(unsigned i = 0; i < moves.len; ++i) {
-        max_board_t before;
-        memcpy(&before, board, sizeof(before));
+        /*max_board_t before;
+        memcpy(&before, board, sizeof(before));*/
         max_board_make_move(board, moves.moves[i]);
-        max_board_t after;
-        memcpy(&after, board, sizeof(after));
-        count += board_recur(board, n - 1);
+        if(board->white.piecelist.king.len == 0 || board->black.piecelist.king.len == 0) {
+            max_board_unmake_move(board, moves.moves[i]);
+            continue;
+        }
+        /*max_board_t after;
+        memcpy(&after, board, sizeof(after));*/
+        count += perft(board, n - 1);
         max_board_unmake_move(board, moves.moves[i]);
-        if(memcmp(before.pieces, board->pieces, sizeof(board->pieces)) != 0) {
+        /*if(memcmp(before.pieces, board->pieces, sizeof(board->pieces)) != 0) {
             max_board_debugprint(&before);
             max_board_debugprint(&after);
             max_board_debugprint(board);
             exit(-1);
-        }
+        }*/
     }
 
     return count;
@@ -40,14 +43,15 @@ int board_tests(void) {
     max_board_t board;
     max_board_reset(&board);
 
-    size_t count = board_recur(&board, 4);
+    size_t count = perft(&board, 5);
 
     printf("%zu POSITIONS\n", count);
     
     for(;;) {
         max_movelist_t moves;
         max_movelist_new(&moves);
-        max_movegen(&moves, &board);
+
+        max_board_movegen_pseudo(&board, &moves);
 
         max_board_debugprint(&board);
         
