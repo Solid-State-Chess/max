@@ -4,6 +4,7 @@
 #include "max/move.h"
 #include "max/piece.h"
 #include "max/square.h"
+#include "private.h"
 #include <stdbool.h>
 
 /// Generate a sliding attack in the given direction
@@ -57,15 +58,20 @@ static MAX_INLINE_ALWAYS void max_rookgen(
 void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
     //Homerow lookup table, indexed by the current side to move
     static max_bidx_t PAWN_HOMEROW[2]  = {MAX_RANK_2, MAX_RANK_7};
-    static max_increment_t PAWN_INC[2] = {MAX_INCREMENT_UP, MAX_INCREMENT_DOWN};
+    //Rank that an enemy pawn would be en passanted at
+    static max_bidx_t PAWN_EPRANK[2]   = {MAX_RANK_5, MAX_RANK_4};
+    //Pawn travel direction indexed by the side to move
     
     uint8_t side = board->ply & 1;
     max_sidestate_t *state = &board->sides[side];
     max_sidestate_t *enemy = &board->sides[side ^ 1];
 
-    max_bidx_t pawn_homerow = PAWN_HOMEROW[side];
     max_piececode_t enemy_color = MAX_PIECECODE_BLACK >> side;
 
+
+    max_bidx_t pawn_homerow = PAWN_HOMEROW[side];
+    //If the EP file is invalid on the stack, then this will be an invalid index
+    max_bidx_t epsquare = (max_bidx_t){.bits = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side].bits };
     for(max_lidx_t i = 0; i < state->piecelist.pawns.len; ++i) {
         max_bidx_t pos = state->piecelist.pawns.pos[i];
         max_bidx_t up = max_bidx_inc(pos, PAWN_INC[side]);
@@ -87,6 +93,13 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
             max_bidx_t left = max_bidx_inc(up, MAX_INCREMENT_LEFT);
             if(max_bidx_valid(left) && (board->pieces[left.bits] & enemy_color)) {
                 max_movelist_add(moves, max_move_capture(pos, left));
+            }
+
+            if(max_bidx_valid(epsquare)) {
+                if(max_bidx_inc(pos, MAX_INCREMENT_RIGHT).bits == epsquare.bits || max_bidx_inc(pos, MAX_INCREMENT_LEFT).bits == epsquare.bits) {
+                    max_bidx_t moveto = max_bidx_inc(epsquare, PAWN_INC[side]);
+                    max_movelist_add(moves, max_move_new(pos, moveto, MAX_MOVE_EN_PASSANT));
+                }
             }
         }
 
@@ -132,4 +145,14 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
         max_rookgen(moves, board, enemy_color, state->piecelist.queens.pos[i]);
         max_bishopgen(moves, board, enemy_color, state->piecelist.queens.pos[i]);
     }
+   
+    max_bidx_t pos = state->piecelist.king.pos[0];
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_LEFT));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_RIGHT));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT));
+    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT));
 }

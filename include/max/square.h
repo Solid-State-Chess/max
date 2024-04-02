@@ -4,16 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/// Position on a 0x88 board
-typedef union {
-    struct {
-        uint8_t file : 4;
-        uint8_t rank : 4;
-    } parts;
-
-    uint8_t bits;
-} max_bidx_t;
-
+typedef uint8_t max_bidx_t;
 
 #define FILE(letter, lsn)         \
     MAX_##letter##1 = 0x0##lsn,   \
@@ -61,14 +52,14 @@ enum {
 };
 
 /// Check if the given position is valid or out of bounds
-MAX_INLINE_ALWAYS bool max_bidx_valid(max_bidx_t pos) { return (pos.bits & 0x88) == 0; }
+MAX_INLINE_ALWAYS bool max_bidx_valid(max_bidx_t pos) { return (pos & 0x88) == 0; }
 
 /// Type representing board position increments
 typedef int8_t max_increment_t;
 
 /// Apply the given increment to the given position
 MAX_INLINE_ALWAYS max_bidx_t max_bidx_inc(max_bidx_t pos, max_increment_t inc) {
-    return (max_bidx_t){.bits = pos.bits + inc};
+    return pos + inc;
 }
 
 enum {

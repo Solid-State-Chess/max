@@ -32,7 +32,7 @@ int board_tests(void) {
     max_movelist_new(&moves);
     max_movegen(&moves, &board);
     
-    size_t count = board_recur(&board, 4);
+    size_t count = board_recur(&board, 5);
 
     printf("%zu POSITIONS\n", count);
 

@@ -17,6 +17,24 @@ typedef struct {
     max_lidx_t   index[MAX_BOARD_0x88_LEN];
 } max_sidestate_t;
 
+/// A plate in the history stack of a `max_board_t` tracking irreversible parts of the game to allow
+/// move unmaking
+///
+/// [2 bits for black castle rights] - [2 bits for white castle rights] - [4 bits for en passant file index]
+typedef uint8_t max_plyplate_t;
+
+enum {
+    /// Mask for 4 bits representing en passantable file (invalid file means no en passant in possible)
+    MAX_PLYPLATE_EP_MASK     = 0b00001111,
+    MAX_PLYPLATE_EP_INVALID  = MAX_PLYPLATE_EP_MASK,
+    MAX_PLYPLATE_WCASTLEMASK = 0b00110000,
+    MAX_PLYPLATE_BCASTLEMASK = 0b11000000,
+    MAX_PLYPLATE_QCASTLE     = 0b00000001,
+    MAX_PLYPLATE_KCASTLE     = 0b00000010,
+    /// Amount to bit shift `MAX_PLYPLATE_QCASTLE` to reach the white castle right bits
+    MAX_PLYPLATE_CASTLE_OFFSET = 5,
+};
+
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
     /// Piece lists for white and black, tracking list position by square and square position by list position
@@ -34,8 +52,9 @@ typedef struct {
     
     /// Tracking for the last captured piece for move unmaking
     max_board_capturestack_t captures;
+    /// A stack of all irreversible game state
+    max_plyplate_t stack[MAX_BOARD_MAX_PLY];
     
-    /// Current ply count, indexes the state stack
     /// If the LSB is set (ply is odd), then black is to move
     uint16_t ply;
 } max_board_t;
