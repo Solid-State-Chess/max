@@ -19,7 +19,7 @@ static MAX_INLINE_ALWAYS void max_slidegen(
     for(;;) {
         pos = max_bidx_inc(pos, dir);
         if(!max_bidx_valid(pos)) { break; }
-        max_piececode_t square = board->pieces[pos.bits];
+        max_piececode_t square = board->pieces[pos];
         if(square == MAX_PIECECODE_EMPTY) {
             max_movelist_add(moves, max_move_normal(start, pos));
         } else {
@@ -71,32 +71,32 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
 
     max_bidx_t pawn_homerow = PAWN_HOMEROW[side];
     //If the EP file is invalid on the stack, then this will be an invalid index
-    max_bidx_t epsquare = (max_bidx_t){.bits = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side].bits };
+    max_bidx_t epsquare = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side];
     for(max_lidx_t i = 0; i < state->piecelist.pawns.len; ++i) {
         max_bidx_t pos = state->piecelist.pawns.pos[i];
         max_bidx_t up = max_bidx_inc(pos, PAWN_INC[side]);
 
         if(max_bidx_valid(up)) {
-            if(board->pieces[up.bits] == MAX_PIECECODE_EMPTY) {
+            if(board->pieces[up] == MAX_PIECECODE_EMPTY) {
                 max_movelist_add(moves, max_move_normal(pos, up));
                 max_bidx_t up2 = max_bidx_inc(up, PAWN_INC[side]);
-                if(board->pieces[up2.bits] == MAX_PIECECODE_EMPTY) {
+                if((pos & MAX_RANK_MASK) == PAWN_HOMEROW[side] && board->pieces[up2] == MAX_PIECECODE_EMPTY) {
                     max_movelist_add(moves, max_move_new(pos, up2, MAX_MOVE_DOUBLE));
                 }
             }
 
             max_bidx_t right = max_bidx_inc(up, MAX_INCREMENT_RIGHT);
-            if(max_bidx_valid(right) && (board->pieces[right.bits] & enemy_color)) {
+            if(max_bidx_valid(right) && (board->pieces[right] & enemy_color)) {
                 max_movelist_add(moves, max_move_capture(pos, right));
             }
 
             max_bidx_t left = max_bidx_inc(up, MAX_INCREMENT_LEFT);
-            if(max_bidx_valid(left) && (board->pieces[left.bits] & enemy_color)) {
+            if(max_bidx_valid(left) && (board->pieces[left] & enemy_color)) {
                 max_movelist_add(moves, max_move_capture(pos, left));
             }
 
             if(max_bidx_valid(epsquare)) {
-                if(max_bidx_inc(pos, MAX_INCREMENT_RIGHT).bits == epsquare.bits || max_bidx_inc(pos, MAX_INCREMENT_LEFT).bits == epsquare.bits) {
+                if(max_bidx_inc(pos, MAX_INCREMENT_RIGHT) == epsquare || max_bidx_inc(pos, MAX_INCREMENT_LEFT) == epsquare) {
                     max_bidx_t moveto = max_bidx_inc(epsquare, PAWN_INC[side]);
                     max_movelist_add(moves, max_move_new(pos, moveto, MAX_MOVE_EN_PASSANT));
                 }
@@ -108,7 +108,7 @@ void max_movegen(max_movelist_t *const moves, max_board_t *const board) {
     #define NORMALMOVE(to) do {                                       \
         max_bidx_t dest = (to);                                       \
         if(max_bidx_valid(dest)) {                                    \
-            max_piececode_t piece = board->pieces[dest.bits];         \
+            max_piececode_t piece = board->pieces[dest];         \
             if(piece == MAX_PIECECODE_EMPTY) {                        \
                 max_movelist_add(moves, max_move_normal(pos, dest));  \
             } else if(piece & enemy_color) {                          \

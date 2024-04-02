@@ -6,6 +6,10 @@
 
 typedef uint8_t max_bidx_t;
 
+MAX_INLINE_ALWAYS max_bidx_t max_bidx_new(uint8_t file, uint8_t rank) {
+    return (rank << 4) + file;
+}
+
 #define FILE(letter, lsn)         \
     MAX_##letter##1 = 0x0##lsn,   \
     MAX_##letter##2 = 0x1##lsn,   \
@@ -41,14 +45,14 @@ enum {
 
 enum {
     MAX_RANK_MASK = 0xF0,
-    MAX_RANK_1    = 0x0,
-    MAX_RANK_2    = 0x1,
-    MAX_RANK_3    = 0x2,
-    MAX_RANK_4    = 0x3,
-    MAX_RANK_5    = 0x4,
-    MAX_RANK_6    = 0x5,
-    MAX_RANK_7    = 0x6,
-    MAX_RANK_8    = 0x7,
+    MAX_RANK_1    = 0x00,
+    MAX_RANK_2    = 0x10,
+    MAX_RANK_3    = 0x20,
+    MAX_RANK_4    = 0x30,
+    MAX_RANK_5    = 0x40,
+    MAX_RANK_6    = 0x50,
+    MAX_RANK_7    = 0x60,
+    MAX_RANK_8    = 0x70,
 };
 
 /// Check if the given position is valid or out of bounds

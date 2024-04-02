@@ -53,17 +53,17 @@ void max_board_reset(max_board_t *const board) {
 static void max_board_postinit(max_board_t *const board) {
     for(uint8_t x = 0; x < 8; ++x) {
         for(uint8_t y = 0; y < 8; ++y) {
-            max_bidx_t pos = (max_bidx_t){.parts.file = x, .parts.rank = y};
-            max_piececode_t piece = board->pieces[pos.bits];
+            max_bidx_t pos = max_bidx_new(x, y);
+            max_piececode_t piece = board->pieces[pos];
             
             if(piece == MAX_PIECECODE_INVAL) {
-                board->pieces[pos.bits] = MAX_PIECECODE_EMPTY;
+                board->pieces[pos] = MAX_PIECECODE_EMPTY;
                 continue;
             }
             
             max_sidestate_t *state = &board->sides[(piece & MAX_PIECECODE_BLACK) >> 6];
             max_piecelist_t *list = max_pieces_get_list(&state->piecelist, piece);
-            state->index[pos.bits] = max_piecelist_add(list, pos);
+            state->index[pos] = max_piecelist_add(list, pos);
         }
     }
 }
@@ -73,7 +73,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     static uint8_t KCASTLE_ROOK_SQUARE[2] = {MAX_H1, MAX_H8};
     static uint8_t QCASTLE_ROOK_SQUARE[2] = {MAX_A1, MAX_A8};
 
-    max_piececode_t piece = board->pieces[move.from.bits];
+    max_piececode_t piece = board->pieces[move.from];
     //0 if white, 1 if black
     uint8_t side_to_move = board->ply & 1;
 
@@ -82,7 +82,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     max_lidx_t moved_idx = side->index[move.from];
 
     max_plyplate_t state_plate = board->stack[board->ply] | MAX_PLYPLATE_EP_INVALID;
-    if(piece & MAX_PIECECODE_KING) {
+    /*if(piece & MAX_PIECECODE_KING) {
         state_plate &= ~(MAX_PLYPLATE_WCASTLEMASK << (side_to_move << 1));
     } else {
         if(piece & MAX_PIECECODE_ROOK) {
@@ -92,32 +92,34 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
                 state_plate &= ~((MAX_PLYPLATE_QCASTLE << MAX_PLYPLATE_CASTLE_OFFSET) << (side_to_move << 1));
             }
         }
-    }
+    }*/
 
     #define CAPTUREPIECE(at) do {                                                                   \
         max_sidestate_t *enemy = &board->sides[side_to_move ^ 1];                                   \
-        max_piececode_t captured = board->pieces[(at).bits];                                        \
-        max_lidx_t captured_idx  = enemy->index[(at).bits];                                         \
+        max_piececode_t captured = board->pieces[(at)];                                             \
+        max_lidx_t captured_idx  = enemy->index[(at)];                                              \
         max_capturestack_push(&board->captures, captured);                                          \
         max_piecelist_remove(max_pieces_get_list(&enemy->piecelist, captured), captured_idx);       \
     } while(0)
 
     #define SWAPROOK(from, to) do {                                                                \
-        board->pieces[(to).bits] = board->pieces[(from).bits];                                     \
-        board->pieces[(from).bits] = MAX_PIECECODE_EMPTY;                                          \
-        side->piecelist.rooks.pos[side->index[(from).bits]] = (to);                                \
+        board->pieces[(to)] = board->pieces[(from)];                                               \
+        board->pieces[(from)] = MAX_PIECECODE_EMPTY;                                               \
+        side->piecelist.rooks.pos[side->index[(from)]] = (to);                                     \
     } while(0)
 
     switch(move.attr) {
+        case MAX_MOVE_NORMAL: break;
         case MAX_MOVE_DOUBLE: {
+            state_plate &= ~(MAX_PLYPLATE_EP_INVALID);
             //Set the en-passant file
-            state_plate |= move.from & 0x7;
-            printf("DOUBLE %b\n", move.from >> 4);
+            state_plate |= move.from & 7;
         } break;
 
         case MAX_MOVE_EN_PASSANT: {
             max_bidx_t takeat = max_bidx_inc(move.to, PAWN_INC[side_to_move ^ 1]);
             CAPTUREPIECE(takeat);
+            board->pieces[takeat] = MAX_PIECECODE_EMPTY;
         } break;
         case MAX_MOVE_CAPTURE: CAPTUREPIECE(move.to); break;
 
@@ -134,9 +136,9 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
         } break;
     }
 
-    board->pieces[move.to.bits] = piece;
-    board->pieces[move.from.bits] = MAX_PIECECODE_EMPTY;
-    side->index[move.to.bits] = moved_idx;
+    board->pieces[move.to] = piece;
+    board->pieces[move.from] = MAX_PIECECODE_EMPTY;
+    side->index[move.to] = moved_idx;
     list->pos[moved_idx] = move.to;
 
     
@@ -149,28 +151,39 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
 
 void max_board_unmake_move(max_board_t *const board, max_move_t move) {
     board->ply -= 1;
-    max_piececode_t piece = board->pieces[move.to.bits];
-    max_sidestate_t *side = max_board_get_to_move(board);
+    uint8_t side_to_move = board->ply & 1;
+    max_piececode_t piece = board->pieces[move.to];
+    max_sidestate_t *side = &board->sides[side_to_move];
     max_piecelist_t *positions = max_pieces_get_list(&side->piecelist, piece);
 
-    max_lidx_t moved_index = side->index[move.to.bits];
+    max_lidx_t moved_index = side->index[move.to];
+
+    #define UNCAPTURE(from) do {                                                                                    \
+        max_sidestate_t *enemy = &board->sides[side_to_move ^ 1];                                                   \
+        max_piececode_t captured = max_capturestack_pop(&board->captures);                                          \
+        max_lidx_t captured_idx = max_piecelist_add(max_pieces_get_list(&enemy->piecelist, captured), (from));      \
+        enemy->index[(from)] = captured_idx;                                                                        \
+        board->pieces[(from)] = captured;                                                                           \
+    } while(0)
 
     switch(move.attr) {
         case MAX_MOVE_NORMAL:
         case MAX_MOVE_DOUBLE: {
-            board->pieces[move.to.bits] = MAX_PIECECODE_EMPTY;
+            board->pieces[move.to] = MAX_PIECECODE_EMPTY;
+        } break;
+
+        case MAX_MOVE_EN_PASSANT: {
+            max_bidx_t takeat = max_bidx_inc(move.to, PAWN_INC[side_to_move ^ 1]);
+            UNCAPTURE(takeat);
+            board->pieces[move.to] = MAX_PIECECODE_EMPTY;
         } break;
         case MAX_MOVE_CAPTURE: {
-            max_sidestate_t *enemy = max_board_get_enemy(board);
-            max_piececode_t captured = max_capturestack_pop(&board->captures);
-            max_lidx_t captured_idx = max_piecelist_add(max_pieces_get_list(&enemy->piecelist, captured), move.to);
-            enemy->index[move.to.bits] = captured_idx;
-            board->pieces[move.to.bits] = captured;
+            UNCAPTURE(move.to);
         } break;
     }
 
-    board->pieces[move.from.bits] = piece;
-    side->index[move.from.bits]  = moved_index;
+    board->pieces[move.from] = piece;
+    side->index[move.from]  = moved_index;
     positions->pos[moved_index] = move.from;
 }
 
@@ -194,7 +207,7 @@ void max_board_debugprint(max_board_t const* board) {
     while(rank != 0) {
         rank -= 1;
         for(uint8_t file = 0; file <= 7; ++file) {
-            max_piececode_t sq = board->pieces[(max_bidx_t){.parts.file = file, .parts.rank = rank}.bits];
+            max_piececode_t sq = board->pieces[max_bidx_new(file, rank)];
             char code = piece_chars[sq & MAX_PIECECODE_TYPE_MASK];
 
             if(sq != MAX_PIECECODE_EMPTY && (sq & MAX_PIECECODE_COLOR_MASK) != MAX_PIECECODE_WHITE) {
