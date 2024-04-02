@@ -11,11 +11,6 @@ typedef struct {
     uint8_t head;
 } max_board_capturestack_t;
 
-/// All state for one side of a chess game
-typedef struct {
-    max_pieces_t piecelist;
-    max_lidx_t   index[MAX_BOARD_0x88_LEN];
-} max_sidestate_t;
 
 /// A plate in the history stack of a `max_board_t` tracking irreversible parts of the game to allow
 /// move unmaking
@@ -40,11 +35,11 @@ typedef struct {
     /// Piece lists for white and black, tracking list position by square and square position by list position
     union {
         struct {
-            max_sidestate_t white;
-            max_sidestate_t black;
+            max_pieces_t white;
+            max_pieces_t black;
         };
 
-        max_sidestate_t sides[2];
+        max_pieces_t sides[2];
     };
     
     /// Piece code 0x88 array for directly looking up piece by square
@@ -60,12 +55,12 @@ typedef struct {
 } max_board_t;
 
 /// Get the piece list of the side that is currently to move
-MAX_INLINE_ALWAYS max_sidestate_t* max_board_get_to_move(max_board_t *board) {
+MAX_INLINE_ALWAYS max_pieces_t* max_board_get_to_move(max_board_t *board) {
     return &board->sides[(board->ply & 1)];
 }
 
 /// Get side state for the side that is not to move this ply
-MAX_INLINE_ALWAYS max_sidestate_t* max_board_get_enemy(max_board_t *board) {
+MAX_INLINE_ALWAYS max_pieces_t* max_board_get_enemy(max_board_t *board) {
     return &board->sides[(board->ply & 1) ^ 1];
 }
 
@@ -75,6 +70,9 @@ void max_board_new(max_board_t *const board);
 
 /// Generate all pseudo-valid moves for the current side to move on the given board
 void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const moves);
+
+/// Check if the given move is legal - it does not leave the king in check
+bool max_board_move_is_valid(max_board_t *const board, max_move_t move);
 
 /// Reset the given chessboard to the starting configuration
 void max_board_reset(max_board_t *const board);
@@ -104,3 +102,40 @@ MAX_INLINE_ALWAYS max_piececode_t max_capturestack_pop(max_board_capturestack_t 
 void max_board_debugprint(max_board_t const* board);
 
 #endif
+
+/// Remove a piece by position from the given side
+MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *side, max_bidx_t pos) {
+    max_piececode_t piece = board->pieces[pos];
+    board->pieces[pos] = MAX_PIECECODE_EMPTY;
+    max_piecelist_t *list = max_pieces_get_list(side, piece);
+    max_lidx_t index = side->index[pos];
+    
+    //Replace the removed element with the last element of the list
+    list->len -= 1;
+    max_bidx_t shuffled_pos = list->pos[list->len];
+    list->pos[index] = shuffled_pos;
+    side->index[shuffled_pos] = index;
+}
+
+/// Add a piece with the given code to the chessboard
+MAX_INLINE_ALWAYS void max_board_add_piece(max_board_t *board, max_pieces_t *side, max_bidx_t pos, max_piececode_t piece) {
+    board->pieces[pos] = piece;
+    max_piecelist_t *list = max_pieces_get_list(side, piece);
+    max_lidx_t index = list->len;
+    list->pos[list->len] = pos;
+    list->len += 1;
+
+    side->index[pos] = index;
+}
+
+/// Shift the piece from the given location to the given location, replacing its old position with an empty square
+MAX_INLINE_ALWAYS void max_board_shift_piece(max_board_t *board, max_pieces_t *side, max_bidx_t from, max_bidx_t to) {
+    max_piececode_t piece = board->pieces[from];
+    max_lidx_t index = side->index[from];
+    max_piecelist_t *list = max_pieces_get_list(side, piece);
+    list->pos[index] = to;
+    side->index[to] = index;
+    board->pieces[to] = piece;
+    
+    board->pieces[from] = MAX_PIECECODE_EMPTY;
+}

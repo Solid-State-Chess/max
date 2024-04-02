@@ -47,7 +47,7 @@ MAX_INLINE_ALWAYS void max_movelist_clear(max_movelist_t *const list) {
 /// Add a new move to the given move list, only bounds checked in debug
 MAX_INLINE_ALWAYS void max_movelist_add(max_movelist_t *const list, max_move_t move) {
     #ifdef MAX_DEBUG
-        assert(list->len + 1 <= MAX_MOVELIST_MAX_MOVES);
+        assert(list->len + 1 <= MAX_MOVELIST_LEN);
     #endif
 
     list->moves[list->len] = move;

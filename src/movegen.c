@@ -63,8 +63,8 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
     //Pawn travel direction indexed by the side to move
     
     uint8_t side = board->ply & 1;
-    max_sidestate_t *state = &board->sides[side];
-    max_sidestate_t *enemy = &board->sides[side ^ 1];
+    max_pieces_t *state = &board->sides[side];
+    max_pieces_t *enemy = &board->sides[side ^ 1];
 
     max_piececode_t enemy_color = MAX_PIECECODE_BLACK >> side;
 
@@ -72,8 +72,8 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
     max_bidx_t pawn_homerow = PAWN_HOMEROW[side];
     //If the EP file is invalid on the stack, then this will be an invalid index
     max_bidx_t epsquare = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side];
-    for(max_lidx_t i = 0; i < state->piecelist.pawns.len; ++i) {
-        max_bidx_t pos = state->piecelist.pawns.pos[i];
+    for(max_lidx_t i = 0; i < state->pawns.len; ++i) {
+        max_bidx_t pos = state->pawns.pos[i];
         max_bidx_t up = max_bidx_inc(pos, PAWN_INC[side]);
 
         if(max_bidx_valid(up)) {
@@ -108,7 +108,7 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
     #define NORMALMOVE(to) do {                                       \
         max_bidx_t dest = (to);                                       \
         if(max_bidx_valid(dest)) {                                    \
-            max_piececode_t piece = board->pieces[dest];         \
+            max_piececode_t piece = board->pieces[dest];              \
             if(piece == MAX_PIECECODE_EMPTY) {                        \
                 max_movelist_add(moves, max_move_normal(pos, dest));  \
             } else if(piece & enemy_color) {                          \
@@ -117,8 +117,8 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
         }                                                             \
     } while(0)
 
-    for(max_lidx_t i = 0; i < state->piecelist.knights.len; ++i) {
-        max_bidx_t pos = state->piecelist.knights.pos[i];
+    for(max_lidx_t i = 0; i < state->knights.len; ++i) {
+        max_bidx_t pos = state->knights.pos[i];
         NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UR));
         NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UL));
 
@@ -133,20 +133,20 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
         NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_DL));
     }
 
-    for(max_lidx_t i = 0; i < state->piecelist.bishops.len; ++i) {
-        max_bishopgen(moves, board, enemy_color, state->piecelist.bishops.pos[i]);
+    for(max_lidx_t i = 0; i < state->bishops.len; ++i) {
+        max_bishopgen(moves, board, enemy_color, state->bishops.pos[i]);
     }
 
-    for(max_lidx_t i = 0; i < state->piecelist.rooks.len; ++i) {
-        max_rookgen(moves, board, enemy_color, state->piecelist.rooks.pos[i]);
+    for(max_lidx_t i = 0; i < state->rooks.len; ++i) {
+        max_rookgen(moves, board, enemy_color, state->rooks.pos[i]);
     }
 
-    for(max_lidx_t i = 0; i < state->piecelist.queens.len; ++i) {
-        max_rookgen(moves, board, enemy_color, state->piecelist.queens.pos[i]);
-        max_bishopgen(moves, board, enemy_color, state->piecelist.queens.pos[i]);
+    for(max_lidx_t i = 0; i < state->queens.len; ++i) {
+        max_rookgen(moves, board, enemy_color, state->queens.pos[i]);
+        max_bishopgen(moves, board, enemy_color, state->queens.pos[i]);
     }
    
-    max_bidx_t pos = state->piecelist.king.pos[0];
+    max_bidx_t pos = state->king.pos[0];
     NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP));
     NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN));
     NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT));
