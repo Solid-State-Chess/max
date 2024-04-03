@@ -48,7 +48,7 @@ int engine_tests(void) {
         memcpy(&prev, &engine->board, sizeof(prev));
 
         max_searchresult_t search;
-        max_engine_search(engine, &search, 7);
+        max_engine_search(engine, &search, 3);
 
         /*if(!board_same(&prev, &engine->board)) {
             exit(-1);
@@ -78,8 +78,6 @@ int engine_tests(void) {
 
             max_bpos_t from = max_bpos_new(ff - 'a', fr - '1');
             max_bpos_t to   = max_bpos_new(tf - 'a', tr - '1');
-
-            printf("%X\n", from);
             
             max_movelist_t moves = max_movelist_new(buf);
             memset(buf, 0, sizeof(buf));
@@ -87,7 +85,6 @@ int engine_tests(void) {
             
             bool moved = false;
             for(unsigned i = 0; i < moves.len; ++i) {
-                printf("MOVE %x %x\n", moves.moves[i].from, moves.moves[i].to);
                 if(moves.moves[i].from == from && moves.moves[i].to == to) {
                     if(max_board_move_is_valid(&engine->board, moves.moves[i])) {
                         max_board_make_move(&engine->board, moves.moves[i]);

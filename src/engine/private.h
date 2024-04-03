@@ -8,3 +8,6 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
 
 /// Evaluate the current position
 max_score_t max_evaluate(max_engine_t *engine);
+
+/// Sort moves by a heuristic in order to encourage best moves to be evaulated first
+void max_engine_sortmoves(max_engine_t *engine, max_movelist_t *moves);

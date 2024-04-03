@@ -67,6 +67,9 @@ MAX_INLINE_ALWAYS max_pieces_t* max_board_get_enemy(max_board_t *board) {
 /// Generate all pseudo-valid moves for the current side to move on the given board
 void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const moves);
 
+/// Generate all pseudo-legal capture moves for the side to play
+void max_board_capturegen_pseudo(max_board_t *const board, max_movelist_t *const moves);
+
 /// Check if the given move is legal - it does not leave the king in check
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move);
 
