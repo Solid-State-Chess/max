@@ -2,16 +2,14 @@
 
 #include "max/board.h"
 
-#define MAX_ENGINE_MAX_PLY (40)
+#define MAX_ENGINE_MAX_PLY (5024)
 
 /// A signed score as the result of a board evaluation measured in centipawns
 typedef int32_t max_score_t;
 
 /// State required at all stages of an alpha-beta search
 typedef struct {
-    max_score_t alpha;
-    max_score_t beta;
-    max_movelist_t moves[MAX_ENGINE_MAX_PLY];
+    max_move_t moves[MAX_ENGINE_MAX_PLY];
 } max_search_state_t;
 
 /// Complete engine state including lookup tables, settings, and chessboard representation
@@ -28,5 +26,8 @@ typedef struct {
     max_score_t best_score;
 } max_searchresult_t;
 
+/// Initialize an engine with an initial chess board position
+void max_engine_new(max_engine_t *engine);
+
 /// Search for the best move on this board for the side to play
-void max_engine_search(max_engine_t *engine, max_searchresult_t *search);
+void max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth);

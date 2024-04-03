@@ -15,7 +15,11 @@ if(NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
-file(GLOB SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+file(
+    GLOB SRC CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/*.c"
+)
 
 add_library(max STATIC ${SRC})
 target_include_directories(max PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

@@ -30,3 +30,4 @@
 
 
 int board_tests(void);
+int engine_tests(void);
