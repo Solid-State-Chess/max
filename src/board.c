@@ -175,11 +175,11 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
 }
 
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
+    max_move_t buffer[1024];
     max_board_make_move(board, move);
     max_bpos_t kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
     
-    max_movelist_t moves;
-    max_movelist_new(&moves);
+    max_movelist_t moves = max_movelist_new(buffer);
 
     max_board_movegen_pseudo(board, &moves);
     bool valid = true;

@@ -30,13 +30,16 @@ typedef struct {
 
 /// A statically-allocated list of moves to append to when searching a move tree
 typedef struct {
-    max_move_t moves[MAX_MOVELIST_LEN];
+    max_move_t *moves;
     uint8_t len;
 } max_movelist_t;
 
-/// Create a new, empty move list
-MAX_INLINE_ALWAYS void max_movelist_new(max_movelist_t *const list) {
-    list->len = 0;
+/// Create a new, empty move list from the given buffer
+MAX_INLINE_ALWAYS max_movelist_t max_movelist_new(max_move_t *buf) {
+    return (max_movelist_t){
+        .len = 0,
+        .moves = buf
+    };
 }
 
 /// Remove all moves from the given movelist

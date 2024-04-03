@@ -37,13 +37,10 @@ static bool board_same(max_board_t *a, max_board_t *b) {
 
 static size_t CHECKS = 0;
 
-size_t perft(max_board_t *board, unsigned n) {
+size_t perft(max_board_t *board, max_movelist_t moves, unsigned n) {
     size_t count = 0;
     if(n == 0) { return 1; }
 
-    max_movelist_t moves;
-    max_movelist_new(&moves);
-    
     max_board_movegen_pseudo(board, &moves);
     
     size_t nmoves = 0;
@@ -52,7 +49,7 @@ size_t perft(max_board_t *board, unsigned n) {
             continue;
         }
         max_board_make_move(board, moves.moves[i]);
-        count += perft(board, n - 1);
+        count += perft(board, max_movelist_new(moves.moves + moves.len), n - 1);
         max_board_unmake_move(board, moves.moves[i]);
     }
 
@@ -61,15 +58,19 @@ size_t perft(max_board_t *board, unsigned n) {
 
 
 int board_tests(void) {
+    max_move_t buf[1024];
+
     max_board_t board;
     max_board_new(&board);
 
     max_board_t original;
     memcpy(&original, &board, sizeof(max_board_t));
-     
-    ASSERT_EQ(size_t, perft(&board, 2), 400, "%zu");
-    ASSERT_EQ(size_t, perft(&board, 3), 8902, "%zu");
-    ASSERT_EQ(size_t, perft(&board, 6), 119060324, "%zu");
+    
+    max_movelist_t moves = max_movelist_new(buf);
+
+    ASSERT_EQ(size_t, perft(&board, moves, 2), 400, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, 3), 8902, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, 6), 119060324, "%zu");
 
     if(!board_same(&board, &original)) {
         puts("Move making / unmaking not good");
