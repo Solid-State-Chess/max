@@ -260,7 +260,7 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
                 board->pieces[between[2]] == MAX_PIECECODE_EMPTY &&
                 board->pieces[between[3]] == (MAX_PIECECODE_ROOK | color)
             ) {
-                max_movelist_add(moves, max_move_new(kingpos, between[2], MAX_MOVE_QCASTLE));
+                max_movelist_add(moves, max_move_new(kingpos, between[1], MAX_MOVE_QCASTLE));
             }
         }
     }

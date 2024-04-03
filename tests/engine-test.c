@@ -48,7 +48,7 @@ int engine_tests(void) {
         memcpy(&prev, &engine->board, sizeof(prev));
 
         max_searchresult_t search;
-        max_engine_search(engine, &search, 3);
+        max_engine_search(engine, &search, 4);
 
         /*if(!board_same(&prev, &engine->board)) {
             exit(-1);

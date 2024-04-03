@@ -30,13 +30,22 @@ static char piece_char(max_piececode_t piece) {
 void max_board_debugprint(max_board_t const* board) {
     uint8_t rank = 8;
     while(rank != 0) {
+        printf("%d | ", rank);
         rank -= 1;
         for(uint8_t file = 0; file <= 7; ++file) {
             max_piececode_t sq = board->pieces[max_bpos_new(file, rank)];
             putc(piece_char(sq), stdout);
+            putc(' ', stdout);
         }
         putc('\n', stdout);
     }
+    
+    printf("    ");
+    for(uint8_t file = 0; file <= 7; ++file) {
+        putc(file + 'A', stdout);
+        putc(' ', stdout);
+    }
+    putc('\n', stdout);
     
     max_plyplate_t plate = board->stack[board->ply];
 
