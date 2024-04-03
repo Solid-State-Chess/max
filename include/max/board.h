@@ -30,6 +30,9 @@ enum {
     MAX_PLYPLATE_CASTLE_OFFSET = 4,
 };
 
+/// Zobrist hash of a board, updated incrementally with the board
+typedef uint32_t max_zobrist_key_t;
+
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
     /// Piece lists for white and black, tracking list position by square and square position by list position

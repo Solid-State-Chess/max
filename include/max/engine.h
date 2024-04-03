@@ -7,17 +7,24 @@
 /// A signed score as the result of a board evaluation measured in centipawns
 typedef int32_t max_score_t;
 
+/// Diagnostic information for a best-move search
+typedef struct {
+    /// Number of nodes that have had the evaluation function executed
+    uint64_t nodes;
+    /// No. of nodes ignored due to futility pruning
+    uint64_t futility_pruned;
+} max_search_diagnostic_t;
+
 /// State required at all stages of an alpha-beta search
 typedef struct {
     max_move_t moves[MAX_ENGINE_MAX_PLY];
-    /// Number of nodes searched
-    uint32_t nodes;
 } max_search_state_t;
 
 /// Complete engine state including lookup tables, settings, and chessboard representation
 typedef struct {
     max_board_t board;
     max_search_state_t search;
+    max_search_diagnostic_t diagnostic;
 } max_engine_t;
 
 /// Result of a move search with diagnostic information and selected move

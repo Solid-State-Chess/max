@@ -57,8 +57,11 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
             
             //Futility pruning
             if(depth == 1) {
-                max_score_t eval = max_evaluate(engine) + max_piecevalue(engine, engine->board.pieces[move.to]);
-                if(eval <= alpha + MAX_PAWN_VALUE) {
+                max_score_t eval = (max_evaluate(engine) + max_piecevalue(engine, engine->board.pieces[move.to])) 
+                    * -SCORE_MUL[engine->board.ply & 1];
+                max_score_t cutoff = alpha + ((MAX_PAWN_VALUE / 2) * -SCORE_MUL[engine->board.ply & 1]);
+                if(eval <= cutoff) {
+                    engine->diagnostic.futility_pruned += 1;
                     max_board_unmake_move(&engine->board, move);
                     continue;
                 }
@@ -80,14 +83,12 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
 
 
 void max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth) {
-    #ifdef MAX_DEBUG
-    engine->search.nodes = 0;
-    #endif
+    engine->diagnostic.nodes = 0;
+    engine->diagnostic.futility_pruned = 0;
     max_movelist_t moves = max_movelist_new(engine->search.moves);
     max_board_movegen_pseudo(&engine->board, &moves);
 
     search->best_score = INT32_MIN;
-
 
     for(uint8_t i = 0; i < moves.len; ++i) {
         if(!max_board_move_is_valid(&engine->board, moves.moves[i])) {

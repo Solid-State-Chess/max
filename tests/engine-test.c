@@ -37,6 +37,10 @@ static bool board_same(max_board_t *a, max_board_t *b) {
     return true;
 }
 
+static void printnodes(uint64_t nodes) {
+    uint64_t mil = nodes / 1000000;
+    printf("%zu.%zu MN", mil, (nodes - (mil * 1000000)) / 100000);
+}
 
 int engine_tests(void) {
     max_engine_t *engine = malloc(sizeof(*engine));
@@ -49,21 +53,26 @@ int engine_tests(void) {
         memcpy(&prev, &engine->board, sizeof(prev));
 
         max_searchresult_t search;
-        max_engine_search(engine, &search, 5);
+        max_engine_search(engine, &search, 4);
 
         /*if(!board_same(&prev, &engine->board)) {
             exit(-1);
         }*/
 
         printf(
-            "%c%d->%c%d @ %d - %'u nodes\n",
+            "%c%d->%c%d @ %d - ",
             (search.bestmove.from & 7) + 'a',
             (search.bestmove.from >> 4) + 1,
             (search.bestmove.to & 7) + 'a',
             (search.bestmove.to >> 4) + 1,
-            search.best_score,
-            engine->search.nodes
+            search.best_score
         );
+
+        printnodes(engine->diagnostic.nodes);
+        printf(" / ");
+        printnodes(engine->diagnostic.futility_pruned);
+        printf(" Pruned\n");
+
 
         max_board_make_move(&engine->board, search.bestmove);
 
