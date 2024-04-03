@@ -1,6 +1,4 @@
 #include "max/piece.h"
-#include "max/square.h"
-#include <stdlib.h>
 #include <string.h>
 #define MAX_CONSOLE
 #include "max/move.h"
@@ -34,8 +32,6 @@ static bool board_same(max_board_t *a, max_board_t *b) {
         return false;
     }
 
-
-
     return true;
 }
 
@@ -66,11 +62,20 @@ size_t perft(max_board_t *board, unsigned n) {
 
 int board_tests(void) {
     max_board_t board;
-    max_board_reset(&board);
-    
+    max_board_new(&board);
+
+    max_board_t original;
+    memcpy(&original, &board, sizeof(max_board_t));
+     
     ASSERT_EQ(size_t, perft(&board, 2), 400, "%zu");
     ASSERT_EQ(size_t, perft(&board, 3), 8902, "%zu");
-    ASSERT_EQ(size_t, perft(&board, 5), 4865609, "%zu");
+    ASSERT_EQ(size_t, perft(&board, 6), 119060324, "%zu");
+
+    if(!board_same(&board, &original)) {
+        puts("Move making / unmaking not good");
+        max_board_debugprint(&board);
+        return 1;
+    }
     
     return 0;
 }

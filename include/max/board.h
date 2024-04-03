@@ -64,10 +64,6 @@ MAX_INLINE_ALWAYS max_pieces_t* max_board_get_enemy(max_board_t *board) {
     return &board->sides[(board->ply & 1) ^ 1];
 }
 
-/// Create an empty chessboard with NO pieces, only sentinel values in array and empty squares
-/// at their valid indices
-void max_board_new(max_board_t *const board);
-
 /// Generate all pseudo-valid moves for the current side to move on the given board
 void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const moves);
 
@@ -75,7 +71,7 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move);
 
 /// Reset the given chessboard to the starting configuration
-void max_board_reset(max_board_t *const board);
+void max_board_new(max_board_t *const board);
 
 /// Make the given move on a chessboard, with NO CHECK for move validity (assumes valid moves taken from max_movegen)
 void max_board_make_move(max_board_t *const board, max_move_t move);
