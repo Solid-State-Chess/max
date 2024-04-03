@@ -60,18 +60,17 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
     static max_bidx_t PAWN_HOMEROW[2]  = {MAX_RANK_2, MAX_RANK_7};
     //Rank that an enemy pawn would be en passanted at
     static max_bidx_t PAWN_EPRANK[2]   = {MAX_RANK_5, MAX_RANK_4};
-    //Pawn travel direction indexed by the side to move
     
     uint8_t side = board->ply & 1;
     max_pieces_t *state = &board->sides[side];
     max_pieces_t *enemy = &board->sides[side ^ 1];
 
     max_piececode_t enemy_color = MAX_PIECECODE_BLACK >> side;
-
-
     max_bidx_t pawn_homerow = PAWN_HOMEROW[side];
+
     //If the EP file is invalid on the stack, then this will be an invalid index
     max_bidx_t epsquare = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side];
+
     for(max_lidx_t i = 0; i < state->pawns.len; ++i) {
         max_bidx_t pos = state->pawns.pos[i];
         max_bidx_t up = max_bidx_inc(pos, PAWN_INC[side]);
@@ -105,32 +104,32 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
 
     }
 
-    #define NORMALMOVE(to) do {                                       \
+    #define NORMALMOVE(from, to) do {                                       \
         max_bidx_t dest = (to);                                       \
         if(max_bidx_valid(dest)) {                                    \
             max_piececode_t piece = board->pieces[dest];              \
             if(piece == MAX_PIECECODE_EMPTY) {                        \
-                max_movelist_add(moves, max_move_normal(pos, dest));  \
+                max_movelist_add(moves, max_move_normal((from), dest));  \
             } else if(piece & enemy_color) {                          \
-                max_movelist_add(moves, max_move_capture(pos, dest)); \
+                max_movelist_add(moves, max_move_capture((from), dest)); \
             }                                                         \
         }                                                             \
     } while(0)
 
     for(max_lidx_t i = 0; i < state->knights.len; ++i) {
         max_bidx_t pos = state->knights.pos[i];
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UR));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UL));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UR));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_UP + MAX_INCREMENT_UL));
 
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DR));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DL));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DR));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_DOWN + MAX_INCREMENT_DL));
 
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_UR));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_DR));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_UR));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_RIGHT + MAX_INCREMENT_DR));
 
 
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_UL));
-        NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_DL));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_UL));
+        NORMALMOVE(pos, max_bidx_inc(pos, MAX_INCREMENT_LEFT + MAX_INCREMENT_DL));
     }
 
     for(max_lidx_t i = 0; i < state->bishops.len; ++i) {
@@ -146,13 +145,46 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
         max_bishopgen(moves, board, enemy_color, state->queens.pos[i]);
     }
    
-    max_bidx_t pos = state->king.pos[0];
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UP));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DOWN));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_LEFT));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_RIGHT));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UR));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_UL));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DR));
-    NORMALMOVE(max_bidx_inc(pos, MAX_INCREMENT_DL));
+    max_bidx_t kingpos = state->king.pos[0];
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_UP));
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_DOWN));
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_LEFT));
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_RIGHT));
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_UR));
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_UL));
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_DR));
+    NORMALMOVE(kingpos, max_bidx_inc(kingpos, MAX_INCREMENT_DL));
+    
+    max_plyplate_t plate = board->stack[board->ply];
+    if(plate & max_kcastle_flag(board->ply)) {
+        max_piececode_t color = MAX_PIECECODE_WHITE << side;
+
+        max_bidx_t between[3] = {
+            max_bidx_inc(kingpos, MAX_INCREMENT_RIGHT),
+            max_bidx_inc(kingpos, MAX_INCREMENT_RIGHT * 2),
+            max_bidx_inc(kingpos, MAX_INCREMENT_RIGHT * 3),
+        };
+                if(board->pieces[between[0]] == MAX_PIECECODE_EMPTY && board->pieces[between[1]] == MAX_PIECECODE_EMPTY && board->pieces[between[2]] == (MAX_PIECECODE_ROOK | color)) {
+            max_movelist_add(moves, max_move_new(kingpos, between[1], MAX_MOVE_KCASTLE));
+        }
+    }
+ 
+    if(plate & max_qcastle_flag(board->ply)) {
+        max_piececode_t color = MAX_PIECECODE_WHITE << side;
+        max_bidx_t between[4] = {
+            max_bidx_inc(kingpos, MAX_INCREMENT_LEFT),
+            max_bidx_inc(kingpos, MAX_INCREMENT_LEFT * 2),
+            max_bidx_inc(kingpos, MAX_INCREMENT_LEFT * 3),
+            max_bidx_inc(kingpos, MAX_INCREMENT_LEFT * 4)
+        };
+
+        if(
+            board->pieces[between[0]] == MAX_PIECECODE_EMPTY &&
+            board->pieces[between[1]] == MAX_PIECECODE_EMPTY &&
+            board->pieces[between[2]] == MAX_PIECECODE_EMPTY &&
+            board->pieces[between[3]] == (MAX_PIECECODE_ROOK | color)
+        ) {
+            max_movelist_add(moves, max_move_new(kingpos, between[2], MAX_MOVE_QCASTLE));
+        }
+    }
 }

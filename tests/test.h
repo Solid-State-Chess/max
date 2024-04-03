@@ -1,6 +1,15 @@
 #pragma once
 #include <stdio.h>
 
+#define ASSERT_EQ(ty, e1, e2, fmt) do {                 \
+    ty v = (e1);                                        \
+    if((e1) != (e2)) {                                  \
+        fputs(#e1 " != " #e2, stderr);                    \
+        fputc('\n', stderr);                            \
+        fprintf(stderr, #e1" = " fmt "\n", v);          \
+    }                                                   \
+} while(0)
+
 #define ASSERT(expr, ...) do {          \
     if(!(expr)) {                       \
         fputs(#expr, stderr);           \

@@ -23,8 +23,7 @@ static bool board_same(max_board_t *a, max_board_t *b) {
                     if(al->pos[k] == bl->pos[l]) { match = true; break; }
                 }
                 if(!match) {
-                    printf("NO MATCH FOR %x\n", al->pos[k]);
-                    //return false;
+                    return false;
                 }
             }
         }
@@ -40,9 +39,12 @@ static bool board_same(max_board_t *a, max_board_t *b) {
     return true;
 }
 
-size_t perft(max_board_t *board, unsigned n, max_movelist_t *stack) {
+static size_t CHECKS = 0;
+
+size_t perft(max_board_t *board, unsigned n) {
     size_t count = 0;
     if(n == 0) { return 1; }
+
     max_movelist_t moves;
     max_movelist_new(&moves);
     
@@ -50,44 +52,12 @@ size_t perft(max_board_t *board, unsigned n, max_movelist_t *stack) {
     
     size_t nmoves = 0;
     for(unsigned i = 0; i < moves.len; ++i) {
-        for(unsigned j = 0; j < moves.len; ++j) {
-            if(i != j && moves.moves[i].from == moves.moves[j].from && moves.moves[i].to == moves.moves[j].to) {
-                max_move_t move1 = moves.moves[i];
-                printf("%c%d->%c%d\n", (move1.from & 7) + 'a', (move1.from >> 4) + 1, (move1.to & 7) + 'a', (move1.to >> 4) + 1);
-                printf("INVALID %u %u AT N=%u\n", i, j, n);
-                
-                for(unsigned k = 0; k < stack->len; ++k) {
-                    max_move_t move = stack->moves[k];
-                    printf("%c%d->%c%d\n", (move.from & 7) + 'a', (move.from >> 4) + 1, (move.to & 7) + 'a', (move.to >> 4) + 1);
-                }
-                max_board_debugprint(board);
-                exit(-1);
-            }
-        }
         if(!max_board_move_is_valid(board, moves.moves[i])) {
             continue;
         }
-        nmoves += 1;
-        max_board_t before;
-        memcpy(&before, board, sizeof(before));
         max_board_make_move(board, moves.moves[i]);
-        max_board_t after;
-        memcpy(&after, board, sizeof(after));
-        max_movelist_add(stack, moves.moves[i]);
-        count += perft(board, n - 1, stack);
-        stack->len -= 1;
-
+        count += perft(board, n - 1);
         max_board_unmake_move(board, moves.moves[i]);
-        if(!board_same(&before, board)) {
-            max_board_debugprint(&before);
-            max_board_debugprint(&after);
-            max_board_debugprint(board);
-            exit(-1);
-        }
-    }
-
-    if(nmoves == 0) {
-        return 1;
     }
 
     return count;
@@ -97,43 +67,10 @@ size_t perft(max_board_t *board, unsigned n, max_movelist_t *stack) {
 int board_tests(void) {
     max_board_t board;
     max_board_reset(&board);
-
-    printf("WHITE %p\nBLACK %p\n", &board.white, &board.black);
     
-    max_movelist_t list;
-    max_movelist_new(&list);
-    size_t count = perft(&board, 5, &list);
-
-    printf("%zu POSITIONS\n", count);
+    ASSERT_EQ(size_t, perft(&board, 2), 400, "%zu");
+    ASSERT_EQ(size_t, perft(&board, 3), 8902, "%zu");
+    ASSERT_EQ(size_t, perft(&board, 5), 4865609, "%zu");
     
-    for(;;) {
-        max_movelist_t moves;
-        max_movelist_new(&moves);
-
-        max_board_movegen_pseudo(&board, &moves);
-
-        max_board_debugprint(&board);
-        
-        char ff, ft;
-        unsigned rf, rt;
-        scanf("%c%d%c%d", &ff, &rf, &ft, &rt);
-        
-        uint8_t from = max_bidx_new(ff - 'a', rf - 1);
-        uint8_t to   = max_bidx_new(ft - 'a', rt - 1);
-
-
-        for(unsigned i = 0; i < moves.len; ++i) {
-            max_move_t move = moves.moves[i];
-            printf("%c%d->%c%d\n", (move.from & 7) + 'a', (move.from >> 4) + 1, (move.to & 7) + 'a', (move.to >> 4) + 1);
-            if(moves.moves[i].from == from && moves.moves[i].to == to) {
-                max_board_make_move(&board, moves.moves[i]);
-                break;
-            }
-        }
-    }
-
-
-    max_board_debugprint(&board);
-
-    return 1;
+    return 0;
 }

@@ -37,7 +37,6 @@ void max_board_reset(max_board_t *const board) {
     SYMMETRY(B, G, MAX_PIECECODE_KNIGHT);
     SYMMETRY(C, F, MAX_PIECECODE_BISHOP);
 
-
     #undef SYMMETRY
 
     board->pieces[MAX_D1] = MAX_PIECECODE_QUEEN | MAX_PIECECODE_WHITE;
@@ -83,9 +82,9 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     } else {
         if(piece & MAX_PIECECODE_ROOK) {
             if(move.from == KCASTLE_ROOK_SQUARE[side_to_move]) {
-                state_plate &= ~((MAX_PLYPLATE_KCASTLE << MAX_PLYPLATE_CASTLE_OFFSET) << (side_to_move << 1));
+                state_plate &= ~max_kcastle_flag(board->ply);
             } else if(move.from == QCASTLE_ROOK_SQUARE[side_to_move]) {
-                state_plate &= ~((MAX_PLYPLATE_QCASTLE << MAX_PLYPLATE_CASTLE_OFFSET) << (side_to_move << 1));
+                state_plate &= ~max_qcastle_flag(board->ply);
             }
         }
     }
@@ -118,8 +117,8 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
         } break;
 
         case MAX_MOVE_QCASTLE: {
-            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
-            max_bidx_t rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT);
+            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT);
+            max_bidx_t rook_pos     = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
             max_board_shift_piece(board, side, old_rook_pos, rook_pos);
         } break;
     }
@@ -165,14 +164,23 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         } break;
 
         case MAX_MOVE_KCASTLE: {
-
+            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
+            max_bidx_t rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT);
+            max_board_shift_piece(board, side, rook_pos, old_rook_pos);
         } break;
+
+        case MAX_MOVE_QCASTLE: {
+            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT);
+            max_bidx_t rook_pos     = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
+            max_board_shift_piece(board, side, rook_pos, old_rook_pos);
+        } break;
+
     }
 }
 
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
-    max_bidx_t kpos = board->sides[board->ply & 1].king.pos[0];
     max_board_make_move(board, move);
+    max_bidx_t kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
     
     max_movelist_t moves;
     max_movelist_new(&moves);
@@ -204,22 +212,39 @@ static char piece_chars[18] = {
     [MAX_PIECECODE_KING]   = 'k'
 };
 
+static char piece_char(max_piececode_t piece) {
+    char code = piece_chars[piece & MAX_PIECECODE_TYPE_MASK];
+
+    if(piece != MAX_PIECECODE_EMPTY && (piece & MAX_PIECECODE_COLOR_MASK) != MAX_PIECECODE_WHITE) {
+        code = (code - 'a') + 'A';
+    }
+    
+    return code;
+}
+
 void max_board_debugprint(max_board_t const* board) {
     uint8_t rank = 8;
     while(rank != 0) {
         rank -= 1;
         for(uint8_t file = 0; file <= 7; ++file) {
             max_piececode_t sq = board->pieces[max_bidx_new(file, rank)];
-            char code = piece_chars[sq & MAX_PIECECODE_TYPE_MASK];
-
-            if(sq != MAX_PIECECODE_EMPTY && (sq & MAX_PIECECODE_COLOR_MASK) != MAX_PIECECODE_WHITE) {
-                code = (code - 'a') + 'A';
-            }
-
-            putc(code, stdout);
+            putc(piece_char(sq), stdout);
         }
         putc('\n', stdout);
     }
+    
+    max_plyplate_t plate = board->stack[board->ply];
+
+    uint8_t eprank = plate & MAX_PLYPLATE_EP_MASK;
+    if(eprank != MAX_PLYPLATE_EP_INVALID) {
+        printf("EN PASSANT ON THE %c FILE\n", eprank + 'A');
+    }
+    
+
+    puts  ("===========STATUS=========\n");
+    puts  ("       K-Castle   Q-Castle\n");
+    printf("White:    %c          %c  \n", (plate & max_kcastle_flag(0)) ? 'Y' : 'N', (plate & max_qcastle_flag(0)) ? 'Y' : 'N');
+    printf("Black:    %c          %c  \n", (plate & max_kcastle_flag(1)) ? 'Y' : 'N', (plate & max_qcastle_flag(1)) ? 'Y' : 'N');
 }
 
 #endif

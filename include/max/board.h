@@ -27,7 +27,7 @@ enum {
     MAX_PLYPLATE_QCASTLE     = 0b00000001,
     MAX_PLYPLATE_KCASTLE     = 0b00000010,
     /// Amount to bit shift `MAX_PLYPLATE_QCASTLE` to reach the white castle right bits
-    MAX_PLYPLATE_CASTLE_OFFSET = 5,
+    MAX_PLYPLATE_CASTLE_OFFSET = 4,
 };
 
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
@@ -104,6 +104,7 @@ void max_board_debugprint(max_board_t const* board);
 #endif
 
 /// Remove a piece by position from the given side
+MAX_HOT
 MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *side, max_bidx_t pos) {
     max_piececode_t piece = board->pieces[pos];
     board->pieces[pos] = MAX_PIECECODE_EMPTY;
@@ -118,6 +119,7 @@ MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *
 }
 
 /// Add a piece with the given code to the chessboard
+MAX_HOT
 MAX_INLINE_ALWAYS void max_board_add_piece(max_board_t *board, max_pieces_t *side, max_bidx_t pos, max_piececode_t piece) {
     board->pieces[pos] = piece;
     max_piecelist_t *list = max_pieces_get_list(side, piece);
@@ -129,6 +131,7 @@ MAX_INLINE_ALWAYS void max_board_add_piece(max_board_t *board, max_pieces_t *sid
 }
 
 /// Shift the piece from the given location to the given location, replacing its old position with an empty square
+MAX_HOT
 MAX_INLINE_ALWAYS void max_board_shift_piece(max_board_t *board, max_pieces_t *side, max_bidx_t from, max_bidx_t to) {
     max_piececode_t piece = board->pieces[from];
     max_lidx_t index = side->index[from];
