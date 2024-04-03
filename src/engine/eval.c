@@ -3,14 +3,6 @@
 #include "max/piece.h"
 #include "private.h"
 
-#define MAX_PAWN_VALUE    100
-#define MAX_KNIGHT_VALUE  300
-#define MAX_BISHOP_VALUE  310
-#define MAX_ROOK_VALUE    500
-#define MAX_QUEEN_VALUE   900
-#define MAX_KING_VALUE    100000
-
-
 /// Evaluate the material for one side of a chessboard
 MAX_HOT
 MAX_INLINE_ALWAYS
@@ -51,6 +43,7 @@ static max_score_t max_evaluate_side(max_pieces_t *side, unsigned white) {
 }
 
 max_score_t max_evaluate(max_engine_t *engine) {
+    engine->search.nodes += 1;
     max_score_t white = max_evaluate_side(&engine->board.white, 1);
     max_score_t black = max_evaluate_side(&engine->board.black, 0);
     return white - black;

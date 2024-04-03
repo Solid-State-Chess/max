@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #define MAX_CONSOLE
+#define MAX_DEBUG
 #include "max/board.h"
 #include "max/engine.h"
 #include "test.h"
@@ -48,19 +49,20 @@ int engine_tests(void) {
         memcpy(&prev, &engine->board, sizeof(prev));
 
         max_searchresult_t search;
-        max_engine_search(engine, &search, 4);
+        max_engine_search(engine, &search, 5);
 
         /*if(!board_same(&prev, &engine->board)) {
             exit(-1);
         }*/
 
         printf(
-            "%c%d->%c%d @ %d\n",
+            "%c%d->%c%d @ %d - %'u nodes\n",
             (search.bestmove.from & 7) + 'a',
             (search.bestmove.from >> 4) + 1,
             (search.bestmove.to & 7) + 'a',
             (search.bestmove.to >> 4) + 1,
-            search.best_score
+            search.best_score,
+            engine->search.nodes
         );
 
         max_board_make_move(&engine->board, search.bestmove);

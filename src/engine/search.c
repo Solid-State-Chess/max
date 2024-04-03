@@ -3,9 +3,12 @@
 #include "private.h"
 #include <stdint.h>
 
+/// Amount to multiply the score of an evaluation by for the side to play
+static const max_score_t SCORE_MUL[2] = {1, -1};
+
 /// Perform a quiescence search of the given node
 static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_score_t beta, uint16_t move_head) {
-    max_score_t standing = max_evaluate(engine) * ((engine->board.ply & 1) ? -1 : 1);
+    max_score_t standing = max_evaluate(engine) * SCORE_MUL[engine->board.ply & 1];
     if(standing >= beta) {
         return beta;
     }
@@ -32,7 +35,7 @@ static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_scor
             alpha = score;
         }
     }
-
+    
     return alpha;
 }
 
@@ -45,13 +48,24 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
         max_engine_sortmoves(engine, &moves);
 
         for(uint8_t i = 0; i < moves.len; ++i) {
-            if(!max_board_move_is_valid(&engine->board, moves.moves[i])) {
+            max_move_t move = moves.moves[i];
+            if(!max_board_move_is_valid(&engine->board, move)) {
                 continue;
             }
-            max_board_make_move(&engine->board, moves.moves[i]);
+
+            max_board_make_move(&engine->board, move);
+            
+            //Futility pruning
+            if(depth == 1) {
+                max_score_t eval = max_evaluate(engine) + max_piecevalue(engine, engine->board.pieces[move.to]);
+                if(eval <= alpha + MAX_PAWN_VALUE) {
+                    max_board_unmake_move(&engine->board, move);
+                    continue;
+                }
+            }
 
             max_score_t score = -max_alpha_beta(engine, -beta, -alpha, move_head + moves.len, depth - 1);
-            max_board_unmake_move(&engine->board, moves.moves[i]);
+            max_board_unmake_move(&engine->board, move);
             if(score >= beta) {
                 return beta;
             }
@@ -66,7 +80,9 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
 
 
 void max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth) {
-    max_score_t bestmove;
+    #ifdef MAX_DEBUG
+    engine->search.nodes = 0;
+    #endif
     max_movelist_t moves = max_movelist_new(engine->search.moves);
     max_board_movegen_pseudo(&engine->board, &moves);
 

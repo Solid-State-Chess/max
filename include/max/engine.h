@@ -10,6 +10,8 @@ typedef int32_t max_score_t;
 /// State required at all stages of an alpha-beta search
 typedef struct {
     max_move_t moves[MAX_ENGINE_MAX_PLY];
+    /// Number of nodes searched
+    uint32_t nodes;
 } max_search_state_t;
 
 /// Complete engine state including lookup tables, settings, and chessboard representation
