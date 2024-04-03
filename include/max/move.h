@@ -21,8 +21,8 @@ enum {
 
 /// A move with specification for 'special' moves that require additional processing
 typedef struct {
-    max_bidx_t from;
-    max_bidx_t to;
+    max_bpos_t from;
+    max_bpos_t to;
     max_move_attr_t attr;
 } max_move_t;
 
@@ -55,16 +55,16 @@ MAX_INLINE_ALWAYS void max_movelist_add(max_movelist_t *const list, max_move_t m
 }
 
 /// Create a new move with custom attributes
-MAX_INLINE_ALWAYS max_move_t max_move_new(max_bidx_t from, max_bidx_t to, max_move_attr_t attr) {
+MAX_INLINE_ALWAYS max_move_t max_move_new(max_bpos_t from, max_bpos_t to, max_move_attr_t attr) {
     return (max_move_t){.from = from, .to = to, .attr = attr};
 }
 
 /// Create a new normal (no captures) move
-MAX_INLINE_ALWAYS max_move_t max_move_normal(max_bidx_t from, max_bidx_t to) {
+MAX_INLINE_ALWAYS max_move_t max_move_normal(max_bpos_t from, max_bpos_t to) {
     return max_move_new(from, to, MAX_MOVE_NORMAL);
 }
 
 /// Create a move which captures a piece
-MAX_INLINE_ALWAYS max_move_t max_move_capture(max_bidx_t from, max_bidx_t to) {
+MAX_INLINE_ALWAYS max_move_t max_move_capture(max_bpos_t from, max_bpos_t to) {
     return max_move_new(from, to, MAX_MOVE_CAPTURE);
 }

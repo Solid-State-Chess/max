@@ -48,7 +48,7 @@ void max_board_new(max_board_t *const board) {
 static void max_board_postinit(max_board_t *const board) {
     for(uint8_t x = 0; x < 8; ++x) {
         for(uint8_t y = 0; y < 8; ++y) {
-            max_bidx_t pos = max_bidx_new(x, y);
+            max_bpos_t pos = max_bpos_new(x, y);
             max_piececode_t piece = board->pieces[pos];
             
             if(piece == MAX_PIECECODE_INVAL) {
@@ -95,7 +95,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
         } break;
 
         case MAX_MOVE_EN_PASSANT: {
-            max_bidx_t takeat = max_bidx_inc(move.to, PAWN_INC[side_to_move ^ 1]);
+            max_bpos_t takeat = max_bpos_inc(move.to, PAWN_INC[side_to_move ^ 1]);
             max_piececode_t captured = board->pieces[takeat];
             max_capturestack_push(&board->captures, captured);
             max_board_remove_piece(board, &board->sides[side_to_move ^ 1], takeat);
@@ -107,14 +107,14 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
         } break;
 
         case MAX_MOVE_KCASTLE: {
-            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
-            max_bidx_t rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT);
+            max_bpos_t old_rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_RIGHT);
+            max_bpos_t rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_LEFT);
             max_board_shift_piece(board, side, old_rook_pos, rook_pos);
         } break;
 
         case MAX_MOVE_QCASTLE: {
-            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT);
-            max_bidx_t rook_pos     = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
+            max_bpos_t old_rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT);
+            max_bpos_t rook_pos     = max_bpos_inc(move.to, MAX_INCREMENT_RIGHT);
             max_board_shift_piece(board, side, old_rook_pos, rook_pos);
         } break;
     }
@@ -142,7 +142,7 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         } break;
 
         case MAX_MOVE_EN_PASSANT: {
-            max_bidx_t takeat = max_bidx_inc(move.to, PAWN_INC[side_to_move ^ 1]);
+            max_bpos_t takeat = max_bpos_inc(move.to, PAWN_INC[side_to_move ^ 1]);
             max_board_add_piece(
                 board,
                 &board->sides[side_to_move ^ 1],
@@ -160,14 +160,14 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         } break;
 
         case MAX_MOVE_KCASTLE: {
-            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
-            max_bidx_t rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT);
+            max_bpos_t old_rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_RIGHT);
+            max_bpos_t rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_LEFT);
             max_board_shift_piece(board, side, rook_pos, old_rook_pos);
         } break;
 
         case MAX_MOVE_QCASTLE: {
-            max_bidx_t old_rook_pos = max_bidx_inc(move.to, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT);
-            max_bidx_t rook_pos     = max_bidx_inc(move.to, MAX_INCREMENT_RIGHT);
+            max_bpos_t old_rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT);
+            max_bpos_t rook_pos     = max_bpos_inc(move.to, MAX_INCREMENT_RIGHT);
             max_board_shift_piece(board, side, rook_pos, old_rook_pos);
         } break;
 
@@ -176,7 +176,7 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
 
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     max_board_make_move(board, move);
-    max_bidx_t kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
+    max_bpos_t kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
     
     max_movelist_t moves;
     max_movelist_new(&moves);

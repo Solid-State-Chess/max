@@ -16,11 +16,11 @@ typedef uint8_t max_lidx_t;
 /// A variable-sized piece list with length and array of pieces
 typedef struct {
     max_lidx_t len;
-    max_bidx_t pos[];
+    max_bpos_t pos[];
 } max_piecelist_t;
 
 
-#define PIECELIST(size) struct { max_lidx_t len; max_bidx_t pos[(size)]; }
+#define PIECELIST(size) struct { max_lidx_t len; max_bpos_t pos[(size)]; }
 
 /// A complete list of the positions of all the pieces on one side of a chess game
 typedef struct {

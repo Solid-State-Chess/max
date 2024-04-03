@@ -101,7 +101,7 @@ void max_board_debugprint(max_board_t const* board);
 
 /// Remove a piece by position from the given side
 MAX_HOT
-MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *side, max_bidx_t pos) {
+MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *side, max_bpos_t pos) {
     max_piececode_t piece = board->pieces[pos];
     board->pieces[pos] = MAX_PIECECODE_EMPTY;
     max_piecelist_t *list = max_pieces_get_list(side, piece);
@@ -109,14 +109,14 @@ MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *
     
     //Replace the removed element with the last element of the list
     list->len -= 1;
-    max_bidx_t shuffled_pos = list->pos[list->len];
+    max_bpos_t shuffled_pos = list->pos[list->len];
     list->pos[index] = shuffled_pos;
     side->index[shuffled_pos] = index;
 }
 
 /// Add a piece with the given code to the chessboard
 MAX_HOT
-MAX_INLINE_ALWAYS void max_board_add_piece(max_board_t *board, max_pieces_t *side, max_bidx_t pos, max_piececode_t piece) {
+MAX_INLINE_ALWAYS void max_board_add_piece(max_board_t *board, max_pieces_t *side, max_bpos_t pos, max_piececode_t piece) {
     board->pieces[pos] = piece;
     max_piecelist_t *list = max_pieces_get_list(side, piece);
     max_lidx_t index = list->len;
@@ -128,7 +128,7 @@ MAX_INLINE_ALWAYS void max_board_add_piece(max_board_t *board, max_pieces_t *sid
 
 /// Shift the piece from the given location to the given location, replacing its old position with an empty square
 MAX_HOT
-MAX_INLINE_ALWAYS void max_board_shift_piece(max_board_t *board, max_pieces_t *side, max_bidx_t from, max_bidx_t to) {
+MAX_INLINE_ALWAYS void max_board_shift_piece(max_board_t *board, max_pieces_t *side, max_bpos_t from, max_bpos_t to) {
     max_piececode_t piece = board->pieces[from];
     max_lidx_t index = side->index[from];
     max_piecelist_t *list = max_pieces_get_list(side, piece);

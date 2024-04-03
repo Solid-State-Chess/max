@@ -4,9 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef uint8_t max_bidx_t;
+typedef uint8_t max_bpos_t;
 
-MAX_INLINE_ALWAYS max_bidx_t max_bidx_new(uint8_t file, uint8_t rank) {
+MAX_INLINE_ALWAYS max_bpos_t max_bpos_new(uint8_t file, uint8_t rank) {
     return (rank << 4) + file;
 }
 
@@ -56,13 +56,13 @@ enum {
 };
 
 /// Check if the given position is valid or out of bounds
-MAX_INLINE_ALWAYS bool max_bidx_valid(max_bidx_t pos) { return (pos & 0x88) == 0; }
+MAX_INLINE_ALWAYS bool max_bpos_valid(max_bpos_t pos) { return (pos & 0x88) == 0; }
 
 /// Type representing board position increments
 typedef int8_t max_increment_t;
 
 /// Apply the given increment to the given position
-MAX_INLINE_ALWAYS max_bidx_t max_bidx_inc(max_bidx_t pos, max_increment_t inc) {
+MAX_INLINE_ALWAYS max_bpos_t max_bpos_inc(max_bpos_t pos, max_increment_t inc) {
     return pos + inc;
 }
 

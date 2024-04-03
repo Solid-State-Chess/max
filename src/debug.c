@@ -32,7 +32,7 @@ void max_board_debugprint(max_board_t const* board) {
     while(rank != 0) {
         rank -= 1;
         for(uint8_t file = 0; file <= 7; ++file) {
-            max_piececode_t sq = board->pieces[max_bidx_new(file, rank)];
+            max_piececode_t sq = board->pieces[max_bpos_new(file, rank)];
             putc(piece_char(sq), stdout);
         }
         putc('\n', stdout);
