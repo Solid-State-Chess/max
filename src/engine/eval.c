@@ -1,3 +1,4 @@
+#include "max/def.h"
 #include "max/engine.h"
 #include "max/piece.h"
 #include "private.h"
@@ -11,6 +12,8 @@
 
 
 /// Evaluate the material for one side of a chessboard
+MAX_HOT
+MAX_INLINE_ALWAYS
 static max_score_t max_evaluate_side(max_pieces_t *side, unsigned white) {
     static max_score_t PAWN_PSTBL[64] = {
          0,  0,  0,  0,  0,  0,  0,  0,
@@ -39,7 +42,7 @@ static max_score_t max_evaluate_side(max_pieces_t *side, unsigned white) {
             pos = side->pawns.pos[i];
         }
 
-        pos = (pos & 0x7) | ((pos & 0xF0) >> 1);
+        pos = (pos + (pos & 7)) >> 1;
 
         material += PAWN_PSTBL[pos];
     }
@@ -48,5 +51,7 @@ static max_score_t max_evaluate_side(max_pieces_t *side, unsigned white) {
 }
 
 max_score_t max_evaluate(max_engine_t *engine) {
-    return (max_evaluate_side(&engine->board.white, 1) - max_evaluate_side(&engine->board.black, 0)) * ((engine->board.ply & 1) ? 1 : -1);
+    max_score_t white = max_evaluate_side(&engine->board.white, 1);
+    max_score_t black = max_evaluate_side(&engine->board.black, 0);
+    return white - black;
 }

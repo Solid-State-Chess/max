@@ -94,12 +94,12 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
                 max_movelist_add(moves, max_move_capture(pos, left));
             }
 
-            if(max_bpos_valid(epsquare)) {
+            /*if(max_bpos_valid(epsquare)) {
                 if(max_bpos_inc(pos, MAX_INCREMENT_RIGHT) == epsquare || max_bpos_inc(pos, MAX_INCREMENT_LEFT) == epsquare) {
                     max_bpos_t moveto = max_bpos_inc(epsquare, PAWN_INC[side]);
                     max_movelist_add(moves, max_move_new(pos, moveto, MAX_MOVE_EN_PASSANT));
                 }
-            }
+            }*/
         }
 
     }
