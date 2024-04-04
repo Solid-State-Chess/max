@@ -193,5 +193,3 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     max_board_unmake_move(board, move);
     return valid;
 }
-
-

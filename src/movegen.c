@@ -139,6 +139,8 @@ inline static void max_board_pawnmovegen_loud(
     uint8_t side,
     max_bpos_t pos
 ) {
+    //Rank that an enemy pawn would be en passanted at
+    static max_bpos_t PAWN_EPRANK[2] = {MAX_RANK_5, MAX_RANK_4};
 
     max_bpos_t up = max_bpos_inc(pos, PAWN_INC[side]);
     max_bpos_t right = max_bpos_inc(up, MAX_INCREMENT_RIGHT);
@@ -150,28 +152,26 @@ inline static void max_board_pawnmovegen_loud(
     if(max_bpos_valid(left) && (board->pieces[left] & enemy_color)) {
         max_movelist_add(moves, max_move_capture(pos, left));
     }
+    
 
-    /*if(max_bpos_valid(epsquare)) {
+    //If the EP file is invalid on the stack, then this will be an invalid index
+    max_bpos_t epsquare = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side];
+
+    if(max_bpos_valid(epsquare)) {
         if(max_bpos_inc(pos, MAX_INCREMENT_RIGHT) == epsquare || max_bpos_inc(pos, MAX_INCREMENT_LEFT) == epsquare) {
             max_bpos_t moveto = max_bpos_inc(epsquare, PAWN_INC[side]);
             max_movelist_add(moves, max_move_new(pos, moveto, MAX_MOVE_EN_PASSANT));
         }
-    }*/
+    }
 }
 
 MAX_HOT
 void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const moves) {
-    //Rank that an enemy pawn would be en passanted at
-    static max_bpos_t PAWN_EPRANK[2]   = {MAX_RANK_5, MAX_RANK_4};
-    
     uint8_t side = board->ply & 1;
     max_pieces_t *state = &board->sides[side];
     max_pieces_t *enemy = &board->sides[side ^ 1];
 
     max_piececode_t enemy_color = MAX_PIECECODE_BLACK >> side;
-
-    //If the EP file is invalid on the stack, then this will be an invalid index
-    max_bpos_t epsquare = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side];
 
     for(max_lidx_t i = 0; i < state->pawns.len; ++i) {
         max_bpos_t pos = state->pawns.pos[i];
