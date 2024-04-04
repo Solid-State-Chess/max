@@ -62,6 +62,23 @@ static void max_board_postinit(max_board_t *const board) {
     }
 }
 
+/// Perform the given pawn promotion move
+MAX_HOT
+MAX_INLINE_ALWAYS
+void max_board_promote(max_board_t *const board, max_pieces_t *side, max_move_t move, max_piececode_t piece, max_piececode_t promoted) {
+    max_board_remove_piece(board, side, move.from);
+    max_board_add_piece(board, side, promoted, move.to);
+
+}
+
+/// Perform the given pawn promotion move
+MAX_HOT
+MAX_INLINE_ALWAYS
+void max_board_unpromote(max_board_t *const board, max_pieces_t *side, max_move_t move, max_piececode_t color) {
+    max_board_remove_piece(board, side, move.to);
+    max_board_add_piece(board, side, MAX_PIECECODE_PAWN | color, move.from);
+}
+
 MAX_HOT
 void max_board_make_move(max_board_t *const board, max_move_t move) {
     static uint8_t KCASTLE_ROOK_SQUARE[2] = {MAX_H1, MAX_H8};
@@ -86,6 +103,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     }
 
 
+
     switch(move.attr) {
         case MAX_MOVE_NORMAL: break;
         case MAX_MOVE_DOUBLE: {
@@ -93,6 +111,11 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
             //Set the en-passant file
             state_plate |= move.from & 7;
         } break;
+
+        /*case MAX_MOVE_PROMOTE_KNIGHT: max_board_promote(board, side, move, piece, MAX_PIECECODE_KNIGHT | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;
+        case MAX_MOVE_PROMOTE_BISHOP: max_board_promote(board, side, move, piece, MAX_PIECECODE_BISHOP | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;
+        case MAX_MOVE_PROMOTE_ROOK:   max_board_promote(board, side, move, piece, MAX_PIECECODE_ROOK   | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;
+        case MAX_MOVE_PROMOTE_QUEEN:  max_board_promote(board, side, move, piece, MAX_PIECECODE_QUEEN  | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;*/
 
         case MAX_MOVE_EN_PASSANT: {
             max_bpos_t takeat = max_bpos_inc(move.to, PAWN_INC[side_to_move ^ 1]);
@@ -120,7 +143,8 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     }
 
     max_board_shift_piece(board, side, move.from, move.to);
-    
+
+end:
     board->ply += 1;
     board->stack[board->ply] = state_plate;
 
@@ -140,6 +164,15 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         case MAX_MOVE_NORMAL:
         case MAX_MOVE_DOUBLE: {
         } break;
+        
+        case MAX_MOVE_PROMOTE_KNIGHT:
+        case MAX_MOVE_PROMOTE_BISHOP:
+        case MAX_MOVE_PROMOTE_ROOK:
+        case MAX_MOVE_PROMOTE_QUEEN: {
+            //max_board_unpromote(board, side, move, piece & MAX_PIECECODE_COLOR_MASK);
+            return;
+        }
+
 
         case MAX_MOVE_EN_PASSANT: {
             max_bpos_t takeat = max_bpos_inc(move.to, PAWN_INC[side_to_move ^ 1]);
@@ -170,7 +203,6 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
             max_bpos_t rook_pos     = max_bpos_inc(move.to, MAX_INCREMENT_RIGHT);
             max_board_shift_piece(board, side, rook_pos, old_rook_pos);
         } break;
-
     }
 }
 

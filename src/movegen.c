@@ -107,6 +107,11 @@ static MAX_INLINE_ALWAYS void max_rookgen_loud(
 
 #undef ROOKSLIDE
 
+
+//Rank masks for promotions
+static max_bpos_t PAWN_PROMOTERANK[2] = {MAX_RANK_8, MAX_RANK_1};
+
+
 MAX_HOT
 inline static void max_board_pawnmovegen_quiet(
     max_board_t *const board,
@@ -121,7 +126,7 @@ inline static void max_board_pawnmovegen_quiet(
     max_bpos_t up = max_bpos_inc(pos, PAWN_INC[side]);
 
     if(max_bpos_valid(up)) {
-        if(board->pieces[up] == MAX_PIECECODE_EMPTY) {
+        if((up & MAX_RANK_MASK) != PAWN_PROMOTERANK[side] && board->pieces[up] == MAX_PIECECODE_EMPTY) {
             max_movelist_add(moves, max_move_normal(pos, up));
             max_bpos_t up2 = max_bpos_inc(up, PAWN_INC[side]);
             if((pos & MAX_RANK_MASK) == PAWN_HOMEROW[side] && board->pieces[up2] == MAX_PIECECODE_EMPTY) {
@@ -143,6 +148,13 @@ inline static void max_board_pawnmovegen_loud(
     static max_bpos_t PAWN_EPRANK[2] = {MAX_RANK_5, MAX_RANK_4};
 
     max_bpos_t up = max_bpos_inc(pos, PAWN_INC[side]);
+    if(max_bpos_valid(up) && (up & MAX_RANK_MASK) == PAWN_PROMOTERANK[side] && board->pieces[up] == MAX_PIECECODE_EMPTY) {
+        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_KNIGHT));
+        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_BISHOP));
+        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_ROOK));
+        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_QUEEN));
+    }
+
     max_bpos_t right = max_bpos_inc(up, MAX_INCREMENT_RIGHT);
     if(max_bpos_valid(right) && (board->pieces[right] & enemy_color)) {
         max_movelist_add(moves, max_move_capture(pos, right));

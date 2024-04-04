@@ -17,6 +17,11 @@ enum {
     MAX_MOVE_QCASTLE     = 3,
     MAX_MOVE_KCASTLE     = 4,
     MAX_MOVE_DOUBLE      = 5,
+
+    MAX_MOVE_PROMOTE_KNIGHT = 6,
+    MAX_MOVE_PROMOTE_BISHOP = 7,
+    MAX_MOVE_PROMOTE_ROOK   = 8,
+    MAX_MOVE_PROMOTE_QUEEN  = 9
 };
 
 /// A move with specification for 'special' moves that require additional processing
@@ -25,8 +30,6 @@ typedef struct {
     max_bpos_t to;
     max_move_attr_t attr;
 } max_move_t;
-
-#define MAX_MOVELIST_LEN (256)
 
 /// A statically-allocated list of moves to append to when searching a move tree
 typedef struct {
