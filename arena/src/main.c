@@ -1,17 +1,23 @@
-#include "max/engine.h"
+#include "gui.h"
 #include <stdlib.h>
 
 #include <SDL2/SDL.h>
 
 int main(void) {
-    max_engine_t *engine = malloc(sizeof(*engine));
-    max_engine_new(engine);
-    
-    max_move_t buf[256];
+    int ec;
+    gui_state_t *gui = malloc(sizeof(*gui)); 
 
-    for(;;) {
-        
+    if((ec = gui_state_new(gui)) < 0) {
+        goto gui_fail;
     }
+
+    if((ec = gui_state_run(gui)) < 0) {
+        goto gui_fail;
+    }
+
+gui_fail:
+    gui_state_destroy(gui);
+    free(gui);
 
     return 1;
 }
