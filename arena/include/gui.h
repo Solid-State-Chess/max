@@ -1,4 +1,5 @@
 #pragma once
+#include "max/engine.h"
 #include <SDL2/SDL.h>
 #include <SDL_video.h>
 
@@ -12,9 +13,21 @@ typedef struct {
 } gui_textures_t;
 
 typedef struct {
+    max_bpos_t from;
+    SDL_Texture *grabbed;
+} gui_grabbed_t;
+
+typedef struct {
     SDL_Window *window;
     SDL_Renderer *render;
     gui_textures_t textures;
+    max_engine_t engine;
+    max_move_t buffer[256];
+
+    gui_grabbed_t grabbed;
+    //Size of each chess square in pixels
+    int squarex;
+    int squarey;
 } gui_state_t;
 
 /// Initialize the window and game engine
@@ -27,4 +40,4 @@ int gui_state_run(gui_state_t *state);
 void gui_state_destroy(gui_state_t *state);
 
 /// Load all textures from their embedded binary
-int gui_textures_load(gui_textures_t *texture);
+int gui_textures_load(SDL_Renderer *render, gui_textures_t *texture);
