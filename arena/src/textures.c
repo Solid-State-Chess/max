@@ -15,6 +15,10 @@
 #include "img/B.h"
 #include "img/N.h"
 #include "img/P.h"
+
+#include "img/marble.h"
+#include "img/wood.h"
+
 #include "max/piece.h"
 #include <SDL_render.h>
 #include <SDL_rwops.h>
@@ -56,6 +60,9 @@ int gui_textures_load(SDL_Renderer *render, gui_textures_t *textures) {
     textures->black[MAX_PIECECODE_ROOK]   = load_texture(render, __R_png, __R_png_len);
     textures->black[MAX_PIECECODE_QUEEN]  = load_texture(render, __Q_png, __Q_png_len);
     textures->black[MAX_PIECECODE_KING]   = load_texture(render, __K_png, __K_png_len);
+
+    textures->square[0]                   = load_texture(render, __marble_png, __marble_png_len);
+    textures->square[1]                   = load_texture(render, __wood_png,   __wood_png_len);
 
     return 0;
 }

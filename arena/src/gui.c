@@ -70,12 +70,20 @@ static void gui_state_render(gui_state_t *state) {
 
     for(unsigned x = 0; x < 8; ++x) {
         for(unsigned y = 0; y < 8; ++y) {
+            dest.x = x * state->squarex;
+            dest.y = (7 - y) * state->squarey;
+
             max_bpos_t pos = max_bpos_new(x, y);
+            SDL_Texture *bg = NULL;
+            if((x + y) & 1) {
+                bg = state->textures.square[0];
+            } else {
+                bg = state->textures.square[1];
+            }
+            SDL_RenderCopy(state->render, bg, NULL, &dest);
+
             max_piececode_t piece = state->engine.board.pieces[pos];
             if((state->grabbed.grabbed == NULL || pos != state->grabbed.from) && piece != MAX_PIECECODE_EMPTY) {
-                dest.x = x * state->squarex;
-                dest.y = (7 - y) * state->squarey;
-
                 SDL_RenderCopy(state->render, gui_texture_for_piece(state, piece), NULL, &dest);
             }
         }
@@ -115,7 +123,6 @@ int gui_state_run(gui_state_t *state) {
                     if(state->grabbed.grabbed != NULL) {
                         max_bpos_t to = screen_to_board(state, event.button.x, event.button.y);
                         if(max_bpos_valid(to)) {
-                        
                         }
                     } else {
                         max_bpos_t pos = screen_to_board(state, event.button.x, event.button.y);
