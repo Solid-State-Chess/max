@@ -1,7 +1,6 @@
 #include "gui.h"
 #include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_surface.h>
+#include <SDL_render.h>
 
 int gui_state_new(gui_state_t *state) {
     int ec;
@@ -17,8 +16,14 @@ int gui_state_new(gui_state_t *state) {
         0
     );
     
-    state->surface = SDL_GetWindowSurface(state->window);
+    state->render = SDL_CreateRenderer(state->window, -1, SDL_RENDERER_ACCELERATED);
 
+    if(state->render == NULL) {
+        printf("Failed to create accelerated renderer: %s\n", SDL_GetError());
+        return -1;
+    }
+    
+    SDL_SetRenderDrawColor(state->render, 0xFF, 0, 0xFF, 0xFF);
     return 0;
 }
 
@@ -30,12 +35,17 @@ int gui_state_run(gui_state_t *state) {
                 case SDL_QUIT: return 0;
             }
         }
-
-        SDL_UpdateWindowSurface(state->window);
+        
+        SDL_RenderClear(state->render);
+        SDL_RenderPresent(state->render);
     }
 }
 
 void gui_state_destroy(gui_state_t *state) {
+    if(state->render != NULL) {
+        SDL_DestroyRenderer(state->render);
+    }
+
     if(state->window != NULL) {
         SDL_DestroyWindow(state->window);
     }
