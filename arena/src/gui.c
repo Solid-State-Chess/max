@@ -1,9 +1,11 @@
 #include "gui.h"
+#include "max/engine.h"
 #include "max/piece.h"
 #include "max/square.h"
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_mouse.h>
+#include <SDL_mutex.h>
 #include <SDL_render.h>
 #include <SDL_video.h>
 
@@ -36,8 +38,15 @@ int gui_state_new(gui_state_t *state) {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
     gui_textures_load(state->render, &state->textures);
+    
+    state->shared = malloc(sizeof(*state->shared));
+    max_engine_new(&state->shared->engine); 
+    state->shared->moves = max_movelist_new(malloc(sizeof(max_move_t) * 256));
+    state->shared->lock = SDL_CreateSemaphore(0);
+    
+    state->thread = SDL_CreateThread(gui_engine_thread, "Engine Thread", (void*)state->shared);
 
-    max_engine_new(&state->engine);
+    state->grabbed.grabbed = NULL;
 
     return 0;
 }
@@ -63,6 +72,7 @@ static SDL_Texture* gui_texture_for_piece(gui_state_t *state, max_piececode_t pi
     return tx;
 }
 
+/// MUST have lock
 static void gui_state_render(gui_state_t *state) {
     SDL_Rect dest;
     dest.w = state->squarex;
@@ -82,12 +92,18 @@ static void gui_state_render(gui_state_t *state) {
             }
             SDL_RenderCopy(state->render, bg, NULL, &dest);
 
-            max_piececode_t piece = state->engine.board.pieces[pos];
+            max_piececode_t piece = state->shared->engine.board.pieces[pos];
             if((state->grabbed.grabbed == NULL || pos != state->grabbed.from) && piece != MAX_PIECECODE_EMPTY) {
                 SDL_RenderCopy(state->render, gui_texture_for_piece(state, piece), NULL, &dest);
             }
         }
     }
+}
+
+
+static void gui_state_drop_grabbed(gui_state_t *state) {
+    state->grabbed.grabbed = NULL;
+    SDL_ShowCursor(SDL_ENABLE);
 }
 
 int gui_state_run(gui_state_t *state) {
@@ -99,10 +115,17 @@ int gui_state_run(gui_state_t *state) {
     state->squarex = w / 8;
     state->squarey= h / 8;
 
+    bool enginedone = false;
+    SDL_SemPost(state->shared->lock);
+
     for(;;) {
+        enginedone = SDL_SemValue(state->shared->lock) == 0;
+
         SDL_Event event;
         SDL_RenderClear(state->render);
+
         gui_state_render(state);
+
         if(state->grabbed.grabbed != NULL) {
             SDL_Rect pos;
             SDL_GetMouseState(&pos.x, &pos.y);
@@ -113,8 +136,8 @@ int gui_state_run(gui_state_t *state) {
             SDL_RenderCopy(state->render, state->grabbed.grabbed, NULL, &pos);
         }
 
-        SDL_RenderPresent(state->render);
 
+        SDL_RenderPresent(state->render);
 
         while(SDL_PollEvent(&event)) {
             switch(event.type) {
@@ -123,27 +146,59 @@ int gui_state_run(gui_state_t *state) {
                     if(state->grabbed.grabbed != NULL) {
                         max_bpos_t to = screen_to_board(state, event.button.x, event.button.y);
                         if(max_bpos_valid(to)) {
+                            if(to == state->grabbed.from) {
+                                gui_state_drop_grabbed(state);
+                                continue;
+                            }
+                            
+                            if(enginedone) {
+                                max_movelist_t moves = state->shared->moves;
+                                bool moved = false;
+                                for(unsigned i = 0; i < moves.len; ++i) {
+                                    max_move_t move = moves.moves[i];
+                                    if(move.from == state->grabbed.from && move.to == to) {
+                                        if(max_board_move_is_valid(&state->shared->engine.board, move)) {
+                                            max_board_make_move(&state->shared->engine.board, move);
+                                            gui_state_drop_grabbed(state);
+                                            SDL_SemPost(state->shared->lock);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     } else {
                         max_bpos_t pos = screen_to_board(state, event.button.x, event.button.y);
-                        if(max_bpos_valid(pos)) {
-                            max_piececode_t piece = state->engine.board.pieces[pos];
-                            if(piece != MAX_PIECECODE_EMPTY) {
-                                state->grabbed.from = pos;
-                                state->grabbed.grabbed = gui_texture_for_piece(state, piece);
-                                SDL_ShowCursor(SDL_DISABLE);
+
+                        if(enginedone) {
+                            if(max_bpos_valid(pos)) {
+                                max_piececode_t piece = state->shared->engine.board.pieces[pos];
+                                if(piece != MAX_PIECECODE_EMPTY) {
+                                    state->grabbed.from = pos;
+                                    state->grabbed.grabbed = gui_texture_for_piece(state, piece);
+                                    SDL_ShowCursor(SDL_DISABLE);
+                                }
                             }
+
                         }
                     }
                 } break;
             }
         }
-
+        
         SDL_Delay(16);
     }
 }
 
 void gui_state_destroy(gui_state_t *state) {
+    state->shared->quit = true;
+    SDL_SemPost(state->shared->lock);
+
+    int status;
+    SDL_WaitThread(state->thread, &status);
+
+    free(state->shared->moves.moves);
+
     if(state->render != NULL) {
         SDL_DestroyRenderer(state->render);
     }

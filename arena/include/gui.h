@@ -1,7 +1,6 @@
 #pragma once
 #include "max/engine.h"
 #include <SDL2/SDL.h>
-#include <SDL_video.h>
 
 typedef struct {
     /// White and black textures
@@ -12,17 +11,34 @@ typedef struct {
     SDL_Texture *black[32];
 } gui_textures_t;
 
+/// State for the currently grabbed piece
 typedef struct {
-    max_bpos_t from;
+    /// If NULL, then there is no piece being grabbed
     SDL_Texture *grabbed;
+    max_bpos_t from;
 } gui_grabbed_t;
+
+/// State shared between engine thread and the gui thread
+typedef struct {
+    /// Engine state including the game board
+    max_engine_t engine;
+    /// A list of all valid moves for the player, filled by the engine thread
+    max_movelist_t moves;
+    /// Lock preventing simultaneous acccess to the board
+    SDL_sem *lock;
+    /// Set while the GUI has a lock indicating that the engine thread should exit
+    bool quit;
+} gui_shared_t;
 
 typedef struct {
     SDL_Window *window;
     SDL_Renderer *render;
+    /// Thread that the engine runs in
+    SDL_Thread *thread;
+    /// State that the engine thread has access to
+    gui_shared_t *shared;
+
     gui_textures_t textures;
-    max_engine_t engine;
-    max_move_t buffer[256];
 
     gui_grabbed_t grabbed;
     //Size of each chess square in pixels
@@ -41,3 +57,6 @@ void gui_state_destroy(gui_state_t *state);
 
 /// Load all textures from their embedded binary
 int gui_textures_load(SDL_Renderer *render, gui_textures_t *texture);
+
+/// Function to start as a thread in SDL
+int gui_engine_thread(void* data);
