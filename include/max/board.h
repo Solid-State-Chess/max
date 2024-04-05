@@ -85,6 +85,9 @@ void max_board_make_move(max_board_t *const board, max_move_t move);
 /// Unmake the given move, restoring any captured pieces and ep / castling state
 void max_board_unmake_move(max_board_t *const board, max_move_t move);
 
+/// Check if the given piece is attacked by the given side
+bool max_board_square_is_attacked(max_board_t *const board, max_bpos_t square, max_piececode_t color_mask);
+
 /// Add a piece to the given capture stack
 MAX_INLINE_ALWAYS void max_capturestack_push(max_board_capturestack_t *stack, max_piececode_t piece) {
     stack->captures[stack->head] = piece;

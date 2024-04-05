@@ -1,4 +1,5 @@
 #include "max/board.h"
+#include "max/def.h"
 #include "max/move.h"
 #include "max/piece.h"
 #include "max/square.h"
@@ -112,10 +113,10 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
             state_plate |= move.from & 7;
         } break;
 
-        /*case MAX_MOVE_PROMOTE_KNIGHT: max_board_promote(board, side, move, piece, MAX_PIECECODE_KNIGHT | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;
-        case MAX_MOVE_PROMOTE_BISHOP: max_board_promote(board, side, move, piece, MAX_PIECECODE_BISHOP | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;
-        case MAX_MOVE_PROMOTE_ROOK:   max_board_promote(board, side, move, piece, MAX_PIECECODE_ROOK   | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;
-        case MAX_MOVE_PROMOTE_QUEEN:  max_board_promote(board, side, move, piece, MAX_PIECECODE_QUEEN  | (piece & MAX_PIECECODE_COLOR_MASK)); goto end;*/
+        case MAX_MOVE_PROMOTE_KNIGHT: max_board_promote(board, side, move, piece, MAX_PIECECODE_KNIGHT | (piece & MAX_PIECECODE_COLOR_MASK)); goto end; break;
+        case MAX_MOVE_PROMOTE_BISHOP: max_board_promote(board, side, move, piece, MAX_PIECECODE_BISHOP | (piece & MAX_PIECECODE_COLOR_MASK)); goto end; break;
+        case MAX_MOVE_PROMOTE_ROOK:   max_board_promote(board, side, move, piece, MAX_PIECECODE_ROOK   | (piece & MAX_PIECECODE_COLOR_MASK)); goto end; break;
+        case MAX_MOVE_PROMOTE_QUEEN:  max_board_promote(board, side, move, piece, MAX_PIECECODE_QUEEN  | (piece & MAX_PIECECODE_COLOR_MASK)); goto end; break;
 
         case MAX_MOVE_EN_PASSANT: {
             max_bpos_t takeat = max_bpos_inc(move.to, PAWN_INC[side_to_move ^ 1]);
@@ -169,7 +170,7 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         case MAX_MOVE_PROMOTE_BISHOP:
         case MAX_MOVE_PROMOTE_ROOK:
         case MAX_MOVE_PROMOTE_QUEEN: {
-            //max_board_unpromote(board, side, move, piece & MAX_PIECECODE_COLOR_MASK);
+            max_board_unpromote(board, side, move, piece & MAX_PIECECODE_COLOR_MASK);
             return;
         }
 
@@ -206,22 +207,61 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
     }
 }
 
-bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
-    max_move_t buffer[1024];
-    max_board_make_move(board, move);
-    max_bpos_t kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
-    
-    max_movelist_t moves = max_movelist_new(buffer);
+MAX_HOT
+MAX_INLINE_ALWAYS
+bool max_board_valid_line(max_board_t *const board, max_piececode_t piece, max_bpos_t attacked, max_bpos_t to) {
+    static const max_increment_t QUEENLINES[240] = {0};
 
-    max_board_movegen_pseudo(board, &moves);
-    bool valid = true;
-    for(unsigned i = 0; i < moves.len; ++i) {
-        if(moves.moves[i].to == kpos) {
-            valid = false;
-            break;
+    max_bpos_t diff = 0x77 + to - attacked;
+    max_increment_t line = QUEENLINES[diff];
+    if(line != 0) {
+        max_bpos_t pos = max_bpos_inc(attacked, line);
+        while(max_bpos_valid(pos) && (board->pieces[pos] == MAX_PIECECODE_EMPTY)) {
+            pos = max_bpos_inc(pos, line);
+        }
+
+        if((board->pieces[pos] & (piece & MAX_PIECECODE_COLOR_MASK)) == 0) {
+            return false;
         }
     }
+    
+    return true;
+}
 
+MAX_HOT
+bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
+    static max_move_t BUFFER[256] = {0};
+    max_movelist_t moves = max_movelist_new(BUFFER);
+    
+    max_board_make_move(board, move);
+    
+    
+    max_bpos_t kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
+    max_board_movegen_pseudo(board, &moves);
+
+    for(unsigned i = 0; i < moves.len; ++i) {
+        if(moves.moves[i].to == kpos) {
+            max_board_unmake_move(board, move);
+            return false;
+        }        
+    }
+    
     max_board_unmake_move(board, move);
-    return valid;
+    return true;
+
+    /*max_piececode_t piece = board->pieces[move.from];
+    if((piece & MAX_PIECECODE_KING)) {
+        if(max_board_square_is_attacked(board, move.to, (MAX_PIECECODE_WHITE << board->ply) & 1)) {
+            return false;
+        }
+    } else if(move.attr == MAX_MOVE_EN_PASSANT) {
+    } else {
+        return max_board_valid_line(board, piece, move.from, kpos);
+    }*/
+}
+
+
+/// Check if the given piece is attacked by the given side
+bool max_board_square_is_attacked(max_board_t *const board, max_bpos_t square, max_piececode_t color_mask) {
+    
 }

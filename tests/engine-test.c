@@ -6,6 +6,7 @@
 #include "max/engine.h"
 #include "test.h"
 #include <stdlib.h>
+#include <valgrind/callgrind.h>
 
 static bool board_same(max_board_t *a, max_board_t *b) {
     if(memcmp(a->pieces, b->pieces, sizeof(a->pieces)) != 0) {
@@ -47,69 +48,12 @@ int engine_tests(void) {
     max_engine_new(engine);
     
     max_move_t buf[256];
+    max_searchresult_t search;
+    CALLGRIND_START_INSTRUMENTATION;
+    CALLGRIND_TOGGLE_COLLECT;
+    max_engine_search(engine, &search, 5);
+    CALLGRIND_TOGGLE_COLLECT;
+    CALLGRIND_STOP_INSTRUMENTATION;
 
-    for(;;) {
-        max_board_t prev;
-        memcpy(&prev, &engine->board, sizeof(prev));
-
-        max_searchresult_t search;
-        max_engine_search(engine, &search, 4);
-
-        /*if(!board_same(&prev, &engine->board)) {
-            exit(-1);
-        }*/
-
-        printf(
-            "%c%d->%c%d @ %d - ",
-            (search.bestmove.from & 7) + 'a',
-            (search.bestmove.from >> 4) + 1,
-            (search.bestmove.to & 7) + 'a',
-            (search.bestmove.to >> 4) + 1,
-            search.best_score
-        );
-
-        printnodes(engine->diagnostic.nodes);
-        printf(" / ");
-        printnodes(engine->diagnostic.futility_pruned);
-        printf(" Pruned\n");
-
-
-        max_board_make_move(&engine->board, search.bestmove);
-
-        max_board_debugprint(&engine->board);
-        
-        for(;;) {
-            char ff, tf;
-            char fr, tr;
-            int c;
-
-            while ((c = getchar()) != '\n' && c != EOF) {}
-            puts("MOVE: ");
-            scanf("%c%c%c%c", &ff, &fr, &tf, &tr);
-
-            max_bpos_t from = max_bpos_new(ff - 'a', fr - '1');
-            max_bpos_t to   = max_bpos_new(tf - 'a', tr - '1');
-            
-            max_movelist_t moves = max_movelist_new(buf);
-            memset(buf, 0, sizeof(buf));
-            max_board_movegen_pseudo(&engine->board, &moves);
-            
-            bool moved = false;
-            for(unsigned i = 0; i < moves.len; ++i) {
-                if(moves.moves[i].from == from && moves.moves[i].to == to) {
-                    if(max_board_move_is_valid(&engine->board, moves.moves[i])) {
-                        max_board_make_move(&engine->board, moves.moves[i]);
-                        moved = true;
-                        break;
-                    }
-                }
-            }
-
-            if(moved) {
-                break;
-            }
-        }
-    }
-
-    return 1;
+    return 0;
 }

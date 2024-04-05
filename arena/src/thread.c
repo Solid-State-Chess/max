@@ -9,7 +9,7 @@ int gui_engine_thread(void *_data) {
             if(data->quit) {
                 break;
             }
-
+            
             max_engine_search(&data->engine, &search, 4);
             max_board_make_move(&data->engine.board, search.bestmove);
 

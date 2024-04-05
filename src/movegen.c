@@ -109,8 +109,7 @@ static MAX_INLINE_ALWAYS void max_rookgen_loud(
 
 
 //Rank masks for promotions
-static max_bpos_t PAWN_PROMOTERANK[2] = {MAX_RANK_8, MAX_RANK_1};
-
+static max_bpos_t PAWN_PROMOTERANK[2] = {MAX_RANK_1, MAX_RANK_8};
 
 MAX_HOT
 inline static void max_board_pawnmovegen_quiet(
