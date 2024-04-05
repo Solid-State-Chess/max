@@ -44,7 +44,7 @@ int gui_state_new(gui_state_t *state) {
     state->shared->moves = max_movelist_new(malloc(sizeof(max_move_t) * 256));
     state->shared->lock = SDL_CreateSemaphore(0);
     
-    state->thread = SDL_CreateThread(gui_engine_thread, "Engine Thread", (void*)state->shared);
+    //state->thread = SDL_CreateThread(gui_engine_thread, "Engine Thread", (void*)state->shared);
 
     state->grabbed.grabbed = NULL;
 
@@ -115,11 +115,22 @@ int gui_state_run(gui_state_t *state) {
     state->squarex = w / 8;
     state->squarey= h / 8;
 
-    bool enginedone = false;
-    SDL_SemPost(state->shared->lock);
+    bool enginedone = true;
+    bool playerdone = true;
+    //SDL_SemPost(state->shared->lock);
 
     for(;;) {
-        enginedone = SDL_SemValue(state->shared->lock) == 0;
+        if(playerdone) {
+            max_searchresult_t search;
+            gui_shared_t *data = state->shared;
+            max_engine_search(&data->engine, &search, 4);
+            max_board_make_move(&data->engine.board, search.bestmove);
+
+            max_movelist_clear(&data->moves);
+            max_board_movegen_pseudo(&data->engine.board, &data->moves);
+            playerdone = false;
+        }
+        //enginedone = SDL_SemValue(state->shared->lock) == 0;
 
         SDL_Event event;
         SDL_RenderClear(state->render);
@@ -160,7 +171,8 @@ int gui_state_run(gui_state_t *state) {
                                         if(max_board_move_is_valid(&state->shared->engine.board, move)) {
                                             max_board_make_move(&state->shared->engine.board, move);
                                             gui_state_drop_grabbed(state);
-                                            SDL_SemPost(state->shared->lock);
+                                            //SDL_SemPost(state->shared->lock);
+                                            playerdone = true;
                                             break;
                                         }
                                     }
