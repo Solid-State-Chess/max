@@ -28,6 +28,13 @@ if(CMAKE_BUILD_TYPE EQUAL "Debug")
     target_compile_definitions(max PRIVATE "MAX_DEBUG")
 endif()
 
+target_compile_options(max-arena PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+)
+
+
+
 file(GLOB TEST_SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
 add_executable(max-tests ${TEST_SRC})
 target_link_libraries(max-tests PUBLIC max)

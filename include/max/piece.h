@@ -64,5 +64,5 @@ MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max
         [MAX_PIECECODE_KING]   = offsetof(max_pieces_t, king)
     };
 
-    return (max_piecelist_t*)((void*)pieces + lookup[piece & MAX_PIECECODE_TYPE_MASK]);
+    return (max_piecelist_t*)((uint8_t*)pieces + lookup[piece & MAX_PIECECODE_TYPE_MASK]);
 }

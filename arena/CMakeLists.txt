@@ -22,5 +22,10 @@ add_executable(max-arena ${SRC})
 target_include_directories(max-arena PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(max-arena PRIVATE SDL2::Main SDL2::Image)
 
+target_compile_options(max-arena PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+)
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../" "max")
 target_link_libraries(max-arena PRIVATE max)
