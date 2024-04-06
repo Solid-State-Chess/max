@@ -47,14 +47,16 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
         max_movelist_t moves = max_movelist_new(engine->search.moves + move_head);
         max_board_movegen_pseudo(&engine->board, &moves);
         max_engine_sortmoves(engine, &moves);
-
+        
+        uint8_t movecount = 0;
         for(uint8_t i = 0; i < moves.len; ++i) {
             max_move_t move = moves.moves[i];
-            if(!max_board_move_is_valid(&engine->board, move)) {
+            if(depth >= 3 && !max_board_move_is_valid(&engine->board, move)) {
                 continue;
             }
 
             max_board_make_move(&engine->board, move);
+            movecount += 1;
 
             max_score_t score = -max_alpha_beta(engine, -beta, -alpha, move_head + moves.len, depth - 1);
             max_board_unmake_move(&engine->board, move);
@@ -65,8 +67,12 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
                 alpha = score;
             }
         }
-
-        return alpha;
+        
+        if(movecount > 0) {
+            return alpha;
+        } else {
+            return MAX_KING_VALUE * SCORE_MUL[engine->board.ply & 1];
+        }
     }
 }
 

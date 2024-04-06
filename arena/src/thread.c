@@ -15,18 +15,21 @@ int gui_engine_thread(void *_data) {
             }
             
             uint64_t start = SDL_GetTicks64();
-            max_engine_search(&data->engine, &search, 4);
+            max_engine_search(&data->engine, &search, 5);
             double time = (double)(SDL_GetTicks64() - start) / 1000;
             double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
-
-            max_board_make_move(&data->engine.board, search.bestmove);
+            
+            if(search.bestmove.from != search.bestmove.to) {
+                max_board_make_move(&data->engine.board, search.bestmove);
+            }
 
             double mn_s = meganodes / time;
             printf(
-                "%.3f MN - %.2f s [%.2f MN/s]\n",
+                "%.3f MN - %.2f s [%.2f MN/s] @ %i\n",
                 meganodes,
                 time,
-                mn_s
+                mn_s,
+                search.best_score
             );
 
             max_movelist_clear(&data->moves);

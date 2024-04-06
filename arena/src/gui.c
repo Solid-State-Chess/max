@@ -122,12 +122,12 @@ int gui_state_run(gui_state_t *state) {
     state->squarex = w / 8;
     state->squarey= h / 8;
 
-    bool enginedone = false;
+    bool enginedone = true;
     SDL_SemPost(state->shared->lock);
 
     for(;;) {
         enginedone = SDL_SemValue(state->shared->lock) == 0;
-
+        
         SDL_Event event;
         SDL_RenderClear(state->render);
 
