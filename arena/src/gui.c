@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "max/board.h"
 #include "max/engine.h"
 #include "max/piece.h"
 #include "max/square.h"
