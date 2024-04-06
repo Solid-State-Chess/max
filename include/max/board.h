@@ -30,8 +30,11 @@ enum {
     MAX_PLYPLATE_CASTLE_OFFSET = 4,
 };
 
-/// Zobrist hash of a board, updated incrementally with the board
-typedef uint32_t max_zobrist_key_t;
+/// Information for a detected sliding attack on a square
+typedef struct {
+    max_increment_t line;
+    max_bpos_t attacker;
+} max_lineattack_t;
 
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
@@ -85,8 +88,11 @@ void max_board_make_move(max_board_t *const board, max_move_t move);
 /// Unmake the given move, restoring any captured pieces and ep / castling state
 void max_board_unmake_move(max_board_t *const board, max_move_t move);
 
-/// Check if the given piece is attacked by the given side
-bool max_board_square_is_attacked(max_board_t *const board, max_bpos_t square, max_piececode_t color_mask);
+/// Check for non sliding attacks on the given square
+bool max_board_nonsliding_attack(max_board_t *board, max_bpos_t attacked, max_piececode_t piece, max_bpos_t *attacker);
+
+/// Check for sliding attacks on the given square
+bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_piececode_t piece, max_lineattack_t *attack);
 
 /// Add a piece to the given capture stack
 MAX_INLINE_ALWAYS void max_capturestack_push(max_board_capturestack_t *stack, max_piececode_t piece) {

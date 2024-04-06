@@ -1,5 +1,6 @@
 #include "max/board.h"
 #include "max/def.h"
+#include "max/move.h"
 #include "max/piece.h"
 #include "max/square.h"
 #include "private.h"
@@ -42,15 +43,8 @@ void max_board_init_statics(max_board_t *const board) {
     }
 }
 
-/// Information for a detected sliding attack on a square
-typedef struct {
-    max_increment_t line;
-    max_bpos_t attacker;
-} max_lineattack_t;
-
 /// Check for a sliding attacker on the given square, returns true if there is a sliding attack on square
 MAX_HOT
-MAX_INLINE_ALWAYS
 bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_piececode_t piece, max_lineattack_t *attack) {
     static const max_increment_t  DIAGONAL[4] = {
         MAX_INCREMENT_UR,
@@ -101,7 +95,6 @@ bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_p
 
 /// Check if there is a knight or pawn attack on the given square
 MAX_HOT
-MAX_INLINE_ALWAYS
 bool max_board_nonsliding_attack(max_board_t *board, max_bpos_t attacked, max_piececode_t piece, max_bpos_t *attacker) {
     static const max_increment_t PAWNSIDES[2] = {MAX_INCREMENT_RIGHT, MAX_INCREMENT_LEFT};
     
@@ -209,6 +202,16 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
 
     
     if((piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING || move.attr == MAX_MOVE_EN_PASSANT) {
+        if((piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING && (move.attr == MAX_MOVE_KCASTLE || move.attr == MAX_MOVE_QCASTLE)) {
+            max_bpos_t kpos = board->sides[(board->ply & 1)].king.pos[0];
+            max_lineattack_t line;
+            if(max_board_nonsliding_attack(board, kpos, piece, &line.attacker) || max_board_sliding_attack(board, kpos, piece, &line)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
         max_movelist_t moves = max_movelist_new(BUFFER);
         
         max_board_make_move(board, move);

@@ -166,6 +166,7 @@ int gui_state_run(gui_state_t *state) {
                                         if(max_board_move_is_valid(&state->shared->engine.board, move)) {
                                             max_board_make_move(&state->shared->engine.board, move);
                                             gui_state_drop_grabbed(state);
+                                            enginedone = false;
                                             SDL_SemPost(state->shared->lock);
                                             break;
                                         }

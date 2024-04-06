@@ -117,7 +117,7 @@ int board_tests(void) {
 
     //ASSERT_EQ(size_t, perft(&board, moves, 2), 400, "%zu");
     //ASSERT_EQ(size_t, perft(&board, moves, 3), 8902, "%zu");
-    size_t nodes = perft(&board, moves, 6);
+    size_t nodes = perft(&board, moves, 7);
     printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
 
     exit(-1);
