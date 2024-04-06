@@ -28,10 +28,10 @@ if(CMAKE_BUILD_TYPE EQUAL "Debug")
     target_compile_definitions(max PRIVATE "MAX_DEBUG")
 endif()
 
-target_compile_options(max-arena PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
-)
+#/*target_compile_options(max PRIVATE
+#  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+#  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+#)
 
 
 

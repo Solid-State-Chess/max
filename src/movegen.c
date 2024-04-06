@@ -6,6 +6,17 @@
 #include "private.h"
 #include <stdbool.h>
 
+const max_increment_t KNIGHT_MOVES[8] = {
+    MAX_INCREMENT_UP    + MAX_INCREMENT_UR,
+    MAX_INCREMENT_UP    + MAX_INCREMENT_UL,
+    MAX_INCREMENT_DOWN  + MAX_INCREMENT_DR,
+    MAX_INCREMENT_DOWN  + MAX_INCREMENT_DL,
+    MAX_INCREMENT_RIGHT + MAX_INCREMENT_UR,
+    MAX_INCREMENT_RIGHT + MAX_INCREMENT_DR,
+    MAX_INCREMENT_LEFT  + MAX_INCREMENT_UL,
+    MAX_INCREMENT_LEFT  + MAX_INCREMENT_DL,
+};
+
 /// Generate all quiet and loud sliding moves in the given direction
 static MAX_INLINE_ALWAYS void max_slidegen_all(
     max_movelist_t *const moves,

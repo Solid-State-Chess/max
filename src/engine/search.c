@@ -36,6 +36,7 @@ static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_scor
         }
     }
     
+
     return alpha;
 }
 
@@ -54,18 +55,6 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
             }
 
             max_board_make_move(&engine->board, move);
-            
-            //Futility pruning
-            if(depth == 1) {
-                max_score_t eval = (max_evaluate(engine) + max_piecevalue(engine, engine->board.pieces[move.to])) 
-                    * -SCORE_MUL[engine->board.ply & 1];
-                max_score_t cutoff = alpha + ((MAX_PAWN_VALUE / 2) * -SCORE_MUL[engine->board.ply & 1]);
-                if(eval <= cutoff) {
-                    engine->diagnostic.futility_pruned += 1;
-                    max_board_unmake_move(&engine->board, move);
-                    continue;
-                }
-            }
 
             max_score_t score = -max_alpha_beta(engine, -beta, -alpha, move_head + moves.len, depth - 1);
             max_board_unmake_move(&engine->board, move);
@@ -80,7 +69,6 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
         return alpha;
     }
 }
-
 
 void max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth) {
     engine->diagnostic.nodes = 0;

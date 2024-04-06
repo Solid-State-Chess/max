@@ -58,6 +58,11 @@ enum {
 /// Check if the given position is valid or out of bounds
 MAX_INLINE_ALWAYS bool max_bpos_valid(max_bpos_t pos) { return (pos & 0x88) == 0; }
 
+/// Get a difference index between 0 and 238 to index lookup tables by square difference
+MAX_INLINE_ALWAYS max_bpos_t max_bpos_diff(max_bpos_t from, max_bpos_t to) {
+    return 0x77 + from - to;
+}
+
 /// Type representing board position increments
 typedef int8_t max_increment_t;
 
@@ -77,5 +82,9 @@ enum {
     MAX_INCREMENT_DR    = MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT,
     MAX_INCREMENT_DL    = MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT,
 };
+
+
+/// Direction between two squares by 0x88 difference, used for check and pin calculations
+extern max_increment_t MAX_DIRECTION_BY_DIFF[140];
 
 #undef FILE

@@ -1,7 +1,8 @@
 #include "gui.h"
 #include <SDL_error.h>
+#include <SDL_timer.h>
 
-#define NODEFMT(nodes) ((nodes) / 1000000), (((nodes) - (((nodes) / 1000000) * 1000000)) / 100000)
+#define NODEFMT(nodes) ((nodes) / 1000000), (((nodes) - (((nodes) / 1000000) * 1000000)) / 10000)
 
 int gui_engine_thread(void *_data) {
     gui_shared_t *data = (gui_shared_t*)_data;
@@ -13,9 +14,20 @@ int gui_engine_thread(void *_data) {
                 break;
             }
             
-            max_engine_search(&data->engine, &search, 4);
+            uint64_t start = SDL_GetTicks64();
+            max_engine_search(&data->engine, &search, 3);
+            double time = (double)(SDL_GetTicks64() - start) / 1000;
+            double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
+
             max_board_make_move(&data->engine.board, search.bestmove);
-            printf("%zu.%zu MN\n", NODEFMT(data->engine.diagnostic.nodes));
+
+            double mn_s = meganodes / time;
+            printf(
+                "%.3f MN - %.2f s [%.2f MN/s]\n",
+                meganodes,
+                time,
+                mn_s
+            );
 
             max_movelist_clear(&data->moves);
             max_board_movegen_pseudo(&data->engine.board, &data->moves);
