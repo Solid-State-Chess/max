@@ -84,6 +84,7 @@ void max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
     engine->diagnostic.futility_pruned = 0;
     max_movelist_t moves = max_movelist_new(engine->search.moves);
     max_board_movegen_pseudo(&engine->board, &moves);
+    max_engine_sortmoves(engine, &moves);
 
     search->best_score = INT32_MIN;
 

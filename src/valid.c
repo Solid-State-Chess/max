@@ -5,6 +5,7 @@
 #include "max/square.h"
 #include "private.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 max_increment_t MAX_DIRECTION_BY_DIFF[240] = {0x3E};
 
@@ -26,13 +27,13 @@ void max_board_init_statics(max_board_t *const board) {
                     int8_t yd = to_y - y;
 
                     max_increment_t direction = 0;
-                    if(x == to_x) {
+                    if(x == to_x && y != to_y) {
                         direction = 0x10 * sign(yd);
                     } else if(y == to_y) {
                         direction = 0x01 * sign(xd); 
                     }
 
-                    if(abs(xd) == abs(yd)) {
+                    if(abs(xd) == abs(yd) && xd != 0) {
                         direction = (0x10 * sign(yd)) + (0x01 * sign(xd));
                     }
 
@@ -41,11 +42,13 @@ void max_board_init_statics(max_board_t *const board) {
             }
         }
     }
+
+    MAX_DIRECTION_BY_DIFF[0x77] = 0;
 }
 
 /// Check for a sliding attacker on the given square, returns true if there is a sliding attack on square
 MAX_HOT
-bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_piececode_t piece, max_lineattack_t *attack) {
+bool max_board_get_sliding_attack(max_board_t *const board, max_bpos_t square, max_piececode_t piece, max_lineattack_t *attack) {
     static const max_increment_t  DIAGONAL[4] = {
         MAX_INCREMENT_UR,
         MAX_INCREMENT_UL,
@@ -70,7 +73,7 @@ bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_p
         } while(max_bpos_valid(pos) && board->pieces[pos] == MAX_PIECECODE_EMPTY);
 
         if(max_bpos_valid(pos) && (board->pieces[pos] & MAX_PIECECODE_BISHOP) && (board->pieces[pos] & color) == 0) {
-            attack->line = dir;
+            attack->line = -dir;
             attack->attacker = pos;
             return true;
         }
@@ -84,7 +87,7 @@ bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_p
         } while(max_bpos_valid(pos) && board->pieces[pos] == MAX_PIECECODE_EMPTY);
 
         if(max_bpos_valid(pos) && (board->pieces[pos] & MAX_PIECECODE_ROOK) && (board->pieces[pos] & color) == 0) {
-            attack->line = dir;
+            attack->line = -dir;
             attack->attacker = pos;
             return true;
         }
@@ -95,7 +98,7 @@ bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_p
 
 /// Check if there is a knight or pawn attack on the given square
 MAX_HOT
-bool max_board_nonsliding_attack(max_board_t *board, max_bpos_t attacked, max_piececode_t piece, max_bpos_t *attacker) {
+bool max_board_get_nonsliding_attack(max_board_t *board, max_bpos_t attacked, max_piececode_t piece, max_bpos_t *attacker) {
     static const max_increment_t PAWNSIDES[2] = {MAX_INCREMENT_RIGHT, MAX_INCREMENT_LEFT};
     
     max_piececode_t color = piece & MAX_PIECECODE_COLOR_MASK;
@@ -199,7 +202,7 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
 
     max_piececode_t piece = board->pieces[move.from];
     max_piececode_t color = piece & MAX_PIECECODE_COLOR_MASK;
-
+    puts("====================");
     
     if((piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING || move.attr == MAX_MOVE_EN_PASSANT) {
         if((piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING && (move.attr == MAX_MOVE_KCASTLE || move.attr == MAX_MOVE_QCASTLE)) {
@@ -240,31 +243,40 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
         max_bpos_t attacker;
 
         //King in check, need to see if the move blocks check
-        if(max_board_sliding_attack(board, kpos, piece, &check_sliding)) {
+        if(max_board_get_sliding_attack(board, kpos, piece, &check_sliding)) {
+            puts("SLIDING ATTACK");
             if(move.to == check_sliding.attacker) {
                 return true; 
             } else {
-                if(-MAX_DIRECTION_BY_DIFF[max_bpos_diff(move.to, kpos)] == check_sliding.line) {
-                    /*max_bpos_t pos = kpos;
+                if(MAX_DIRECTION_BY_DIFF[max_bpos_diff(move.to, kpos)] == check_sliding.line) {
+                    puts("SAMELINE");
+                    max_bpos_t pos = check_sliding.attacker;
                     do { pos = max_bpos_inc(pos, check_sliding.line); }
-                    while(board->pieces[pos] == MAX_PIECECODE_EMPTY);*/
+                    while(pos != move.to && board->pieces[pos] == MAX_PIECECODE_EMPTY);
                         
                     //We jumped either between the attacker or behind it, check
-                    return abs((int8_t)(kpos) - (int8_t)(move.to)) < abs((int8_t)(kpos) - (int8_t)(check_sliding.attacker));
+                    if(pos == kpos) {
+                        return false;
+                    }
                 } else {
                     return false;
                 }
             }
-        } else if(max_board_nonsliding_attack(board, kpos, piece, &attacker)) {
-            return move.to == attacker;
+        } else if(max_board_get_nonsliding_attack(board, kpos, piece, &attacker)) {
+            puts("NONSLIDING");
+            if(move.to != attacker) {
+                return false;
+            }
         } else {
-            return !max_board_move_exits_pin(
-                board,
-                piece,
-                move.from,
-                move.to,
-                kpos
-            );
+            puts("NOATTACK");
         }
+
+        return !max_board_move_exits_pin(
+            board,
+            piece,
+            move.from,
+            move.to,
+            kpos
+        );
     }
 }

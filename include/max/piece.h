@@ -22,7 +22,7 @@ typedef struct {
 
 #define PIECELIST(size) struct { max_lidx_t len; max_bpos_t pos[(size)]; }
 
-/// A complete list of the positions of all the pieces on one side of a chess game
+/// A complete list of the positions of the pieces on one side of the board
 typedef struct {
     PIECELIST(MAX_TOTAL_PAWNS) pawns;
     PIECELIST(MAX_TOTAL_KNIGHTS) knights;
@@ -30,9 +30,11 @@ typedef struct {
     PIECELIST(MAX_TOTAL_ROOKS) rooks;
     PIECELIST(MAX_TOTAL_QUEENS) queens;
     PIECELIST(1) king;
-    /// Position to index map
+    /// Board position -> list index map
     max_lidx_t index[MAX_BOARD_0x88_LEN];
 } max_pieces_t;
+
+#undef PIECELIST
 
 /// A piece code with color, validity, and type specifiers
 typedef uint8_t max_piececode_t;
@@ -40,23 +42,25 @@ typedef uint8_t max_piececode_t;
 enum {
     MAX_PIECECODE_WHITE = 0x20,
     MAX_PIECECODE_BLACK = 0x40,
+    /// Number of bits from the LSB that the black color flag is at (used to convert piececode -> turn bool)
     MAX_PIECECODE_BLACK_OFFSET = 6,
     MAX_PIECECODE_INVAL = 0x80,
     MAX_PIECECODE_EMPTY = 0x00,
 
-    MAX_PIECECODE_PAWN   = 0x01,
-    MAX_PIECECODE_KNIGHT = 0x02,
-    MAX_PIECECODE_KING   = 0x03,
-    MAX_PIECECODE_BISHOP = 0x04,
-    MAX_PIECECODE_ROOK   = 0x08,
+    MAX_PIECECODE_BISHOP = 0x01,
+    MAX_PIECECODE_ROOK   = 0x02,
     MAX_PIECECODE_QUEEN  = MAX_PIECECODE_BISHOP | MAX_PIECECODE_ROOK,
-    MAX_PIECECODE_TYPE_MASK   = 0x1F,
+    MAX_PIECECODE_PAWN   = 0x04,
+    MAX_PIECECODE_KNIGHT = 0x05,
+    MAX_PIECECODE_KING   = 0x06,
+    ///
+    MAX_PIECECODE_TYPE_MASK   = 0x07,
     MAX_PIECECODE_COLOR_MASK  = 0x60,
 };
 
 /// Get the position array for a piece given by the piece code
 MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max_piececode_t piece) {
-    static const uint8_t lookup[13] = {
+    static const uint8_t lookup[7] = {
         [MAX_PIECECODE_PAWN]   = offsetof(max_pieces_t, pawns),
         [MAX_PIECECODE_KNIGHT] = offsetof(max_pieces_t, knights),
         [MAX_PIECECODE_BISHOP] = offsetof(max_pieces_t, bishops),

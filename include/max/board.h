@@ -53,12 +53,16 @@ typedef struct {
     
     /// Tracking for the last captured piece for move unmaking
     max_board_capturestack_t captures;
+
     /// A stack of all irreversible game state
     max_plyplate_t stack[MAX_BOARD_MAX_PLY];
     
-    /// If the LSB is set (ply is odd), then black is to move
+    /// Ply (halfmove) counter, if the LSB is set (ply is odd) then black is to move
     uint16_t ply;
 } max_board_t;
+
+/// A value of either 0 or 1 to indicate the current side to move - 0 is white and 1 is black
+typedef struct { uint8_t v; } max_turn_t;
 
 /// Get the piece list of the side that is currently to move
 MAX_INLINE_ALWAYS max_pieces_t* max_board_get_to_move(max_board_t *board) {
@@ -89,17 +93,27 @@ void max_board_make_move(max_board_t *const board, max_move_t move);
 void max_board_unmake_move(max_board_t *const board, max_move_t move);
 
 /// Check for non sliding attacks on the given square
-bool max_board_nonsliding_attack(max_board_t *board, max_bpos_t attacked, max_piececode_t piece, max_bpos_t *attacker);
+bool max_board_get_nonsliding_attack(
+    max_board_t *board,
+    max_bpos_t attacked,
+    max_piececode_t piece,
+    max_bpos_t *attacker
+);
 
 /// Check for sliding attacks on the given square
-bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_piececode_t piece, max_lineattack_t *attack);
+bool max_board_get_sliding_attack(
+    max_board_t *const board,
+    max_bpos_t square,
+    max_piececode_t piece,
+    max_lineattack_t *attack
+);
 
 /// Check if the piece on the given square is attacked
 MAX_HOT
 MAX_INLINE_ALWAYS
 bool max_board_attacked(max_board_t *const board, max_bpos_t pos, max_piececode_t piece) {
     max_lineattack_t line;
-    return max_board_nonsliding_attack(board, pos, piece, &line.attacker) || max_board_sliding_attack(board, pos, piece, &line);
+    return max_board_get_nonsliding_attack(board, pos, piece, &line.attacker) || max_board_get_sliding_attack(board, pos, piece, &line);
 }
 
 /// Add a piece to the given capture stack
@@ -121,43 +135,3 @@ MAX_INLINE_ALWAYS max_piececode_t max_capturestack_pop(max_board_capturestack_t 
 void max_board_debugprint(max_board_t const* board);
 
 #endif
-
-/// Remove a piece by position from the given side
-MAX_HOT
-MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *side, max_bpos_t pos) {
-    max_piececode_t piece = board->pieces[pos];
-    board->pieces[pos] = MAX_PIECECODE_EMPTY;
-    max_piecelist_t *list = max_pieces_get_list(side, piece);
-    max_lidx_t index = side->index[pos];
-    
-    //Replace the removed element with the last element of the list
-    list->len -= 1;
-    max_bpos_t shuffled_pos = list->pos[list->len];
-    list->pos[index] = shuffled_pos;
-    side->index[shuffled_pos] = index;
-}
-
-/// Add a piece with the given code to the chessboard
-MAX_HOT
-MAX_INLINE_ALWAYS void max_board_add_piece(max_board_t *board, max_pieces_t *side, max_bpos_t pos, max_piececode_t piece) {
-    board->pieces[pos] = piece;
-    max_piecelist_t *list = max_pieces_get_list(side, piece);
-    max_lidx_t index = list->len;
-    list->pos[list->len] = pos;
-    list->len += 1;
-
-    side->index[pos] = index;
-}
-
-/// Shift the piece from the given location to the given location, replacing its old position with an empty square
-MAX_HOT
-MAX_INLINE_ALWAYS void max_board_shift_piece(max_board_t *board, max_pieces_t *side, max_bpos_t from, max_bpos_t to) {
-    max_piececode_t piece = board->pieces[from];
-    max_lidx_t index = side->index[from];
-    max_piecelist_t *list = max_pieces_get_list(side, piece);
-    list->pos[index] = to;
-    side->index[to] = index;
-    board->pieces[to] = piece;
-    
-    board->pieces[from] = MAX_PIECECODE_EMPTY;
-}

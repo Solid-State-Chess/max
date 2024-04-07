@@ -4,8 +4,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/// A 0x88 board position that indexes a board array
 typedef uint8_t max_bpos_t;
 
+#define MAX_BPOS_FORMAT(pos) (max_bpos_file(pos) + 'a'), (max_bpos_rank(pos) + '1')
+
+/// Create a new board position index from the given rank and file in the range 0..7
 MAX_INLINE_ALWAYS max_bpos_t max_bpos_new(uint8_t file, uint8_t rank) {
     return (rank << 4) + file;
 }
@@ -31,16 +35,18 @@ enum {
     FILE(H, 7),
 };
 
+#undef FILE
+
 enum {
     MAX_FILE_MASK = 0x0F,
-    MAX_FILE_A    = 0x0,
-    MAX_FILE_B    = 0x1,
-    MAX_FILE_C    = 0x2,
-    MAX_FILE_D    = 0x3,
-    MAX_FILE_E    = 0x4,
-    MAX_FILE_F    = 0x5,
-    MAX_FILE_G    = 0x6,
-    MAX_FILE_H    = 0x7,
+    MAX_FILE_A    = 0x00,
+    MAX_FILE_B    = 0x01,
+    MAX_FILE_C    = 0x02,
+    MAX_FILE_D    = 0x03,
+    MAX_FILE_E    = 0x04,
+    MAX_FILE_F    = 0x05,
+    MAX_FILE_G    = 0x06,
+    MAX_FILE_H    = 0x07,
 };
 
 enum {
@@ -55,11 +61,21 @@ enum {
     MAX_RANK_8    = 0x70,
 };
 
-/// Check if the given position is valid or out of bounds
-MAX_INLINE_ALWAYS bool max_bpos_valid(max_bpos_t pos) { return (pos & 0x88) == 0; }
+enum {
+    /// Bitmask used to check if a given board position is invalid
+    MAX_BPOS_INVALID_MASK = 0x88,
+};
 
+/// Check if the given position is valid within the 8x8 board
+MAX_INLINE_ALWAYS bool max_bpos_valid(max_bpos_t pos) { return (pos & MAX_BPOS_INVALID_MASK) == 0; }
 
-/// Type representing board position increments
+/// Get the rank between 0 and 7 of the given position
+MAX_INLINE_ALWAYS uint8_t max_bpos_rank(max_bpos_t pos) { return pos >> 4; }
+
+/// Get the file between 0 and 7 of the given position
+MAX_INLINE_ALWAYS uint8_t max_bpos_file(max_bpos_t pos) { return pos & MAX_FILE_MASK; }
+
+/// Type representing changes in a `max_bpos_t`
 typedef int8_t max_increment_t;
 
 /// Get a difference index between 0 and 238 to index lookup tables by square difference
@@ -69,23 +85,17 @@ MAX_INLINE_ALWAYS max_bpos_t max_bpos_diff(max_bpos_t from, max_bpos_t to) {
 
 /// Apply the given increment to the given position
 MAX_INLINE_ALWAYS max_bpos_t max_bpos_inc(max_bpos_t pos, max_increment_t inc) {
-    return pos + inc;
+    return (max_bpos_t)((max_increment_t)(pos) + inc);
 }
 
 enum {
-    MAX_INCREMENT_UP    = (max_increment_t)0x10,
+    MAX_INCREMENT_UP    = (max_increment_t) 0x10,
     MAX_INCREMENT_DOWN  = (max_increment_t)-0x10,
-    MAX_INCREMENT_RIGHT = (max_increment_t)0x01,
+    MAX_INCREMENT_RIGHT = (max_increment_t) 0x01,
     MAX_INCREMENT_LEFT  = (max_increment_t)-0x01,
 
-    MAX_INCREMENT_UR    = MAX_INCREMENT_UP + MAX_INCREMENT_RIGHT,
-    MAX_INCREMENT_UL    = MAX_INCREMENT_UP + MAX_INCREMENT_LEFT,
+    MAX_INCREMENT_UR    = MAX_INCREMENT_UP   + MAX_INCREMENT_RIGHT,
+    MAX_INCREMENT_UL    = MAX_INCREMENT_UP   + MAX_INCREMENT_LEFT,
     MAX_INCREMENT_DR    = MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT,
     MAX_INCREMENT_DL    = MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT,
 };
-
-
-/// Direction between two squares by 0x88 difference, used for check and pin calculations
-extern max_increment_t MAX_DIRECTION_BY_DIFF[240];
-
-#undef FILE

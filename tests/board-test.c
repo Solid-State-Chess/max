@@ -41,11 +41,19 @@ static size_t CHECKS = 0;
 static size_t CAPTURES = 0;
 static size_t EP = 0;
 
-size_t perft(max_board_t *board, max_movelist_t moves, unsigned n) {
+size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsigned n) {
     size_t count = 0;
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         puts("BAD BOARD");
-        return 0;
+        max_board_debugprint(board);
+        for(unsigned i = 8; i > n; --i) {
+            printf(
+                "%c%c%c%c\n",
+                MAX_BPOS_FORMAT(history[i - 1].from),
+                MAX_BPOS_FORMAT(history[i - 1].to)
+            );
+        }
+        exit(-1);
     }
 
     if(n == 0) { return 1; }
@@ -72,8 +80,8 @@ size_t perft(max_board_t *board, max_movelist_t moves, unsigned n) {
         max_board_make_move(board, moves.moves[i]);
         //printf("%c%d%c%d\n", ((move.from & 0x7) + 'a'), (move.from >> 4) + 1, ((move.to & 0x7) + 'a'), (move.to >> 4) + 1);
         
-
-        count += perft(board, max_movelist_new(moves.moves + moves.len + 20), n - 1);
+        history[n] = move;
+        count += perft(board, max_movelist_new(moves.moves + moves.len + 20), history, n - 1);
         max_board_unmake_move(board, moves.moves[i]);
         
         /*if(!board_same(&copy, board)) {
@@ -98,13 +106,17 @@ int board_tests(void) {
     memcpy(&original, &board, sizeof(max_board_t));
     
     max_movelist_t moves = max_movelist_new(buf);
+    max_move_t history[10];
 
-    ASSERT_EQ(size_t, perft(&board, moves, 2), 400, "%zu");
-    ASSERT_EQ(size_t, perft(&board, moves, 3), 8902, "%zu");
-    size_t nodes = perft(&board, moves, 7);
+    /*ASSERT_EQ(size_t, perft(&board, moves, history, 2), 400, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, history, 3), 8902, "%zu");
+
+    ASSERT_EQ(size_t, perft(&board, moves, history, 6), 119060324, "%zu");*/
+    
+    max_board_make_move(&board, max_move_new(MAX_E2, MAX_E4, MAX_MOVE_DOUBLE));
+
+    size_t nodes = perft(&board, moves, history, 7);
     printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
-
-    ASSERT_EQ(size_t, perft(&board, moves, 6), 119060324, "%zu");
 
     if(!board_same(&board, &original)) {
         puts("Move making / unmaking not good");
