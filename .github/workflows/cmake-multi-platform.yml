@@ -1,18 +1,20 @@
 name: Create Release Assets
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "v*"
 
 jobs:
   once:
+    permissions: write-all
     name: Create single release for all builds
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-      - name: Create a release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -39,7 +41,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
-        c_compiler: [gcc, clang, cl]
+        c_compiler: [gcc, cl]
         include:
           - os: windows-latest
             c_compiler: cl
@@ -47,9 +49,6 @@ jobs:
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
-          - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
         exclude:
           - os: windows-latest
             c_compiler: gcc
