@@ -25,10 +25,12 @@ file(
 
 add_executable(
     max-arena
-    WIN32
     ${SRC}
 )
 
+#if(WIN32)
+#    target_link_options(max-arena PRIVATE /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
+#endif()
 
 target_include_directories(max-arena PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
