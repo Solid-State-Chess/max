@@ -207,8 +207,6 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
             max_lineattack_t line;
             if(max_board_nonsliding_attack(board, kpos, piece, &line.attacker) || max_board_sliding_attack(board, kpos, piece, &line)) {
                 return false;
-            } else {
-                return true;
             }
         }
 

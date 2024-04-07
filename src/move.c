@@ -1,3 +1,4 @@
+#include "max/move.h"
 #include "max/board.h"
 #include "max/def.h"
 #include "private.h"
@@ -6,8 +7,12 @@
 MAX_HOT
 MAX_INLINE_ALWAYS
 void max_board_promote(max_board_t *const board, max_pieces_t *side, max_move_t move, max_piececode_t piece, max_piececode_t promoted) {
+    if(move.attr & MAX_MOVE_CAPTURE) {
+        max_capturestack_push(&board->captures, board->pieces[move.to]);
+        max_board_remove_piece(board, max_board_get_enemy(board), move.to);
+    }
     max_board_remove_piece(board, side, move.from);
-    max_board_add_piece(board, side, promoted, move.to);
+    max_board_add_piece(board, side, move.to, promoted);
 
 }
 
@@ -16,7 +21,10 @@ MAX_HOT
 MAX_INLINE_ALWAYS
 void max_board_unpromote(max_board_t *const board, max_pieces_t *side, max_move_t move, max_piececode_t color) {
     max_board_remove_piece(board, side, move.to);
-    max_board_add_piece(board, side, MAX_PIECECODE_PAWN | color, move.from);
+    max_board_add_piece(board, side, move.from, MAX_PIECECODE_PAWN | color);
+    if(move.attr & MAX_MOVE_CAPTURE) {
+        max_board_add_piece(board, max_board_get_enemy(board), move.to, max_capturestack_pop(&board->captures));
+    }
 }
 
 MAX_HOT
@@ -41,10 +49,15 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
             }
         }
     }
+    
+    if(move.attr == MAX_MOVE_CAPTURE) {
+        max_piececode_t captured = board->pieces[move.to];
+        max_capturestack_push(&board->captures, captured);
+        max_board_remove_piece(board, &board->sides[side_to_move ^ 1], move.to);
+    }
 
 
-
-    switch(move.attr) {
+    switch(move.attr & ~MAX_MOVE_CAPTURE) {
         case MAX_MOVE_NORMAL: break;
         case MAX_MOVE_DOUBLE: {
             state_plate &= ~(MAX_PLYPLATE_EP_INVALID);
@@ -62,11 +75,6 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
             max_piececode_t captured = board->pieces[takeat];
             max_capturestack_push(&board->captures, captured);
             max_board_remove_piece(board, &board->sides[side_to_move ^ 1], takeat);
-        } break;
-        case MAX_MOVE_CAPTURE: {
-            max_piececode_t captured = board->pieces[move.to];
-            max_capturestack_push(&board->captures, captured);
-            max_board_remove_piece(board, &board->sides[side_to_move ^ 1], move.to);
         } break;
 
         case MAX_MOVE_KCASTLE: {
@@ -100,7 +108,16 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
     max_pieces_t *side = &board->sides[side_to_move];
     max_board_shift_piece(board, side, move.to, move.from);
 
-    switch(move.attr) {
+    if(move.attr == MAX_MOVE_CAPTURE) {
+        max_board_add_piece(
+            board,
+            &board->sides[side_to_move ^ 1],
+            move.to,
+            max_capturestack_pop(&board->captures)
+        );
+    }
+
+    switch(move.attr & ~MAX_MOVE_CAPTURE) {
         case MAX_MOVE_NORMAL:
         case MAX_MOVE_DOUBLE: {
         } break;
@@ -124,12 +141,12 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
             );
         } break;
         case MAX_MOVE_CAPTURE: {
-            max_board_add_piece(
+            /*max_board_add_piece(
                 board,
                 &board->sides[side_to_move ^ 1],
                 move.to,
                 max_capturestack_pop(&board->captures)
-            );
+            );*/
         } break;
 
         case MAX_MOVE_KCASTLE: {
@@ -145,4 +162,3 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         } break;
     }
 }
-

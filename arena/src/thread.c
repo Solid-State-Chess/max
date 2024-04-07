@@ -15,7 +15,7 @@ int gui_engine_thread(void *_data) {
             }
             
             uint64_t start = SDL_GetTicks64();
-            max_engine_search(&data->engine, &search, 5);
+            max_engine_search(&data->engine, &search, 1);
             double time = (double)(SDL_GetTicks64() - start) / 1000;
             double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
             

@@ -120,7 +120,7 @@ static MAX_INLINE_ALWAYS void max_rookgen_loud(
 
 
 //Rank masks for promotions
-static max_bpos_t PAWN_PROMOTERANK[2] = {MAX_RANK_1, MAX_RANK_8};
+static max_bpos_t PAWN_PROMOTERANK[2] = {MAX_RANK_8, MAX_RANK_1};
 
 MAX_HOT
 inline static void max_board_pawnmovegen_quiet(
@@ -146,6 +146,26 @@ inline static void max_board_pawnmovegen_quiet(
     }
 }
 
+MAX_HOT MAX_INLINE_ALWAYS static
+bool max_board_pawn_promotegen(
+    max_board_t *const board,
+    max_movelist_t *const moves,
+    max_bpos_t pos,
+    max_bpos_t square,
+    uint8_t side,
+    max_move_attr_t flags
+) {
+    if(max_bpos_valid(square) && (square & MAX_RANK_MASK) == PAWN_PROMOTERANK[side]) {
+        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_KNIGHT));
+        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_BISHOP));
+        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_ROOK));
+        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_QUEEN));
+        return true;
+    }
+
+    return false;
+}
+
 MAX_HOT
 inline static void max_board_pawnmovegen_loud(
     max_board_t *const board,
@@ -158,21 +178,22 @@ inline static void max_board_pawnmovegen_loud(
     static max_bpos_t PAWN_EPRANK[2] = {MAX_RANK_5, MAX_RANK_4};
 
     max_bpos_t up = max_bpos_inc(pos, PAWN_INC[side]);
-    if(max_bpos_valid(up) && (up & MAX_RANK_MASK) == PAWN_PROMOTERANK[side] && board->pieces[up] == MAX_PIECECODE_EMPTY) {
-        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_KNIGHT));
-        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_BISHOP));
-        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_ROOK));
-        max_movelist_add(moves, max_move_new(pos, up, MAX_MOVE_PROMOTE_QUEEN));
+    if(max_bpos_valid(up) && board->pieces[up] == MAX_PIECECODE_EMPTY) {
+        max_board_pawn_promotegen(board, moves, pos, up, side, 0);
     }
-
+    
     max_bpos_t right = max_bpos_inc(up, MAX_INCREMENT_RIGHT);
     if(max_bpos_valid(right) && (board->pieces[right] & enemy_color)) {
-        max_movelist_add(moves, max_move_capture(pos, right));
+        if(!max_board_pawn_promotegen(board, moves, pos, right, side, MAX_MOVE_CAPTURE)) {
+            max_movelist_add(moves, max_move_capture(pos, right));
+        }
     }
 
     max_bpos_t left = max_bpos_inc(up, MAX_INCREMENT_LEFT);
     if(max_bpos_valid(left) && (board->pieces[left] & enemy_color)) {
-        max_movelist_add(moves, max_move_capture(pos, left));
+        if(!max_board_pawn_promotegen(board, moves, pos, left, side, MAX_MOVE_CAPTURE)) {
+            max_movelist_add(moves, max_move_capture(pos, left));
+        }
     }
     
 
