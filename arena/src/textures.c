@@ -1,5 +1,9 @@
 #include "gui.h"
+#ifdef SDL_IMAGE_VENDORED
+#include <SDL_image.h>
+#else
 #include <SDL2/SDL_image.h>
+#endif
 
 #include "img/k.h"
 #include "img/q.h"

@@ -47,24 +47,27 @@ if(VENDORED_SDL2)
         GIT_TAG release-2.30.2
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
     )
-
-    FetchContent_MakeAvailable(SDL2)
 
     FetchContent_Declare(
         SDL2_image
         GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
-        GIT_COMMIT 2f47e34
+        GIT_TAG release-2.8.2
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
     )
 
-    set(SDL2IMAGE_INSTALL OFF)
+    target_compile_definitions(max-arena PRIVATE SDL_IMAGE_VENDORED)
+
+    set(SDL2IMAGE_INSTALL ON)
     set(BUILD_SHARED_LIBS FALSE)
     
     FetchContent_MakeAvailable(SDL2_image)
+    FetchContent_MakeAvailable(SDL2)
 
-    target_link_libraries(max-arena PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image)
+    target_link_libraries(max-arena PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image-static)
 else()
     find_package(
         SDL2 REQUIRED
