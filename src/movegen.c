@@ -132,7 +132,6 @@ inline static void max_board_pawnmovegen_quiet(
 ) {
     //Homerow lookup table, indexed by the current side to move
     static max_bpos_t PAWN_HOMEROW[2]  = {MAX_RANK_2, MAX_RANK_7};
-
     max_bpos_t up = max_bpos_inc(pos, PAWN_INC[side]);
 
     if(max_bpos_valid(up)) {
