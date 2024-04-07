@@ -1,15 +1,29 @@
-# This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: CMake on multiple platforms
+name: Create Release Assets
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - "v*"
 
 jobs:
+  once:
+    name: Create single release for all builds
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create a release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: true
   build:
+    needs: once
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -74,3 +88,19 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
+
+    - name: Zip the assets
+      id: zip_asset
+      run: |
+          7z a -tzip ${{ steps.strings.outputs.build-output-dir }}/max-arena-${{ matrix.os }}-${{ github.ref }}.zip ${{ steps.strings.outputs.build-output-dir }}*
+
+    - name: Upload release assets
+      id: upload_assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.once.outputs.upload_url }}
+        asset_path: ${{ steps.strings.outputs.build-output-dir }}/max-arena-${{ matrix.os }}-${{ github.ref }}.zip
+        asset_name: max-arena-${{ matrix.os }}-${{ github.ref }}.zip
+        asset_content_type: application/octet-stream
