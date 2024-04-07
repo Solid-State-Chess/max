@@ -6,26 +6,77 @@ project(
 )
 
 
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../" "max")
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2-cmake-modules")
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_image REQUIRED)
+option(
+    VENDORED_SDL2
+    "Download and compile vendored SDL2 instead of system libraries"
+    OFF
+)
 
 file(
     GLOB SRC CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 
-add_executable(max-arena ${SRC})
+add_executable(
+    max-arena
+    ${SRC}
+)
+
+
 target_include_directories(max-arena PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(max-arena PRIVATE SDL2::Main SDL2::Image)
 
 target_compile_options(max-arena PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../" "max")
 target_link_libraries(max-arena PRIVATE max)
+
+if(VENDORED_SDL2)
+    include(FetchContent)
+    set(FETCHCONTENT_QUIET FALSE)
+
+    FetchContent_Declare(
+        SDL2
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG release-2.30.2
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+    )
+
+    FetchContent_MakeAvailable(SDL2)
+
+    FetchContent_Declare(
+        SDL2_image
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
+        GIT_TAG release-2.8.2
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+    )
+
+    set(SDL2IMAGE_INSTALL OFF)
+    set(BUILD_SHARED_LIBS FALSE)
+    
+    FetchContent_MakeAvailable(SDL2_image)
+
+    target_link_libraries(max-arena PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image-static)
+else()
+    find_package(
+        SDL2 REQUIRED
+        CONFIG
+    )
+    find_package(SDL2_image REQUIRED)
+
+    target_link_libraries(
+        max-arena
+        PRIVATE
+        SDL2::SDL2main
+        SDL2::Image
+    )
+endif()

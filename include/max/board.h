@@ -20,12 +20,12 @@ typedef uint8_t max_plyplate_t;
 
 enum {
     /// Mask for 4 bits representing en passantable file (invalid file means no en passant in possible)
-    MAX_PLYPLATE_EP_MASK     = 0b00001111,
+    MAX_PLYPLATE_EP_MASK     = 0x0F,
     MAX_PLYPLATE_EP_INVALID  = MAX_PLYPLATE_EP_MASK,
-    MAX_PLYPLATE_WCASTLEMASK = 0b00110000,
-    MAX_PLYPLATE_BCASTLEMASK = 0b11000000,
-    MAX_PLYPLATE_QCASTLE     = 0b00000001,
-    MAX_PLYPLATE_KCASTLE     = 0b00000010,
+    MAX_PLYPLATE_WCASTLEMASK = 0x30,
+    MAX_PLYPLATE_BCASTLEMASK = 0xC0,
+    MAX_PLYPLATE_QCASTLE     = 0x01,
+    MAX_PLYPLATE_KCASTLE     = 0x02,
     /// Amount to bit shift `MAX_PLYPLATE_QCASTLE` to reach the white castle right bits
     MAX_PLYPLATE_CASTLE_OFFSET = 4,
 };

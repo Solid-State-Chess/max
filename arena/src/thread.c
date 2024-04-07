@@ -6,7 +6,7 @@
 
 int gui_engine_thread(void *_data) {
     gui_shared_t *data = (gui_shared_t*)_data;
-    max_searchresult_t search;
+    //max_searchresult_t search;
 
     for(;;) {
         if(SDL_SemWait(data->lock) == 0) {
@@ -14,7 +14,7 @@ int gui_engine_thread(void *_data) {
                 break;
             }
             
-            uint64_t start = SDL_GetTicks64();
+            /*uint64_t start = SDL_GetTicks64();
             max_engine_search(&data->engine, &search, 1);
             double time = (double)(SDL_GetTicks64() - start) / 1000;
             double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
@@ -30,7 +30,7 @@ int gui_engine_thread(void *_data) {
                 time,
                 mn_s,
                 search.best_score
-            );
+            );*/
 
             max_movelist_clear(&data->moves);
             max_board_movegen_pseudo(&data->engine.board, &data->moves);
