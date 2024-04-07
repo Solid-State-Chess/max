@@ -11,7 +11,7 @@
 typedef uint8_t max_move_attr_t;
 
 enum {
-    MAX_MOVE_NORMAL      = 0,
+    MAX_MOVE_NORMAL      = 1,
     MAX_MOVE_EN_PASSANT  = 2,  
     MAX_MOVE_QCASTLE     = 3,
     MAX_MOVE_KCASTLE     = 4,

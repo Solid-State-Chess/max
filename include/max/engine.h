@@ -2,7 +2,7 @@
 
 #include "max/board.h"
 
-#define MAX_ENGINE_MAX_PLY (1000000)
+#define MAX_ENGINE_MAX_MOVES (2048)
 
 /// A signed score as the result of a board evaluation measured in centipawns
 typedef int32_t max_score_t;
@@ -17,7 +17,7 @@ typedef struct {
 
 /// State required at all stages of an alpha-beta search
 typedef struct {
-    max_move_t moves[MAX_ENGINE_MAX_PLY];
+    max_move_t moves[MAX_ENGINE_MAX_MOVES];
 } max_search_state_t;
 
 /// Complete engine state including lookup tables, settings, and chessboard representation

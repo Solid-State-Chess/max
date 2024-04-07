@@ -44,6 +44,7 @@ static size_t EP = 0;
 size_t perft(max_board_t *board, max_movelist_t moves, unsigned n) {
     size_t count = 0;
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
+        puts("BAD BOARD");
         return 0;
     }
 
@@ -66,18 +67,6 @@ size_t perft(max_board_t *board, max_movelist_t moves, unsigned n) {
         }
 
         max_move_t move = moves.moves[i];
-        //if((board->pieces[move.from] & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_BISHOP) {
-            int8_t fx = move.from & 0x7;
-            int8_t tx = move.to & 0x7;
-            int8_t fy = move.from >> 4;
-            int8_t ty = move.to >> 4;
-
-            /*if(abs(fx - tx) != abs(fy - ty) || (move.from == 0x75 && move.to == 0x13)) {
-                printf("BAD BISHOP %X->%X\n", move.from, move.to);
-                exit(-1);
-            }*/
-        //}
-
         //max_board_t copy;
         //memcpy(&copy, board, sizeof(copy));
         max_board_make_move(board, moves.moves[i]);
@@ -112,7 +101,7 @@ int board_tests(void) {
 
     ASSERT_EQ(size_t, perft(&board, moves, 2), 400, "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, 3), 8902, "%zu");
-    size_t nodes = perft(&board, moves, 8);
+    size_t nodes = perft(&board, moves, 7);
     printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
 
     ASSERT_EQ(size_t, perft(&board, moves, 6), 119060324, "%zu");
