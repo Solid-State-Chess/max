@@ -64,8 +64,9 @@ if(VENDORED_SDL2)
     set(SDL2IMAGE_INSTALL ON)
     set(BUILD_SHARED_LIBS FALSE)
     
-    FetchContent_MakeAvailable(SDL2_image)
+
     FetchContent_MakeAvailable(SDL2)
+    FetchContent_MakeAvailable(SDL2_image)
 
     target_link_libraries(max-arena PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image-static)
 else()
