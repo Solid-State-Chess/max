@@ -3,7 +3,17 @@
 
 #include <SDL2/SDL.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+int __clrcall WinMain(
+  HINSTANCE _hInstance,
+  HINSTANCE _hPrevInstance,
+  LPSTR     _lpCmdLine,
+  int       _nShowCmd
+) {
+#else
 int main(void) {
+#endif
     int ec;
     gui_state_t *gui = malloc(sizeof(*gui)); 
 

@@ -25,6 +25,7 @@ file(
 
 add_executable(
     max-arena
+    WIN32
     ${SRC}
 )
 
