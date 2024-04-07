@@ -7,6 +7,7 @@ on:
 
 jobs:
   once:
+    permissions: write-all
     name: Create single release for all builds
     runs-on: ubuntu-latest
     outputs:
