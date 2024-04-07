@@ -54,7 +54,7 @@ if(VENDORED_SDL2)
     FetchContent_Declare(
         SDL2_image
         GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
-        GIT_TAG release-2.8.2
+        GIT_COMMIT 2f47e34
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
     )
@@ -64,7 +64,7 @@ if(VENDORED_SDL2)
     
     FetchContent_MakeAvailable(SDL2_image)
 
-    target_link_libraries(max-arena PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image-static)
+    target_link_libraries(max-arena PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image)
 else()
     find_package(
         SDL2 REQUIRED
