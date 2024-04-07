@@ -94,6 +94,14 @@ bool max_board_nonsliding_attack(max_board_t *board, max_bpos_t attacked, max_pi
 /// Check for sliding attacks on the given square
 bool max_board_sliding_attack(max_board_t *const board, max_bpos_t square, max_piececode_t piece, max_lineattack_t *attack);
 
+/// Check if the piece on the given square is attacked
+MAX_HOT
+MAX_INLINE_ALWAYS
+bool max_board_attacked(max_board_t *const board, max_bpos_t pos, max_piececode_t piece) {
+    max_lineattack_t line;
+    return max_board_nonsliding_attack(board, pos, piece, &line.attacker) || max_board_sliding_attack(board, pos, piece, &line);
+}
+
 /// Add a piece to the given capture stack
 MAX_INLINE_ALWAYS void max_capturestack_push(max_board_capturestack_t *stack, max_piececode_t piece) {
     stack->captures[stack->head] = piece;

@@ -43,7 +43,8 @@ int gui_state_new(gui_state_t *state) {
     state->shared = malloc(sizeof(*state->shared));
 
     max_engine_new(&state->shared->engine); 
-    state->shared->moves = max_movelist_new(malloc(sizeof(max_move_t) * 256));
+    state->shared->moves = max_movelist_new(malloc(sizeof(max_move_t) * 2056));
+
     state->shared->quit = false;
     state->shared->lock = SDL_CreateSemaphore(0);
 
@@ -123,15 +124,43 @@ int gui_state_run(gui_state_t *state) {
     state->squarey= h / 8;
 
     bool enginedone = true;
+    bool playerdone = true;
     SDL_SemPost(state->shared->lock);
 
-    max_movelist_t moves = max_movelist_new(malloc(sizeof(max_move_t) * 256));
+    max_movelist_t history = max_movelist_new(malloc(sizeof(max_move_t) * 256));
+    history.len = 0;
 
     for(;;) {
         enginedone = SDL_SemValue(state->shared->lock) == 0;
         
         SDL_Event event;
         SDL_RenderClear(state->render);
+        
+        /*if(playerdone) {
+            playerdone = false;
+            max_searchresult_t search;
+            uint64_t start = SDL_GetTicks64();
+            max_engine_search(&state->shared->engine, &search, 5);
+            double time = (double)(SDL_GetTicks64() - start) / 1000;
+            double meganodes = (double)(state->shared->engine.diagnostic.nodes) / 1000000;
+            
+            if(search.bestmove.from != search.bestmove.to) {
+                max_board_make_move(&state->shared->engine.board, search.bestmove);
+            }
+
+            double mn_s = meganodes / time;
+            printf(
+                "%.3f MN - %.2f s [%.2f MN/s] @ %i\n",
+                meganodes,
+                time,
+                mn_s,
+                search.best_score
+            );
+
+            max_movelist_clear(&state->shared->moves);
+            max_board_movegen_pseudo(&state->shared->engine.board, &state->shared->moves);
+
+        }*/
 
         gui_state_render(state);
 
@@ -152,10 +181,12 @@ int gui_state_run(gui_state_t *state) {
             switch(event.type) {
                 case SDL_QUIT: return 0;
                 case SDL_KEYUP: {
-                    /*if(enginedone && moves.len > 0) {
-                        moves.len -= 1;
-                        max_move_t move = moves.moves[moves.len];
+                    /*if(enginedone && history.len != 0) {
+                        history.len -= 1;
+                        max_move_t move = history.moves[history.len];
                         max_board_unmake_move(&state->shared->engine.board, move);
+                        enginedone = false;
+                        SDL_SemPost(state->shared->lock);
                     }*/
                 } break;
                 case SDL_MOUSEBUTTONUP: {
@@ -173,9 +204,10 @@ int gui_state_run(gui_state_t *state) {
                                     max_move_t move = moves.moves[i];
                                     if(move.from == state->grabbed.from && move.to == to) {
                                         if(max_board_move_is_valid(&state->shared->engine.board, move)) {
-                                            max_movelist_add(&moves, move);
+                                            //max_movelist_add(&history, move);
                                             max_board_make_move(&state->shared->engine.board, move);
                                             gui_state_drop_grabbed(state);
+                                            playerdone = true;
                                             enginedone = false;
                                             SDL_SemPost(state->shared->lock);
                                             break;

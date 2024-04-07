@@ -2,7 +2,7 @@
 
 #include "max/board.h"
 
-#define MAX_ENGINE_MAX_PLY (5024)
+#define MAX_ENGINE_MAX_PLY (1000000)
 
 /// A signed score as the result of a board evaluation measured in centipawns
 typedef int32_t max_score_t;

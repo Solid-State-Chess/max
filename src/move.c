@@ -106,20 +106,22 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
     uint8_t side_to_move = board->ply & 1;
     max_piececode_t piece = board->pieces[move.to];
     max_pieces_t *side = &board->sides[side_to_move];
-    max_board_shift_piece(board, side, move.to, move.from);
 
     if(move.attr == MAX_MOVE_CAPTURE) {
+        max_board_shift_piece(board, side, move.to, move.from);
         max_board_add_piece(
             board,
             &board->sides[side_to_move ^ 1],
             move.to,
             max_capturestack_pop(&board->captures)
         );
+        return;
     }
 
     switch(move.attr & ~MAX_MOVE_CAPTURE) {
         case MAX_MOVE_NORMAL:
         case MAX_MOVE_DOUBLE: {
+            max_board_shift_piece(board, side, move.to, move.from);
         } break;
         
         case MAX_MOVE_PROMOTE_KNIGHT:
@@ -128,10 +130,11 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         case MAX_MOVE_PROMOTE_QUEEN: {
             max_board_unpromote(board, side, move, piece & MAX_PIECECODE_COLOR_MASK);
             return;
-        }
+        } break;
 
 
         case MAX_MOVE_EN_PASSANT: {
+            max_board_shift_piece(board, side, move.to, move.from);
             max_bpos_t takeat = max_bpos_inc(move.to, PAWN_INC[side_to_move ^ 1]);
             max_board_add_piece(
                 board,
@@ -150,12 +153,14 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         } break;
 
         case MAX_MOVE_KCASTLE: {
+            max_board_shift_piece(board, side, move.to, move.from);
             max_bpos_t old_rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_RIGHT);
             max_bpos_t rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_LEFT);
             max_board_shift_piece(board, side, rook_pos, old_rook_pos);
         } break;
 
         case MAX_MOVE_QCASTLE: {
+            max_board_shift_piece(board, side, move.to, move.from);
             max_bpos_t old_rook_pos = max_bpos_inc(move.to, MAX_INCREMENT_LEFT + MAX_INCREMENT_LEFT);
             max_bpos_t rook_pos     = max_bpos_inc(move.to, MAX_INCREMENT_RIGHT);
             max_board_shift_piece(board, side, rook_pos, old_rook_pos);

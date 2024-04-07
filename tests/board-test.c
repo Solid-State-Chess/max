@@ -44,7 +44,7 @@ static size_t EP = 0;
 size_t perft(max_board_t *board, max_movelist_t moves, unsigned n) {
     size_t count = 0;
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
-
+        return 0;
     }
 
     if(n == 0) { return 1; }
@@ -112,9 +112,8 @@ int board_tests(void) {
 
     ASSERT_EQ(size_t, perft(&board, moves, 2), 400, "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, 3), 8902, "%zu");
-    //size_t nodes = perft(&board, moves, 6);
-    //printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
-
+    size_t nodes = perft(&board, moves, 8);
+    printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
 
     ASSERT_EQ(size_t, perft(&board, moves, 6), 119060324, "%zu");
 

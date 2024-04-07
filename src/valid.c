@@ -204,8 +204,14 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     if((piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING || move.attr == MAX_MOVE_EN_PASSANT) {
         if((piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING && (move.attr == MAX_MOVE_KCASTLE || move.attr == MAX_MOVE_QCASTLE)) {
             max_bpos_t kpos = board->sides[(board->ply & 1)].king.pos[0];
-            max_lineattack_t line;
-            if(max_board_nonsliding_attack(board, kpos, piece, &line.attacker) || max_board_sliding_attack(board, kpos, piece, &line)) {
+            if(max_board_attacked(board, kpos, piece)) {
+                return false;
+            }
+
+            if(
+                (move.attr == MAX_MOVE_KCASTLE && max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT), piece)) ||
+                (move.attr == MAX_MOVE_QCASTLE && max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT ), piece))
+            ) {
                 return false;
             }
         }
