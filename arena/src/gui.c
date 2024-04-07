@@ -152,11 +152,11 @@ int gui_state_run(gui_state_t *state) {
             switch(event.type) {
                 case SDL_QUIT: return 0;
                 case SDL_KEYUP: {
-                    if(enginedone && moves.len > 0) {
+                    /*if(enginedone && moves.len > 0) {
                         moves.len -= 1;
                         max_move_t move = moves.moves[moves.len];
                         max_board_unmake_move(&state->shared->engine.board, move);
-                    }
+                    }*/
                 } break;
                 case SDL_MOUSEBUTTONUP: {
                     if(state->grabbed.grabbed != NULL) {

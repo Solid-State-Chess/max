@@ -156,10 +156,10 @@ bool max_board_pawn_promotegen(
     max_move_attr_t flags
 ) {
     if(max_bpos_valid(square) && (square & MAX_RANK_MASK) == PAWN_PROMOTERANK[side]) {
-        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_KNIGHT));
+        /*max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_KNIGHT));
         max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_BISHOP));
         max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_ROOK));
-        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_QUEEN));
+        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_QUEEN));*/
         return true;
     }
 
