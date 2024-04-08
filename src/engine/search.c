@@ -18,6 +18,7 @@ static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_scor
 
     max_movelist_t captures = max_movelist_new(engine->search.moves + move_head);
     max_board_capturegen_pseudo(&engine->board, &captures);
+    max_engine_sortmoves(engine, &captures);
     for(unsigned i = 0; i < captures.len; ++i) {
         max_move_t capture = captures.moves[i];
         if(!max_board_move_is_valid(&engine->board, capture)) {
