@@ -132,19 +132,14 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
 
     max_bpos_t pos = from;
     
-    //Check that there are no pieces between from and the king
-    for(;;) {
-        pos = max_bpos_inc(pos, -line); 
-        if(pos == king) { break; }
-        if(board->pieces[pos] != MAX_PIECECODE_EMPTY) {
-            return false;
-        }
+    if(!max_board_is_empty_between(board, from, king)) {
+        return false;
     }
 
-    pos = max_bpos_inc(from, line);
-    while(max_bpos_valid(pos) && (board->pieces[pos] == MAX_PIECECODE_EMPTY)) {
+    pos = from;
+    do {
         pos = max_bpos_inc(pos, line);
-    }
+    } while(max_bpos_valid(pos) && (board->pieces[pos] == MAX_PIECECODE_EMPTY));
 
     if(!max_bpos_valid(pos)) {
         return false;

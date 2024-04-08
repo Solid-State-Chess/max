@@ -13,8 +13,7 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     max_piececode_t piece = board->pieces[move.from];
     max_piececode_t color = piece & MAX_PIECECODE_COLOR_MASK;
     
-    max_bpos_t kps = max_board_get_king_pos(board);
-    max_bpos_t kpos = board->sides[color >> MAX_PIECECODE_BLACK_OFFSET].king.pos[0];
+    max_bpos_t kpos = max_board_get_king_pos(board);
 
 
     if(move.from == kpos) {

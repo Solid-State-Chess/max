@@ -15,6 +15,9 @@ if(NOT DEFINED CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT IPO_SUPPORT OUTPUT IPO_SUPPORT_ERR)
+
 file(
     GLOB SRC CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
@@ -28,12 +31,12 @@ if(CMAKE_BUILD_TYPE EQUAL "Debug")
     target_compile_definitions(max PRIVATE "MAX_DEBUG")
 endif()
 
-#/*target_compile_options(max PRIVATE
-#  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-#  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
-#)
-
-
+if(IPO_SUPPORT)
+    message(STATUS "IPO / LTO enabled")
+    set_property(TARGET max PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(STATUS "IPO / LTO not supported: <${IPO_SUPPORT_ERR}>")
+endif()
 
 file(GLOB TEST_SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
 add_executable(max-tests ${TEST_SRC})

@@ -121,6 +121,20 @@ bool max_board_get_sliding_attack(
     max_line_t *attack
 );
 
+/// Check if the given squares are on the same line with no pieces between them
+MAX_INLINE_ALWAYS bool max_board_is_empty_between(max_board_t *const board, max_bpos_t pos, max_bpos_t to) {
+    max_increment_t dir = MAX_DIRECTION_BY_DIFF[max_bpos_diff(pos, to)];
+    if(dir == 0) {
+        return false;
+    }
+
+    do {
+        pos = max_bpos_inc(pos, dir);
+    } while(board->pieces[pos] == MAX_PIECECODE_EMPTY);
+
+    return pos == to;
+}
+
 /// Check if the piece on the given square is attacked
 bool max_board_attacked(max_board_t *const board, max_bpos_t pos);
 
