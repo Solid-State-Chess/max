@@ -211,6 +211,8 @@ int gui_state_run(gui_state_t *state) {
                                             enginedone = false;
                                             SDL_SemPost(state->shared->lock);
                                             break;
+                                        } else {
+                                            puts("INVALID");
                                         }
                                     }
                                 }

@@ -77,14 +77,19 @@ MAX_INLINE_ALWAYS max_bpos_t max_board_king_pos(max_board_t *board) {
     return max_board_get_to_move(board)->king.pos[0];
 }
 
+/// Get a colormask for friendly pieces
+MAX_INLINE_ALWAYS max_piececode_t max_board_friendly_colormask(max_board_t *board) {
+    return MAX_PIECECODE_WHITE << (board->ply & 1);
+}
+
+/// Get the position of the friendly king
+MAX_INLINE_ALWAYS max_bpos_t max_board_get_king_pos(max_board_t *board) {
+    return max_board_get_to_move(board)->king.pos[0];
+}
+
 /// Get the direction (up or down) that enemy pawns will advance
 MAX_INLINE_ALWAYS max_increment_t max_board_get_enemy_pawn_advance_dir(max_board_t *board) {
     return MAX_PAWN_DIR[(board->ply & 1) ^ 1];
-}
-
-/// Get the color mask for friendly pieces for the side to move
-MAX_INLINE_ALWAYS max_piececode_t max_board_get_friendly_color_mask(max_board_t *const board) {
-    return MAX_PIECECODE_WHITE << (board->ply & 1);
 }
 
 /// Generate all pseudo-valid moves for the current side to move on the given board

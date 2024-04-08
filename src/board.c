@@ -8,7 +8,7 @@ void max_board_update_check(max_board_t *const board) {
     max_check_reset(&board->check);
 
     max_bpos_t kpos = max_board_king_pos(board);
-    max_piececode_t color = max_board_get_friendly_color_mask(board);
+    max_piececode_t color = max_board_friendly_colormask(board);
     
     //Pointer to the latest detected checker
     max_checker_t *check = board->check.attacks;
@@ -89,7 +89,7 @@ bool max_board_get_sliding_attack(
     max_line_t *attack
 ) {
     max_piececode_t piece = board->pieces[attacked];
-    max_piececode_t color = piece & MAX_PIECECODE_COLOR_MASK;
+    max_piececode_t color = max_board_friendly_colormask(board);
     
     max_bpos_t pos = attacked;
     for(;;) {
@@ -104,9 +104,9 @@ bool max_board_get_sliding_attack(
                     attack->line = -direction;
                     attack->origin = pos;
                     return true;
-                } else {
-                    return false;
                 }
+                
+                return false;
             }
         } else {
             return false;
@@ -185,8 +185,7 @@ MAX_HOT
 MAX_INLINE_ALWAYS
 bool max_board_attacked(max_board_t *const board, max_bpos_t pos) {
     static max_line_t _UNUSED;
-
-    max_piececode_t color = max_board_get_friendly_color_mask(board);
+    max_piececode_t color = max_board_friendly_colormask(board);
     
 
     static const max_piececode_t SLIDERMASK[2] = {
@@ -224,8 +223,8 @@ bool max_board_attacked(max_board_t *const board, max_bpos_t pos) {
     };
 
     max_increment_t pawn_attackers[2];
-    pawn_attackers[0] = MAX_PAWNSIDES[0] + max_board_get_enemy_pawn_advance_dir(board);
-    pawn_attackers[1] = MAX_PAWNSIDES[1] + max_board_get_enemy_pawn_advance_dir(board);
+    pawn_attackers[0] = MAX_PAWNSIDES[0] - max_board_get_enemy_pawn_advance_dir(board);
+    pawn_attackers[1] = MAX_PAWNSIDES[1] - max_board_get_enemy_pawn_advance_dir(board);
     
     /// Offsets to check for knight and pawn moves
     max_increment_t const *offsets[2] = {

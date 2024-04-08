@@ -76,11 +76,27 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
         }
 
         max_move_t move = moves.moves[i];
+        max_board_t copy;
+        memcpy(&copy, board, sizeof(copy));
         max_board_make_move(board, move);
         
         history[n] = move;
         count += perft(board, max_movelist_new(moves.moves + moves.len), history, n - 1);
         max_board_unmake_move(board, move);
+
+        if(!board_same(&copy, board)) {
+            puts("Move unmaking is invalid");
+            max_board_debugprint(board);
+            for(unsigned i = 8; i > n; --i) {
+                printf(
+                    "%c%c%c%c\n",
+                    MAX_BPOS_FORMAT(history[i - 1].from),
+                    MAX_BPOS_FORMAT(history[i - 1].to)
+                );
+            }
+            exit(-1);
+
+        }
     }
 
     return count;

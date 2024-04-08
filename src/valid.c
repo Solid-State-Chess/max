@@ -14,27 +14,29 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     max_piececode_t piece = board->pieces[move.from];
     max_piececode_t color = piece & MAX_PIECECODE_COLOR_MASK;
     
-    max_bpos_t kpos = max_board_king_pos(board);
+    max_bpos_t kps = max_board_get_king_pos(board);
+    max_bpos_t kpos = board->sides[color >> MAX_PIECECODE_BLACK_OFFSET].king.pos[0];
 
-    if(max_check_is_double(board->check) || (piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING || move.attr == MAX_MOVE_EN_PASSANT) {
-        if((piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING && (move.attr == MAX_MOVE_KCASTLE || move.attr == MAX_MOVE_QCASTLE)) {
-            if(max_board_attacked(board, kpos)) {
-                return false;
-            }
+    if(move.from == kpos) {
+        switch(move.attr) {
+            case MAX_MOVE_KCASTLE: {
+                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT));
+            } break;
 
-            if(
-                (move.attr == MAX_MOVE_KCASTLE && max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT))) ||
-                (move.attr == MAX_MOVE_QCASTLE && max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT )))
-            ) {
-                return false;
-            }
+            case MAX_MOVE_QCASTLE: {
+                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT));
+            } break;
+
+            default: {
+                return !max_board_attacked(board, move.to);
+            } break;
         }
-
+    } else if(true || move.attr == MAX_MOVE_EN_PASSANT) {
         max_movelist_t moves = max_movelist_new(BUFFER);
         
         max_board_make_move(board, move);
 
-        max_bpos_t kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
+        kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
         
         max_board_movegen_pseudo(board, &moves);
 
@@ -42,12 +44,12 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
             if(moves.moves[i].to == kpos) {
                 max_board_unmake_move(board, move);
                 return false;
-            }        
+            }
         }
         
         max_board_unmake_move(board, move);
         return true;
-    } else {
+    } else if(false) {
         //King in check, need to see if the move blocks check
         if(max_check_exists(board->check)) {
             if(max_checker_is_sliding(board->check.attacks[0])) {
