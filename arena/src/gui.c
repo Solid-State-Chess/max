@@ -67,7 +67,7 @@ static max_bpos_t screen_to_board(gui_state_t *state, int x, int y) {
     int x_step = w / 8;
     int y_step = h / 8;
 
-    return max_bpos_new(x / x_step, 7 - (y / y_step));
+    return max_bpos_new(x / x_step, y / y_step);
 }
 
 static SDL_Texture* gui_texture_for_piece(gui_state_t *state, max_piececode_t piece) {
