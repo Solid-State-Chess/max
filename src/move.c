@@ -118,11 +118,11 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     board->ply += 1;
     board->stack[board->ply] = state_plate;
     
-    if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
+    /*if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         printf("%c%c%c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to));
         max_board_debugprint(board);
         exit(-1);
-    }
+    }*/
     max_board_update_check(board);
 }
 

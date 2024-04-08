@@ -159,7 +159,6 @@ int gui_state_run(gui_state_t *state) {
 
             max_movelist_clear(&state->shared->moves);
             max_board_movegen_pseudo(&state->shared->engine.board, &state->shared->moves);
-
         }*/
 
         gui_state_render(state);
@@ -211,8 +210,6 @@ int gui_state_run(gui_state_t *state) {
                                             enginedone = false;
                                             SDL_SemPost(state->shared->lock);
                                             break;
-                                        } else {
-                                            puts("INVALID");
                                         }
                                     }
                                 }

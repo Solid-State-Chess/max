@@ -124,6 +124,9 @@ bool max_board_get_sliding_attack(
 /// Check if the piece on the given square is attacked
 bool max_board_attacked(max_board_t *const board, max_bpos_t pos);
 
+/// Check if the given piece is pinned to the king
+bool max_board_is_pinned(max_board_t *const board, max_bpos_t from);
+
 bool max_board_move_exits_pin(
     max_board_t *const board,
     max_piececode_t piece,

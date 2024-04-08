@@ -114,49 +114,32 @@ bool max_board_get_sliding_attack(
     }
 }
 
-
 MAX_HOT
-MAX_INLINE_ALWAYS
-bool max_board_move_exits_pin(
-    max_board_t *const board,
-    max_piececode_t piece,
-    max_bpos_t from,
-    max_bpos_t to
-) {
-    max_bpos_t king = max_board_king_pos(board);
-
+bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
     /// Indexed by 0 = 0 in rank OR file difference, 1 = both rank and file difference(diagonal)
     static const max_piececode_t PINNER_BY_DIR[2] = {
         MAX_PIECECODE_ROOK,
         MAX_PIECECODE_BISHOP
     };
 
-    max_bpos_t diff = max_bpos_diff(king, from);
-    max_bpos_t after_diff = max_bpos_diff(king, to);
-
-    max_increment_t line = MAX_DIRECTION_BY_DIFF[diff];
+    max_bpos_t king = max_board_get_king_pos(board);
+    max_increment_t line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(king, from)];
     if(line == 0) {
         return false;
     }
-    
 
-    //If the move does not exit the pin line, we're good
-    if(line == MAX_DIRECTION_BY_DIFF[after_diff]) {
-        return false;
-    }
+    max_piececode_t friendly = max_board_friendly_colormask(board);
 
-    //Check that there are no pieces on the line between piece and king
-    max_increment_t opposite = -line;
     max_bpos_t pos = from;
-
+    
+    //Check that there are no pieces between from and the king
     for(;;) {
-        pos = max_bpos_inc(pos, opposite); 
+        pos = max_bpos_inc(pos, -line); 
         if(pos == king) { break; }
         if(board->pieces[pos] != MAX_PIECECODE_EMPTY) {
             return false;
         }
     }
-
 
     pos = max_bpos_inc(from, line);
     while(max_bpos_valid(pos) && (board->pieces[pos] == MAX_PIECECODE_EMPTY)) {
@@ -173,12 +156,35 @@ bool max_board_move_exits_pin(
 
     if(
         (candidate & possible_pinner) &&
-        (board->pieces[pos] & (piece & MAX_PIECECODE_COLOR_MASK)) == 0
+        (board->pieces[pos] & friendly) == 0
     ) {
         return true;
     }
     
     return false;
+}
+
+MAX_HOT
+MAX_INLINE_ALWAYS
+bool max_board_move_exits_pin(
+    max_board_t *const board,
+    max_piececode_t piece,
+    max_bpos_t from,
+    max_bpos_t to
+) {
+    max_bpos_t king = max_board_king_pos(board);
+
+    max_bpos_t diff = max_bpos_diff(king, from);
+    max_bpos_t after_diff = max_bpos_diff(king, to);
+
+    max_increment_t line = MAX_DIRECTION_BY_DIFF[diff];
+
+    //If the move does not exit the pin line, we're good
+    if(line == MAX_DIRECTION_BY_DIFF[after_diff]) {
+        return false;
+    }
+        
+    return max_board_is_pinned(board, from);
 }
 
 MAX_HOT

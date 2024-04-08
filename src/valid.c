@@ -3,7 +3,6 @@
 #include "max/move.h"
 #include "max/piece.h"
 #include "max/square.h"
-#include <stdlib.h>
 
 max_increment_t MAX_DIRECTION_BY_DIFF[240] = {0x3E};
 
@@ -19,7 +18,6 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
 
 
     if(move.from == kpos) {
-        printf("ISVALID: %c%c%c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to));
         switch(move.attr) {
             case MAX_MOVE_KCASTLE: {
                 return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT)) && !max_board_attacked(board, move.to);
@@ -35,36 +33,21 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                     
                     max_increment_t after_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(line.origin, move.to)];
                     if(after_line == line.line) {
-                        puts("NOLINE");
                         return false;
                     }
                 }
                 
-                printf("%c%c%c%c - %d\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to), max_board_attacked(board, move.to));
                 return !max_board_attacked(board, move.to);
             } break;
         }
-    } else if(true || move.attr == MAX_MOVE_EN_PASSANT) {
-        max_movelist_t moves = max_movelist_new(BUFFER);
-        
-        max_board_make_move(board, move);
-
-        //kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
-        
-        max_board_movegen_pseudo(board, &moves);
-
-        for(unsigned i = 0; i < moves.len; ++i) {
-            if(moves.moves[i].to == kpos) {
-                max_board_unmake_move(board, move);
-                return false;
-            }
-        }
-        
-        max_board_unmake_move(board, move);
-        return true;
-    } else if(false) {
+    } else {
         //King in check, need to see if the move blocks check
         if(max_check_exists(board->check)) {
+            //Only king moves allowed in double check
+            if(max_check_is_double(board->check)) {
+                return false;
+            }
+
             if(max_checker_is_sliding(board->check.attacks[0])) {
                 max_line_t check_sliding = board->check.attacks[0].attack.ray;
 
@@ -73,21 +56,16 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                 }
                 
                 if(MAX_DIRECTION_BY_DIFF[max_bpos_diff(move.to, kpos)] == check_sliding.line) {
-                    //puts("SAMELINE");
                     max_bpos_t pos = check_sliding.origin;
                     do { pos = max_bpos_inc(pos, check_sliding.line); }
                     while(pos != move.to && board->pieces[pos] == MAX_PIECECODE_EMPTY);
-
-                    if(abs((int8_t)(kpos) - (int8_t)(move.to)) < abs((int8_t)(kpos) - (int8_t)(check_sliding.origin))) {
+                    
+                    //TODO: abs((int8_t)(kpos) - (int8_t)(move.to)) < abs((int8_t)(kpos) - (int8_t)(check_sliding.origin))) {
+                    if(pos != kpos) {
                         goto check_pin;
                     } else {
                         return false;
                     }
-                        
-                    //We jumped either between the attacker or behind it, check
-                    /*if(pos == kpos) {
-                        return false;
-                    }*/
                 } else {
                     return false;
                 }
@@ -97,6 +75,31 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                 }
             }
         }
+
+        if(move.attr == MAX_MOVE_EN_PASSANT) {
+            max_bpos_t captured = max_bpos_inc(move.to, max_board_get_enemy_pawn_advance_dir(board));
+
+            max_increment_t captured_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(captured, kpos)];
+            if(captured_line == 0) {
+                goto check_pin;
+            }
+
+            max_increment_t post_move_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(move.to, kpos)];
+            
+            //En passant may result in discovered attack on the king, check for this
+            if(captured_line != post_move_line) {
+                max_bpos_t pos = captured;
+                do {
+                    pos = max_bpos_inc(pos, captured_line);
+                } while(board->pieces[pos] == MAX_PIECECODE_EMPTY);
+                
+                //There is another blocker on the line to the king
+                if(pos != kpos) {
+                    goto check_pin;
+                }
+            }
+        }
+
 
     check_pin:
 
