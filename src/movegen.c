@@ -121,12 +121,12 @@ inline static void max_board_pawnmovegen_quiet(
 ) {
     //Homerow lookup table, indexed by the current side to move
     static max_bpos_t PAWN_HOMEROW[2]  = {MAX_RANK_2, MAX_RANK_7};
-    max_bpos_t up = max_bpos_inc(pos, PAWN_INC[side]);
+    max_bpos_t up = max_bpos_inc(pos, MAX_PAWN_DIR[side]);
 
     if(max_bpos_valid(up)) {
         if((up & MAX_RANK_MASK) != PAWN_PROMOTERANK[side] && board->pieces[up] == MAX_PIECECODE_EMPTY) {
             max_movelist_add(moves, max_move_normal(pos, up));
-            max_bpos_t up2 = max_bpos_inc(up, PAWN_INC[side]);
+            max_bpos_t up2 = max_bpos_inc(up, MAX_PAWN_DIR[side]);
             if((pos & MAX_RANK_MASK) == PAWN_HOMEROW[side] && board->pieces[up2] == MAX_PIECECODE_EMPTY) {
                 max_movelist_add(moves, max_move_new(pos, up2, MAX_MOVE_DOUBLE));
             }
@@ -165,7 +165,7 @@ inline static void max_board_pawnmovegen_loud(
     //Rank that an enemy pawn would be en passanted at
     static max_bpos_t PAWN_EPRANK[2] = {MAX_RANK_5, MAX_RANK_4};
 
-    max_bpos_t up = max_bpos_inc(pos, PAWN_INC[side]);
+    max_bpos_t up = max_bpos_inc(pos, MAX_PAWN_DIR[side]);
     if(max_bpos_valid(up) && board->pieces[up] == MAX_PIECECODE_EMPTY) {
         max_board_pawn_promotegen(board, moves, pos, up, side, 0);
     }
@@ -190,7 +190,7 @@ inline static void max_board_pawnmovegen_loud(
 
     if(max_bpos_valid(epsquare)) {
         if(max_bpos_inc(pos, MAX_INCREMENT_RIGHT) == epsquare || max_bpos_inc(pos, MAX_INCREMENT_LEFT) == epsquare) {
-            max_bpos_t moveto = max_bpos_inc(epsquare, PAWN_INC[side]);
+            max_bpos_t moveto = max_bpos_inc(epsquare, MAX_PAWN_DIR[side]);
             max_movelist_add(moves, max_move_new(pos, moveto, MAX_MOVE_EN_PASSANT));
         }
     }

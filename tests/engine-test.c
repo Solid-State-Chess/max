@@ -4,6 +4,7 @@
 #define MAX_DEBUG
 #include "max/board.h"
 #include "max/engine.h"
+#include "max.h"
 #include "test.h"
 #include <stdlib.h>
 
@@ -43,6 +44,7 @@ static void printnodes(uint64_t nodes) {
 }
 
 int engine_tests(void) {
+    max_init_statics();
     max_engine_t *engine = malloc(sizeof(*engine));
     max_engine_new(engine);
     
@@ -50,7 +52,7 @@ int engine_tests(void) {
     max_searchresult_t search;
     //CALLGRIND_START_INSTRUMENTATION;
     //CALLGRIND_TOGGLE_COLLECT;
-    max_engine_search(engine, &search, 3);
+    //max_engine_search(engine, &search, 3);
     //CALLGRIND_TOGGLE_COLLECT;
     //CALLGRIND_STOP_INSTRUMENTATION;
 

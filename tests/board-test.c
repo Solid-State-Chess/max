@@ -1,3 +1,4 @@
+#include "max.h"
 #include "max/piece.h"
 #include "max/square.h"
 #include <stdlib.h>
@@ -43,10 +44,7 @@ static size_t EP = 0;
 
 size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsigned n) {
     size_t count = 0;
-    max_bpos_t kpos = max_board_get_to_move(board)->king.pos[0];
-    if(max_board_attacked(board, kpos, board->pieces[kpos])) {
-        CHECKS += 1;
-    }
+    max_bpos_t kpos = max_board_king_pos(board);
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         puts("BAD BOARD");
         max_board_debugprint(board);
@@ -64,7 +62,6 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
 
     max_board_movegen_pseudo(board, &moves);
     
-    size_t nmoves = 0;
     for(unsigned i = 0; i < moves.len; ++i) {
         if(!max_board_move_is_valid(board, moves.moves[i])) {
             continue;
@@ -79,21 +76,11 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
         }
 
         max_move_t move = moves.moves[i];
-        //max_board_t copy;
-        //memcpy(&copy, board, sizeof(copy));
-        max_board_make_move(board, moves.moves[i]);
-        //printf("%c%d%c%d\n", ((move.from & 0x7) + 'a'), (move.from >> 4) + 1, ((move.to & 0x7) + 'a'), (move.to >> 4) + 1);
+        max_board_make_move(board, move);
         
         history[n] = move;
-        count += perft(board, max_movelist_new(moves.moves + moves.len + 20), history, n - 1);
-        max_board_unmake_move(board, moves.moves[i]);
-        
-        /*if(!board_same(&copy, board)) {
-            puts("NOT SAME");
-            max_board_debugprint(&copy);
-            max_board_debugprint(board);
-            exit(-1);
-        }*/
+        count += perft(board, max_movelist_new(moves.moves + moves.len), history, n - 1);
+        max_board_unmake_move(board, move);
     }
 
     return count;
@@ -101,6 +88,8 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
 
 
 int board_tests(void) {
+    max_init_statics();
+
     max_move_t buf[2056];
 
     max_board_t board;
@@ -113,11 +102,12 @@ int board_tests(void) {
     max_move_t history[10];
 
 
-    /*ASSERT_EQ(size_t, perft(&board, moves, history, 2), 400, "%zu");
-    ASSERT_EQ(size_t, perft(&board, moves, history, 3), 8902, "%zu");
+    //ASSERT_EQ(size_t, perft(&board, moves, history, 2), 400, "%zu");
+    //ASSERT_EQ(size_t, perft(&board, moves, history, 3), 8902, "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, history, 4), 197281, "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, history, 5), 4865609  , "%zu");
-    ASSERT_EQ(size_t, perft(&board, moves, history, 6), 119060324, "%zu");*/
+    ASSERT_EQ(size_t, perft(&board, moves, history, 6), 119060324, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, history, 7), 3195901860 , "%zu");
     
     //max_board_make_move(&board, max_move_new(MAX_E2, MAX_E4, MAX_MOVE_DOUBLE));
 

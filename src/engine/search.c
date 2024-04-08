@@ -71,7 +71,7 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
         max_bpos_t kpos = engine->board.sides[(engine->board.ply & 1)].king.pos[0];
         if(movecount > 0) {
             return alpha;
-        } else if(max_board_attacked(&engine->board, kpos, engine->board.pieces[kpos])) {
+        } else if(max_board_attacked(&engine->board, kpos)) {
             return (MAX_KING_VALUE + depth) * SCORE_MUL[engine->board.ply & 1];
         } else {
             return MAX_KING_VALUE * -SCORE_MUL[engine->board.ply & 1];

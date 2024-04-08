@@ -2,21 +2,8 @@
 #include "max/piece.h"
 #include "max/square.h"
 #include "private.h"
+#include <stdlib.h>
 #include <string.h>
-
-const max_increment_t PAWN_INC[2] = {MAX_INCREMENT_UP, MAX_INCREMENT_DOWN};
-
-const max_increment_t KNIGHT_MOVES[8] = {
-    MAX_INCREMENT_UP    + MAX_INCREMENT_UR,
-    MAX_INCREMENT_UP    + MAX_INCREMENT_UL,
-    MAX_INCREMENT_DOWN  + MAX_INCREMENT_DR,
-    MAX_INCREMENT_DOWN  + MAX_INCREMENT_DL,
-    MAX_INCREMENT_RIGHT + MAX_INCREMENT_UR,
-    MAX_INCREMENT_RIGHT + MAX_INCREMENT_DR,
-    MAX_INCREMENT_LEFT  + MAX_INCREMENT_UL,
-    MAX_INCREMENT_LEFT  + MAX_INCREMENT_DL,
-};
-
 
 
 static void max_board_init_lists(max_board_t *const board);
@@ -54,7 +41,7 @@ void max_board_new(max_board_t *const board) {
     board->pieces[MAX_E8] = MAX_PIECECODE_KING | MAX_PIECECODE_BLACK;
 
     max_board_init_lists(board);
-    max_board_init_statics(board);
+    max_check_reset(&board->check);
 }
 
 /// Initialize piece lists for each side by iterating through each square and set all valid empty squares to the proper piece code
@@ -73,4 +60,42 @@ static void max_board_init_lists(max_board_t *const board) {
             max_board_add_piece(board, side, pos, piece);
         }
     }
+}
+
+
+
+static MAX_INLINE_ALWAYS int8_t sign(int8_t n) {
+    return (n & 0b10000000) ? -1 : 1;
+}
+
+void max_init_statics(void) {
+    for(int8_t x = 0; x < 8; ++x) {
+        for(int8_t y = 0; y < 8; ++y) {
+            max_bpos_t from = max_bpos_new(x, y);
+
+            for(int8_t to_x = 0; to_x < 8; ++to_x) {
+                for(int8_t to_y = 0; to_y < 8; ++to_y) {
+                    max_bpos_t to = max_bpos_new(to_x, to_y);
+
+                    int8_t xd = to_x - x;
+                    int8_t yd = to_y - y;
+
+                    max_increment_t direction = 0;
+                    if(x == to_x && y != to_y) {
+                        direction = 0x10 * sign(yd);
+                    } else if(y == to_y) {
+                        direction = 0x01 * sign(xd); 
+                    }
+
+                    if(abs(xd) == abs(yd) && xd != 0) {
+                        direction = (0x10 * sign(yd)) + (0x01 * sign(xd));
+                    }
+
+                    MAX_DIRECTION_BY_DIFF[max_bpos_diff(from, to)] = direction;
+                }
+            }
+        }
+    }
+
+    MAX_DIRECTION_BY_DIFF[0x77] = 0;
 }

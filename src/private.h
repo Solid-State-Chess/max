@@ -4,14 +4,8 @@
 #include "max/def.h"
 #include "max/square.h"
 
-/// Increment for a pawn indexed by turn bit
-extern const max_increment_t PAWN_INC[2];
-
-/// All knight increments, for iterating during movegen / attack checking
-extern const max_increment_t KNIGHT_MOVES[8];
-
-/// Initialize static tables like direction by difference
-void max_board_init_statics(max_board_t *const board);
+/// Update check data for the current side to play
+void max_board_update_check(max_board_t *const board);
 
 /// Get the queenside castle right flag bits for the side to move on the given ply
 MAX_INLINE_ALWAYS max_plyplate_t max_qcastle_flag(uint16_t ply) {

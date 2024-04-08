@@ -99,3 +99,89 @@ enum {
     MAX_INCREMENT_DR    = MAX_INCREMENT_DOWN + MAX_INCREMENT_RIGHT,
     MAX_INCREMENT_DL    = MAX_INCREMENT_DOWN + MAX_INCREMENT_LEFT,
 };
+
+/// An array of directions for all four diagonal vectors
+extern const max_increment_t MAX_DIAGONALS[4];
+/// An array of directions for all four cardinal vectors
+extern const max_increment_t MAX_CARDINALS[4];
+
+
+#define MAX_KNIGHT_MOVES_LEN (8)
+
+/// All knight increments, for iterating during movegen / attack checking
+extern const max_increment_t MAX_KNIGHT_MOVES[MAX_KNIGHT_MOVES_LEN];
+
+/// All pawn attack directions, used for movegen and checking
+extern const max_increment_t MAX_PAWNSIDES[2];
+
+/// Increment for a pawn advancement indexed by turn
+extern const max_increment_t MAX_PAWN_DIR[2];
+
+/// Array indexed by board position differences giving ray direction (if any) from a square to another square
+extern max_increment_t MAX_DIRECTION_BY_DIFF[240];
+
+/// Information for a detected slide from a square along an increment
+typedef struct {
+    /// Square that the ray originates from
+    max_bpos_t origin;
+    /// Direction that the ray travels outward from the origin square
+    max_increment_t line;
+} max_line_t;
+
+/// Data for a piece delivering check - includes state required to track if the check is delivered
+/// by a sliding piece
+typedef struct {
+    union {
+        /// Pawn, king, or knight attacker location
+        max_bpos_t jump;
+        /// Bishop, rook, or queen attacker location and ray direction
+        max_line_t ray;
+    } attack;
+} max_checker_t;
+
+/// Get an invalid checker structure representing the absence of detected check
+MAX_INLINE_ALWAYS
+max_checker_t max_checker_invalid(void) {
+    return (max_checker_t){
+        .attack.ray = (max_line_t){
+            .origin = MAX_BPOS_INVALID_MASK,
+            .line = 0
+        }
+    };
+}
+
+/// Return true if the given checker structure represents check delivered by a sliding piece
+MAX_INLINE_ALWAYS
+bool max_checker_is_sliding(max_checker_t checker) { return checker.attack.ray.line != 0; }
+
+/// Return true if the given checker structure represents check delivered by a jumping piece
+MAX_INLINE_ALWAYS
+bool max_checker_is_jumping(max_checker_t checker) { return !max_checker_is_sliding(checker); }
+
+/// Check if the given checker structure represents a valid checking piece
+MAX_INLINE_ALWAYS
+bool max_checker_is_valid(max_checker_t checker) { return max_bpos_valid(checker.attack.jump); }
+
+/// Detected information for single and double check
+typedef struct {
+    max_checker_t attacks[2];
+} max_check_t;
+
+/// Return true if the given checks structure contains two valid pieces delivering check
+MAX_INLINE_ALWAYS
+bool max_check_is_double(max_check_t check) {
+    return max_checker_is_valid(check.attacks[0]) && max_checker_is_valid(check.attacks[1]);
+}
+
+/// Return true if either one or two pieces are delivering check to the side to play
+MAX_INLINE_ALWAYS
+bool max_check_exists(max_check_t check) {
+    return max_checker_is_valid(check.attacks[0]);
+}
+
+/// Reset the given detected checks structure, invalidating all attacks
+MAX_INLINE_ALWAYS
+void max_check_reset(max_check_t *check) {
+    check->attacks[0] = max_checker_invalid();
+    check->attacks[1] = max_checker_invalid();
+}

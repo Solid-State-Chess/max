@@ -30,54 +30,6 @@ enum {
     MAX_PLYPLATE_CASTLE_OFFSET = 4,
 };
 
-/// Information for a detected slide from a square along an increment
-typedef struct {
-    /// Square that the ray originates from
-    max_bpos_t origin;
-    /// Direction that the ray travels outward from the origin square
-    max_increment_t line;
-} max_line_t;
-
-/// Data for a piece delivering check - includes state required to track if the check is delivered
-/// by a sliding piece
-typedef struct {
-    union {
-        /// Pawn, king, or knight attacker location
-        max_bpos_t jump;
-        /// Bishop, rook, or queen attacker location and ray direction
-        max_line_t ray;
-    } attack;
-} max_checker_t;
-
-/// Return true if the given checker structure represents check delivered by a sliding piece
-MAX_INLINE_ALWAYS
-bool max_checker_is_sliding(max_checker_t checker) { return checker.attack.ray.line != 0; }
-
-/// Return true if the given checker structure represents check delivered by a jumping piece
-MAX_INLINE_ALWAYS
-bool max_checker_is_jumping(max_checker_t checker) { return !max_checker_is_sliding(checker); }
-
-/// Check if the given checker structure represents a valid checking piece
-MAX_INLINE_ALWAYS
-bool max_checker_is_valid(max_checker_t checker) { return max_bpos_valid(checker.attack.jump); }
-
-/// Detected information for single and double check
-typedef struct {
-    max_checker_t attacks[2];
-} max_check_t;
-
-/// Return true if the given checks structure contains two valid pieces delivering check
-MAX_INLINE_ALWAYS
-bool max_check_is_double(max_check_t check) {
-    return max_checker_is_valid(check.attacks[0]) && max_checker_is_valid(check.attacks[1]);
-}
-
-/// Return true if either one or two pieces are delivering check to the side to play
-MAX_INLINE_ALWAYS
-bool max_check_exists(max_check_t check) {
-    return max_checker_is_valid(check.attacks[0]);
-}
-
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
     /// Piece lists for white and black, tracking list position by square and square position by list position
@@ -109,6 +61,7 @@ typedef struct {
 /// A value of either 0 or 1 to indicate the current side to move - 0 is white and 1 is black
 typedef struct { uint8_t v; } max_turn_t;
 
+
 /// Get the piece list of the side that is currently to move
 MAX_INLINE_ALWAYS max_pieces_t* max_board_get_to_move(max_board_t *board) {
     return &board->sides[(board->ply & 1)];
@@ -117,6 +70,21 @@ MAX_INLINE_ALWAYS max_pieces_t* max_board_get_to_move(max_board_t *board) {
 /// Get side state for the side that is not to move this ply
 MAX_INLINE_ALWAYS max_pieces_t* max_board_get_enemy(max_board_t *board) {
     return &board->sides[(board->ply & 1) ^ 1];
+}
+
+/// Get the king's position for the side to play
+MAX_INLINE_ALWAYS max_bpos_t max_board_king_pos(max_board_t *board) {
+    return max_board_get_to_move(board)->king.pos[0];
+}
+
+/// Get the direction (up or down) that enemy pawns will advance
+MAX_INLINE_ALWAYS max_increment_t max_board_get_enemy_pawn_advance_dir(max_board_t *board) {
+    return MAX_PAWN_DIR[(board->ply & 1) ^ 1];
+}
+
+/// Get the color mask for friendly pieces for the side to move
+MAX_INLINE_ALWAYS max_piececode_t max_board_get_friendly_color_mask(max_board_t *const board) {
+    return MAX_PIECECODE_WHITE << (board->ply & 1);
 }
 
 /// Generate all pseudo-valid moves for the current side to move on the given board
@@ -137,29 +105,26 @@ void max_board_make_move(max_board_t *const board, max_move_t move);
 /// Unmake the given move, restoring any captured pieces and ep / castling state
 void max_board_unmake_move(max_board_t *const board, max_move_t move);
 
-/// Check for non sliding attacks on the given square
-bool max_board_get_nonsliding_attack(
+/// Travel outwards from the given square and check for pieces of the opposite color to 
+/// `attacked` that match the given piece type mask (for matching only diagonal / cardinal attackers)
+/// returns true if there is an attacker on the given line
+bool max_board_get_sliding_attack(
     max_board_t *board,
     max_bpos_t attacked,
-    max_piececode_t piece,
-    max_bpos_t *attacker
-);
-
-/// Check for sliding attacks on the given square
-bool max_board_get_sliding_attack(
-    max_board_t *const board,
-    max_bpos_t square,
-    max_piececode_t piece,
+    max_piececode_t typemask,
+    max_increment_t direction,
     max_line_t *attack
 );
 
 /// Check if the piece on the given square is attacked
-MAX_HOT
-MAX_INLINE_ALWAYS
-bool max_board_attacked(max_board_t *const board, max_bpos_t pos, max_piececode_t piece) {
-    max_line_t line;
-    return max_board_get_nonsliding_attack(board, pos, piece, &line.origin) || max_board_get_sliding_attack(board, pos, piece, &line);
-}
+bool max_board_attacked(max_board_t *const board, max_bpos_t pos);
+
+bool max_board_move_exits_pin(
+    max_board_t *const board,
+    max_piececode_t piece,
+    max_bpos_t from,
+    max_bpos_t to
+);
 
 /// Add a piece to the given capture stack
 MAX_INLINE_ALWAYS void max_capturestack_push(max_board_capturestack_t *stack, max_piececode_t piece) {
