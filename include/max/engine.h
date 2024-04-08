@@ -39,4 +39,5 @@ typedef struct {
 void max_engine_new(max_engine_t *engine);
 
 /// Search for the best move on this board for the side to play
-void max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth);
+/// returns true if a valid move is available to be played, and false otherwise
+bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth);

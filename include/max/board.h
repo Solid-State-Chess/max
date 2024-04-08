@@ -87,7 +87,12 @@ MAX_INLINE_ALWAYS max_bpos_t max_board_get_king_pos(max_board_t *board) {
     return max_board_get_to_move(board)->king.pos[0];
 }
 
-/// Get the direction (up or down) that enemy pawns will advance
+//// Get the direction (up or down) that enemy pawns will advance
+MAX_INLINE_ALWAYS max_increment_t max_board_get_friendly_pawn_advance_dir(max_board_t *board) {
+    return MAX_PAWN_DIR[(board->ply & 1)];
+}
+
+// Get the direction (up or down) that enemy pawns will advance
 MAX_INLINE_ALWAYS max_increment_t max_board_get_enemy_pawn_advance_dir(max_board_t *board) {
     return MAX_PAWN_DIR[(board->ply & 1) ^ 1];
 }

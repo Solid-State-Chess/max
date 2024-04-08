@@ -1,6 +1,8 @@
+#include "max/board.h"
 #include "max/def.h"
 #include "max/engine.h"
 #include "max/piece.h"
+#include "max/square.h"
 #include "private.h"
 
 MAX_HOT MAX_INLINE_ALWAYS static
@@ -18,10 +20,112 @@ max_score_t max_evaluate_positions(max_piecelist_t *pieces, max_score_t const *p
     return score;
 }
 
+/// Evaluate stacked pieces for the given side
+MAX_HOT
+MAX_INLINE_ALWAYS max_score_t max_evaluate_stacked_pawns(max_board_t *const board, max_pieces_t *pieces) {
+    max_score_t penalty = 0;
+
+    for(unsigned i = 0; i < pieces->pawns.len; ++i) {
+        max_piececode_t piece = board->pieces[pieces->pawns.pos[i]];
+        max_bpos_t above = max_bpos_inc(pieces->pawns.pos[i], max_board_get_friendly_pawn_advance_dir(board));
+        //Don't need to check validity because pawns may not be on the final ranks
+        if(max_bpos_valid(above)) {
+            max_piececode_t above_piece = board->pieces[above];
+            if(
+                above_piece & (piece & MAX_PIECECODE_COLOR_MASK) &&
+                (above_piece & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_PAWN
+            ) {
+                penalty -= 75;
+            }
+        }
+    }
+
+    return penalty;
+}
+
+#define MAX_CONTROLLED_SQUARE_VALUE (12)
+
+MAX_HOT MAX_INLINE_ALWAYS
+static max_score_t max_count_slider_squares(max_board_t *const board, max_bpos_t sq, max_increment_t const *const dirs) {
+    if(max_board_is_pinned(board, sq)) {
+        return -100;
+    }
+
+    max_score_t count = 0;
+    for(unsigned i = 0; i < 4; ++i) {
+        max_increment_t dir = dirs[i];
+        max_bpos_t pos = sq;
+        do {
+            max_bpos_t pos = max_bpos_inc(pos, dir);
+            count += MAX_CONTROLLED_SQUARE_VALUE;
+        } while(max_bpos_valid(pos) && board->pieces[pos] == MAX_PIECECODE_EMPTY);
+    }
+
+    return count;
+}
+
+MAX_HOT MAX_INLINE_ALWAYS
+static max_score_t max_evaluate_slider_control(max_board_t *const board, max_pieces_t *pieces) {
+    max_score_t score = 0;
+
+    for(unsigned i = 0; i < pieces->bishops.len; ++i) {
+        max_bpos_t pos = pieces->bishops.pos[i];
+        score += max_count_slider_squares(board, pos, MAX_DIAGONALS);
+    }
+
+    for(unsigned i = 0; i < pieces->rooks.len; ++i) {
+        max_bpos_t pos = pieces->rooks.pos[i];
+        score += max_count_slider_squares(board, pos, MAX_CARDINALS);
+    }
+
+    for(unsigned i = 0; i < pieces->queens.len; ++i) {
+        max_bpos_t pos = pieces->queens.pos[i];
+        score += max_count_slider_squares(board, pos, MAX_DIAGONALS);
+        score += max_count_slider_squares(board, pos, MAX_CARDINALS);
+    }
+
+    return score;
+}
+
+MAX_HOT
+MAX_INLINE_ALWAYS
+static max_score_t max_evaluate_connected_rooks(max_board_t *const board, max_pieces_t *pieces) {
+    if(pieces->rooks.len == 2) {
+        max_bpos_t pos   = pieces->rooks.pos[0];
+        max_bpos_t rook2 = pieces->rooks.pos[1];
+
+        max_increment_t dir = MAX_DIRECTION_BY_DIFF[max_bpos_diff(pos, rook2)];
+        if(dir == 0) {
+            return -10;
+        }
+
+        do {
+            pos = max_bpos_inc(pos, dir);
+        } while(board->pieces[pos] == MAX_PIECECODE_EMPTY);
+
+        if(pos == rook2) {
+            return 50;
+        } else {
+            return -10;
+        }
+    }
+
+    return 0;
+}
+
+MAX_HOT MAX_INLINE_ALWAYS
+static max_score_t max_evaluate_bishop_pair(max_board_t *const board, max_pieces_t *side) {
+    if(side->bishops.len >= 2) {
+        return 125;
+    } else {
+        return 0;
+    }
+}
+
 /// Evaluate the material for one side of a chessboard
 MAX_HOT
 MAX_INLINE_ALWAYS
-static max_score_t max_evaluate_side(max_pieces_t *side, unsigned white) {
+static max_score_t max_evaluate_side(max_board_t *board, max_pieces_t *side, unsigned white) {
     static max_score_t PAWN_PSTBL[64] = {
          0,  0,  0,  0,  0,  0,  0,  0,
         50, 50, 50, 50, 50, 50, 50, 50,
@@ -104,13 +208,16 @@ static max_score_t max_evaluate_side(max_pieces_t *side, unsigned white) {
         max_evaluate_positions((max_piecelist_t*)&side->queens,  QUEEN_PSTBL,  white) +
         max_evaluate_positions((max_piecelist_t*)&side->king,    KING_PSTBL,   white);
     
-
-    return material + position;
+    max_score_t connected_rooks = max_evaluate_connected_rooks(board, side);
+    max_score_t stacked_pawns   = max_evaluate_stacked_pawns(board, side);
+    max_score_t control         = max_evaluate_slider_control(board, side);
+    
+    return material + position + connected_rooks + stacked_pawns + control;
 }
 
 max_score_t max_evaluate(max_engine_t *engine) {
     engine->diagnostic.nodes += 1;
-    max_score_t white = max_evaluate_side(&engine->board.white, 0);
-    max_score_t black = max_evaluate_side(&engine->board.black, 1);
+    max_score_t white = max_evaluate_side(&engine->board, &engine->board.white, 0);
+    max_score_t black = max_evaluate_side(&engine->board, &engine->board.black, 1);
     return white - black;
 }

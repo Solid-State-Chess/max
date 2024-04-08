@@ -89,7 +89,7 @@ static void gui_state_render(gui_state_t *state) {
     for(unsigned x = 0; x < 8; ++x) {
         for(unsigned y = 0; y < 8; ++y) {
             dest.x = x * state->squarex;
-            dest.y = (7 - y) * state->squarey;
+            dest.y = y * state->squarey;
 
             max_bpos_t pos = max_bpos_new(x, y);
             SDL_Texture *bg = NULL;
