@@ -1,11 +1,13 @@
 #include "gui.h"
 #include <stdlib.h>
-
+#include "max.h"
 #include <SDL2/SDL.h>
 
 #undef main
 
 int main(int _argc, char *_argv[]) {
+    max_init_statics();
+
     int ec;
     gui_state_t *gui = malloc(sizeof(*gui)); 
 

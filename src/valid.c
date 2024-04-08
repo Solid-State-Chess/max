@@ -17,17 +17,30 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     max_bpos_t kps = max_board_get_king_pos(board);
     max_bpos_t kpos = board->sides[color >> MAX_PIECECODE_BLACK_OFFSET].king.pos[0];
 
+
     if(move.from == kpos) {
+        printf("ISVALID: %c%c%c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to));
         switch(move.attr) {
             case MAX_MOVE_KCASTLE: {
-                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT));
+                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT)) && !max_board_attacked(board, move.to);
             } break;
 
             case MAX_MOVE_QCASTLE: {
-                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT));
+                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT)) && !max_board_attacked(board, move.to);
             } break;
 
             default: {
+                if(max_check_exists(board->check) && max_checker_is_sliding(board->check.attacks[0])) {
+                    max_line_t line = board->check.attacks[0].attack.ray;
+                    
+                    max_increment_t after_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(line.origin, move.to)];
+                    if(after_line == line.line) {
+                        puts("NOLINE");
+                        return false;
+                    }
+                }
+                
+                printf("%c%c%c%c - %d\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to), max_board_attacked(board, move.to));
                 return !max_board_attacked(board, move.to);
             } break;
         }
@@ -36,7 +49,7 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
         
         max_board_make_move(board, move);
 
-        kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
+        //kpos = board->sides[(board->ply & 1) ^ 1].king.pos[0];
         
         max_board_movegen_pseudo(board, &moves);
 
