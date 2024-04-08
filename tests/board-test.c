@@ -43,6 +43,10 @@ static size_t EP = 0;
 
 size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsigned n) {
     size_t count = 0;
+    max_bpos_t kpos = max_board_get_to_move(board)->king.pos[0];
+    if(max_board_attacked(board, kpos, board->pieces[kpos])) {
+        CHECKS += 1;
+    }
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         puts("BAD BOARD");
         max_board_debugprint(board);
@@ -108,14 +112,16 @@ int board_tests(void) {
     max_movelist_t moves = max_movelist_new(buf);
     max_move_t history[10];
 
+
     /*ASSERT_EQ(size_t, perft(&board, moves, history, 2), 400, "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, history, 3), 8902, "%zu");
-
+    ASSERT_EQ(size_t, perft(&board, moves, history, 4), 197281, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, history, 5), 4865609  , "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, history, 6), 119060324, "%zu");*/
     
-    max_board_make_move(&board, max_move_new(MAX_E2, MAX_E4, MAX_MOVE_DOUBLE));
+    //max_board_make_move(&board, max_move_new(MAX_E2, MAX_E4, MAX_MOVE_DOUBLE));
 
-    size_t nodes = perft(&board, moves, history, 7);
+    size_t nodes = perft(&board, moves, history, 4);
     printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
 
     if(!board_same(&board, &original)) {

@@ -30,11 +30,53 @@ enum {
     MAX_PLYPLATE_CASTLE_OFFSET = 4,
 };
 
-/// Information for a detected sliding attack on a square
+/// Information for a detected slide from a square along an increment
 typedef struct {
+    /// Square that the ray originates from
+    max_bpos_t origin;
+    /// Direction that the ray travels outward from the origin square
     max_increment_t line;
-    max_bpos_t attacker;
-} max_lineattack_t;
+} max_line_t;
+
+/// Data for a piece delivering check - includes state required to track if the check is delivered
+/// by a sliding piece
+typedef struct {
+    union {
+        /// Pawn, king, or knight attacker location
+        max_bpos_t jump;
+        /// Bishop, rook, or queen attacker location and ray direction
+        max_line_t ray;
+    } attack;
+} max_checker_t;
+
+/// Return true if the given checker structure represents check delivered by a sliding piece
+MAX_INLINE_ALWAYS
+bool max_checker_is_sliding(max_checker_t checker) { return checker.attack.ray.line != 0; }
+
+/// Return true if the given checker structure represents check delivered by a jumping piece
+MAX_INLINE_ALWAYS
+bool max_checker_is_jumping(max_checker_t checker) { return !max_checker_is_sliding(checker); }
+
+/// Check if the given checker structure represents a valid checking piece
+MAX_INLINE_ALWAYS
+bool max_checker_is_valid(max_checker_t checker) { return max_bpos_valid(checker.attack.jump); }
+
+/// Detected information for single and double check
+typedef struct {
+    max_checker_t attacks[2];
+} max_check_t;
+
+/// Return true if the given checks structure contains two valid pieces delivering check
+MAX_INLINE_ALWAYS
+bool max_check_is_double(max_check_t check) {
+    return max_checker_is_valid(check.attacks[0]) && max_checker_is_valid(check.attacks[1]);
+}
+
+/// Return true if either one or two pieces are delivering check to the side to play
+MAX_INLINE_ALWAYS
+bool max_check_exists(max_check_t check) {
+    return max_checker_is_valid(check.attacks[0]);
+}
 
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
 typedef struct {
@@ -51,11 +93,14 @@ typedef struct {
     /// Piece code 0x88 array for directly looking up piece by square
     max_piececode_t pieces[MAX_BOARD_0x88_LEN];
     
-    /// Tracking for the last captured piece for move unmaking
-    max_board_capturestack_t captures;
-
     /// A stack of all irreversible game state
     max_plyplate_t stack[MAX_BOARD_MAX_PLY];
+    
+    /// Tracking for the last captured piece for move unmaking
+    max_board_capturestack_t captures;
+    
+    /// Detected single and double checks on the side to play, set after each move is made
+    max_check_t check;
     
     /// Ply (halfmove) counter, if the LSB is set (ply is odd) then black is to move
     uint16_t ply;
@@ -105,15 +150,15 @@ bool max_board_get_sliding_attack(
     max_board_t *const board,
     max_bpos_t square,
     max_piececode_t piece,
-    max_lineattack_t *attack
+    max_line_t *attack
 );
 
 /// Check if the piece on the given square is attacked
 MAX_HOT
 MAX_INLINE_ALWAYS
 bool max_board_attacked(max_board_t *const board, max_bpos_t pos, max_piececode_t piece) {
-    max_lineattack_t line;
-    return max_board_get_nonsliding_attack(board, pos, piece, &line.attacker) || max_board_get_sliding_attack(board, pos, piece, &line);
+    max_line_t line;
+    return max_board_get_nonsliding_attack(board, pos, piece, &line.origin) || max_board_get_sliding_attack(board, pos, piece, &line);
 }
 
 /// Add a piece to the given capture stack

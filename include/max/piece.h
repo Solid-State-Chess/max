@@ -47,20 +47,20 @@ enum {
     MAX_PIECECODE_INVAL = 0x80,
     MAX_PIECECODE_EMPTY = 0x00,
 
-    MAX_PIECECODE_BISHOP = 0x01,
-    MAX_PIECECODE_ROOK   = 0x02,
+    MAX_PIECECODE_PAWN   = 0x01,
+    MAX_PIECECODE_KNIGHT = 0x02,
+    MAX_PIECECODE_BISHOP = 0x04,
+    MAX_PIECECODE_ROOK   = 0x08,
     MAX_PIECECODE_QUEEN  = MAX_PIECECODE_BISHOP | MAX_PIECECODE_ROOK,
-    MAX_PIECECODE_PAWN   = 0x04,
-    MAX_PIECECODE_KNIGHT = 0x05,
-    MAX_PIECECODE_KING   = 0x06,
+    MAX_PIECECODE_KING   = 0x10,
     ///
-    MAX_PIECECODE_TYPE_MASK   = 0x07,
+    MAX_PIECECODE_TYPE_MASK   = 0x1F,
     MAX_PIECECODE_COLOR_MASK  = 0x60,
 };
 
 /// Get the position array for a piece given by the piece code
 MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max_piececode_t piece) {
-    static const uint8_t lookup[7] = {
+    static const uint8_t lookup[17] = {
         [MAX_PIECECODE_PAWN]   = offsetof(max_pieces_t, pawns),
         [MAX_PIECECODE_KNIGHT] = offsetof(max_pieces_t, knights),
         [MAX_PIECECODE_BISHOP] = offsetof(max_pieces_t, bishops),
