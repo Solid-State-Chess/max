@@ -111,6 +111,11 @@ extern const max_increment_t MAX_CARDINALS[4];
 /// All knight increments, for iterating during movegen / attack checking
 extern const max_increment_t MAX_KNIGHT_MOVES[MAX_KNIGHT_MOVES_LEN];
 
+#define MAX_KING_MOVES_LEN (8)
+
+/// Increments for all king moves
+extern const max_increment_t MAX_KING_MOVES[MAX_KING_MOVES_LEN];
+
 /// All pawn attack directions, used for movegen and checking
 extern const max_increment_t MAX_PAWNSIDES[2];
 

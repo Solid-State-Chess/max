@@ -217,25 +217,26 @@ bool max_board_attacked(max_board_t *const board, max_bpos_t pos) {
         }
     }
     
-    static const max_piececode_t JUMPMASK[2] = {
+    static const max_piececode_t JUMPMASK[3] = {
         MAX_PIECECODE_PAWN,
-        MAX_PIECECODE_KNIGHT
+        MAX_PIECECODE_KNIGHT,
+        MAX_PIECECODE_KING
     };
 
     max_increment_t pawn_attackers[2];
     pawn_attackers[0] = MAX_PAWNSIDES[0] - max_board_get_enemy_pawn_advance_dir(board);
     pawn_attackers[1] = MAX_PAWNSIDES[1] - max_board_get_enemy_pawn_advance_dir(board);
     
-    /// Offsets to check for knight and pawn moves
-    max_increment_t const *offsets[2] = {
+    /// Offsets to check for knight, pawn and king moves
+    max_increment_t const *offsets[3] = {
         pawn_attackers,
-        MAX_KNIGHT_MOVES
+        MAX_KNIGHT_MOVES,
+        MAX_KING_MOVES,
     };
 
-    uint8_t offset_lens[2] = {2, MAX_KNIGHT_MOVES_LEN};
+    uint8_t offset_lens[3] = {2, MAX_KNIGHT_MOVES_LEN, MAX_KING_MOVES_LEN};
     
-    //Iterate through knight and pawn moves
-    for(unsigned i = 0; i < 2; ++i) {
+    for(unsigned i = 0; i < 3; ++i) {
         max_increment_t const *offset = offsets[i];
         uint8_t offsets_len = offset_lens[i];
         max_piececode_t mask = JUMPMASK[i];
