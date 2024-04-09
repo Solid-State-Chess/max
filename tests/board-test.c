@@ -127,7 +127,7 @@ int board_tests(void) {
     
     //max_board_make_move(&board, max_move_new(MAX_E2, MAX_E4, MAX_MOVE_DOUBLE));
 
-    size_t nodes = perft(&board, moves, history, 6);
+    size_t nodes = perft(&board, moves, history, 8);
     printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
 
     if(!board_same(&board, &original)) {

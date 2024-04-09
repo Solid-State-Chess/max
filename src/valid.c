@@ -76,7 +76,11 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
         }
 
         if(move.attr == MAX_MOVE_EN_PASSANT) {
-            max_bpos_t captured = max_bpos_inc(move.to, max_board_get_enemy_pawn_advance_dir(board));
+            max_bpos_t captured = max_bpos_inc(move.to, -max_board_get_enemy_pawn_advance_dir(board));
+
+            if(max_board_is_pinned(board, captured)) {
+                return false;
+            }
 
             max_increment_t captured_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(captured, kpos)];
             if(captured_line == 0) {
@@ -88,7 +92,6 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
             //En passant may result in discovered attack on the king, check for this
             //if both pawns lie on the same rank as the king, then horizontal discovered attack may occur
             if(captured_line == pre_move_line) {
-                puts("SAMELINE");
                 max_bpos_t pos = captured;
                 do {
                     pos = max_bpos_inc(pos, captured_line);
@@ -101,7 +104,6 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                     do {
                         pos = max_bpos_inc(pos, -captured_line);
                     } while(max_bpos_valid(pos) && pos != move.from && board->pieces[pos] == MAX_PIECECODE_EMPTY);
-                    puts("BLOCKER?");
 
                     if(max_bpos_valid(pos)) {
                         max_piececode_t piece = board->pieces[pos];
@@ -115,7 +117,9 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                     }
                 }
             } else if(captured_line == 15 || captured_line == 17 || captured_line == -15 || captured_line == -17) {
-
+                if(max_board_is_empty_between(board, captured, kpos)) {
+                    puts("EMPTY");
+                }
             }
         }
 
