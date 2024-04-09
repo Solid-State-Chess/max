@@ -111,14 +111,12 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                             (piece & color) == 0 &&
                             (piece & MAX_PIECECODE_ROOK)
                         ) {
-                            puts("CAN'T EP");
                             return false;
                         }
                     }
                 }
             } else if(captured_line == 15 || captured_line == 17 || captured_line == -15 || captured_line == -17) {
                 if(max_board_is_empty_between(board, captured, kpos)) {
-                    puts("EMPTY");
                 }
             }
         }

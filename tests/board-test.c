@@ -13,7 +13,14 @@ static bool board_same(max_board_t *a, max_board_t *b) {
         return false;
     }
 
-    static max_piececode_t PIECES[] = {MAX_PIECECODE_PAWN, MAX_PIECECODE_KNIGHT, MAX_PIECECODE_BISHOP, MAX_PIECECODE_ROOK, MAX_PIECECODE_QUEEN, MAX_PIECECODE_KING};
+    static max_piececode_t PIECES[] = {
+        MAX_PIECECODE_PAWN,
+        MAX_PIECECODE_KNIGHT,
+        MAX_PIECECODE_BISHOP,
+        MAX_PIECECODE_ROOK,
+        MAX_PIECECODE_QUEEN,
+        MAX_PIECECODE_KING
+    };
     for(unsigned i = 0; i <= 1; ++i) {
         for(unsigned j = 0; j < sizeof(PIECES); ++j) {
             max_piecelist_t *al = max_pieces_get_list(&a->sides[i], PIECES[j]);
