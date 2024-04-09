@@ -39,6 +39,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, cl]
+        binpath: ['Release/max-arena.exe', 'max-arena']
         include:
           - os: windows-latest
             c_compiler: cl
@@ -88,7 +89,7 @@ jobs:
     - name: Zip the assets
       id: zip_asset
       run: |
-          7z a -tzip ${{ steps.strings.outputs.build-output-dir }}/max-arena-${{ matrix.os }}-${{ github.ref_name }}.zip ${{ steps.strings.outputs.build-output-dir }}*
+          7z a -tzip ${{ steps.strings.outputs.build-output-dir }}/max-arena-${{ matrix.os }}-${{ github.ref_name }}.zip ${{ steps.strings.outputs.build-output-dir }}/{{ matrix.binpath }}
 
     - name: Upload release assets
       id: upload_assets
