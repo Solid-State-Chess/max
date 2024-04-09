@@ -39,14 +39,15 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, cl]
-        binpath: ['Release/max-arena.exe', 'max-arena']
         include:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+            binpath: Release/max-arena.exe
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            binpath: max-arena
         exclude:
           - os: windows-latest
             c_compiler: gcc
