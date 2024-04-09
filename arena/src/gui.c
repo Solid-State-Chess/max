@@ -200,10 +200,8 @@ int gui_state_run(gui_state_t *state) {
                                 for(unsigned i = 0; i < moves.len; ++i) {
                                     max_move_t move = moves.moves[i];
                                     if(move.from == state->grabbed.from && move.to == to) {
-                                        puts("GOTMOVE");
                                         if(max_board_move_is_valid(&state->shared->engine.board, move)) {
                                             if(max_move_attr_is_promote(move.attr)) {
-                                                puts("PROMOTE");
                                                 if(!state->promote.selecting) {
                                                     state->promote.selecting = true;
                                                     state->promote.selected = 0;
