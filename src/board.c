@@ -160,7 +160,6 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
 }
 
 MAX_HOT
-MAX_INLINE_ALWAYS
 bool max_board_move_exits_pin(
     max_board_t *const board,
     max_piececode_t piece,
@@ -183,7 +182,6 @@ bool max_board_move_exits_pin(
 }
 
 MAX_HOT
-MAX_INLINE_ALWAYS
 bool max_board_attacked(max_board_t *const board, max_bpos_t pos) {
     static max_line_t _UNUSED;
     max_piececode_t color = max_board_friendly_colormask(board);

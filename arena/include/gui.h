@@ -30,6 +30,16 @@ typedef struct {
     bool quit;
 } gui_shared_t;
 
+/// State for pawn promotion
+typedef struct {
+    /// If the player is currently selecting a piece to promote to
+    bool selecting;
+    /// Square to promote at
+    max_bpos_t promote_sq;
+    /// Template to fill with promotion piece
+    max_move_attr_t selected;
+} gui_promote_t;
+
 typedef struct {
     SDL_Window *window;
     SDL_Renderer *render;
@@ -44,6 +54,8 @@ typedef struct {
     //Size of each chess square in pixels
     int squarex;
     int squarey;
+
+    gui_promote_t promote;
 } gui_state_t;
 
 /// Initialize the window and game engine

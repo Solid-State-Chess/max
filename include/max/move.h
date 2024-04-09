@@ -25,6 +25,11 @@ enum {
     MAX_MOVE_PROMOTE_QUEEN  = 9
 };
 
+MAX_INLINE_ALWAYS bool max_move_attr_is_promote(max_move_attr_t attr) {
+    attr &= ~MAX_MOVE_CAPTURE;
+    return (attr == MAX_MOVE_PROMOTE_KNIGHT) || (attr == MAX_MOVE_PROMOTE_BISHOP) || (attr == MAX_MOVE_PROMOTE_ROOK) || (attr == MAX_MOVE_PROMOTE_QUEEN);
+}
+
 /// A move with specification for 'special' moves that require additional processing
 typedef struct {
     max_bpos_t from;

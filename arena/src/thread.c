@@ -14,7 +14,7 @@ int gui_engine_thread(void *_data) {
                 break;
             }
             
-            uint64_t start = SDL_GetTicks64();
+            /*uint64_t start = SDL_GetTicks64();
             if(!max_engine_search(&data->engine, &search, 5)) {
                 puts("Bot is in checkmate");
                 return 0;
@@ -33,7 +33,7 @@ int gui_engine_thread(void *_data) {
                 time,
                 mn_s,
                 search.best_score
-            );
+            );*/
 
             max_movelist_clear(&data->moves);
             max_board_movegen_pseudo(&data->engine.board, &data->moves);
