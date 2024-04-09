@@ -90,7 +90,7 @@ jobs:
     - name: Zip the assets
       id: zip_asset
       run: |
-          7z a -tzip ${{ steps.strings.outputs.build-output-dir }}/max-arena-${{ matrix.os }}-${{ github.ref_name }}.zip ${{ steps.strings.outputs.build-output-dir }}/{{ matrix.binpath }}
+          7z a -tzip ${{ steps.strings.outputs.build-output-dir }}/max-arena-${{ matrix.os }}-${{ github.ref_name }}.zip ${{ steps.strings.outputs.build-output-dir }}/${{ matrix.binpath }}
 
     - name: Upload release assets
       id: upload_assets
