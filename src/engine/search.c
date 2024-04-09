@@ -97,7 +97,6 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
         max_board_make_move(&engine->board, moves.moves[i]);
         
         max_score_t score = -max_alpha_beta(engine, INT32_MIN + 20, INT32_MAX - 20, moves.len, depth);
-        printf("%i for %X->%X\n", score, moves.moves[i].from, moves.moves[i].to);
 
         max_board_unmake_move(&engine->board, moves.moves[i]);
 
