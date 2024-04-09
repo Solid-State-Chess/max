@@ -208,11 +208,14 @@ static max_score_t max_evaluate_side(max_board_t *board, max_pieces_t *side, uns
         max_evaluate_positions((max_piecelist_t*)&side->queens,  QUEEN_PSTBL,  white) +
         max_evaluate_positions((max_piecelist_t*)&side->king,    KING_PSTBL,   white);
     
-    max_score_t connected_rooks = max_evaluate_connected_rooks(board, side);
+    //max_score_t connected_rooks = max_evaluate_connected_rooks(board, side);
     max_score_t stacked_pawns   = max_evaluate_stacked_pawns(board, side);
     max_score_t control         = max_evaluate_slider_control(board, side);
     
-    return material + position + connected_rooks + stacked_pawns + control;
+    return material +
+        position +
+        max_evaluate_stacked_pawns(board, side) +
+        max_evaluate_slider_control(board, side);
 }
 
 max_score_t max_evaluate(max_engine_t *engine) {

@@ -83,19 +83,39 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                 goto check_pin;
             }
 
-            max_increment_t post_move_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(move.to, kpos)];
+            max_increment_t pre_move_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(move.from, kpos)];
             
             //En passant may result in discovered attack on the king, check for this
-            if(captured_line != post_move_line) {
+            //if both pawns lie on the same rank as the king, then horizontal discovered attack may occur
+            if(captured_line == pre_move_line) {
+                puts("SAMELINE");
                 max_bpos_t pos = captured;
                 do {
                     pos = max_bpos_inc(pos, captured_line);
-                } while(board->pieces[pos] == MAX_PIECECODE_EMPTY);
+                } while(pos != move.from && board->pieces[pos] == MAX_PIECECODE_EMPTY);
                 
-                //There is another blocker on the line to the king
-                if(pos != kpos) {
-                    goto check_pin;
+                //There is no other blocker on the line to the king
+                if(pos == kpos) {
+                    //No blockers on the line to the king, we can continue to check if there is a rook on the same rank
+                    pos = captured;
+                    do {
+                        pos = max_bpos_inc(pos, -captured_line);
+                    } while(max_bpos_valid(pos) && pos != move.from && board->pieces[pos] == MAX_PIECECODE_EMPTY);
+                    puts("BLOCKER?");
+
+                    if(max_bpos_valid(pos)) {
+                        max_piececode_t piece = board->pieces[pos];
+                        if(
+                            (piece & color) == 0 &&
+                            (piece & MAX_PIECECODE_ROOK)
+                        ) {
+                            puts("CAN'T EP");
+                            return false;
+                        }
+                    }
                 }
+            } else if(captured_line == 15 || captured_line == 17 || captured_line == -15 || captured_line == -17) {
+
             }
         }
 

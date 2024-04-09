@@ -73,9 +73,9 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
         if(movecount > 0) {
             return alpha;
         } else if(max_check_exists(engine->board.check)) {
-            return (MAX_KING_VALUE + depth) * SCORE_MUL[engine->board.ply & 1];
+            return -(MAX_KING_VALUE + depth);
         } else {
-            return MAX_KING_VALUE * -SCORE_MUL[engine->board.ply & 1];
+            return -MAX_KING_VALUE / 2;
         }
     }
 }
@@ -97,7 +97,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
         max_board_make_move(&engine->board, moves.moves[i]);
         
         max_score_t score = -max_alpha_beta(engine, INT32_MIN + 20, INT32_MAX - 20, moves.len, depth);
-        //printf("%i for %X->%X\n", score, moves.moves[i].from, moves.moves[i].to);
+        printf("%i for %X->%X\n", score, moves.moves[i].from, moves.moves[i].to);
 
         max_board_unmake_move(&engine->board, moves.moves[i]);
 

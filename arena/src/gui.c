@@ -33,7 +33,7 @@ int gui_state_new(gui_state_t *state) {
     }
     
     SDL_SetRenderDrawColor(state->render, 0xFF, 0, 0xFF, 0xFF);
-    SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" );
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1" );
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
 
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
