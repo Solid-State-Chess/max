@@ -18,6 +18,24 @@ typedef struct {
 /// [2 bits for black castle rights] - [2 bits for white castle rights] - [4 bits for en passant file index]
 typedef uint8_t max_plyplate_t;
 
+/// Structure storing all irreversible state that the board is capable of restoring
+typedef struct {
+    /// Data for if and where check is delivered from for the side to play
+    max_check_t check;
+    /// Castle rights and en passant state packed into one byte
+    max_plyplate_t packed_state;
+} max_irreversible_t;
+
+/// A stack structure caching all state that cannot be *efficiently* recomputed with each move unmake
+/// Stored up to MAX_BOARD_REVERSE_LEN
+typedef struct {
+    /// Array of all reversible state, indexed by the difference between current game ply and last reset
+    /// ply count
+    max_irreversible_t *array;
+    /// The ply count that the stack was last reset at, index into stack array is index = ply - reset_ply
+    uint16_t plies_since_reset;
+} max_irreversible_stack_t;
+
 enum {
     /// Mask for 4 bits representing en passantable file (invalid file means no en passant in possible)
     MAX_PLYPLATE_EP_MASK     = 0x0F,
@@ -44,15 +62,13 @@ typedef struct {
     
     /// Piece code 0x88 array for directly looking up piece by square
     max_piececode_t pieces[MAX_BOARD_0x88_LEN];
-    
-    /// A stack of all irreversible game state
-    max_plyplate_t stack[MAX_BOARD_MAX_PLY];
-    
+
     /// Tracking for the last captured piece for move unmaking
     max_board_capturestack_t captures;
     
-    /// Detected single and double checks on the side to play, set after each move is made
-    max_check_t check;
+    /// A stack of all irreversible state used to unmake moves efficiently without
+    /// recomputing too much state
+    max_irreversible_stack_t stack;
     
     /// Ply (halfmove) counter, if the LSB is set (ply is odd) then black is to move
     uint16_t ply;
@@ -106,8 +122,32 @@ void max_board_capturegen_pseudo(max_board_t *const board, max_movelist_t *const
 /// Check if the given move is legal - it does not leave the king in check
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move);
 
-/// Reset the given chessboard to the starting configuration
-void max_board_new(max_board_t *const board);
+/// Get the current castle rights, check, and en passant state for this board
+MAX_INLINE_ALWAYS max_irreversible_t* max_board_state(max_board_t const *const board) {
+    return &board->stack.array[board->stack.plies_since_reset - 1];
+}
+
+/// Reset the given board's state stack pointer- after calling this moves made before the call must not be unmade
+MAX_INLINE_ALWAYS void max_board_reset_stack(max_board_t *const board) {
+    max_irreversible_t latest = *max_board_state(board);
+    board->stack.plies_since_reset = 1;
+    board->stack.array[0] = latest;
+}
+
+MAX_INLINE_ALWAYS void max_irreversible_stack_push(max_irreversible_stack_t *stack, max_irreversible_t state) {
+    stack->array[stack->plies_since_reset] = state;
+    stack->plies_since_reset += 1;
+}
+
+MAX_INLINE_ALWAYS max_irreversible_t max_irreversible_stack_pop(max_irreversible_stack_t *stack) {
+    stack->plies_since_reset -= 1;
+    return stack->array[stack->plies_since_reset];
+}
+
+/// Create a new chessboard structure initialized to the starting position,
+/// using the given buffer as the irreversible state buffer - the size of this buffer
+/// determines how many moves can be unmake between state resets
+void max_board_new(max_board_t *const board, max_irreversible_t *ply_buf);
 
 /// Make the given move on a chessboard, with NO CHECK for move validity (assumes valid moves taken from max_movegen)
 void max_board_make_move(max_board_t *const board, max_move_t move);

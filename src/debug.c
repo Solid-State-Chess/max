@@ -58,7 +58,8 @@ void max_board_debugprint(max_board_t const* board) {
     }
     putc('\n', stdout);
     
-    max_plyplate_t plate = board->stack[board->ply];
+    max_irreversible_t *state = max_board_state(board);
+    max_plyplate_t plate = state->packed_state;
 
     uint8_t eprank = plate & MAX_PLYPLATE_EP_MASK;
     if(eprank != MAX_PLYPLATE_EP_INVALID) {
@@ -70,8 +71,8 @@ void max_board_debugprint(max_board_t const* board) {
     puts  ("       K-Castle   Q-Castle\n");
     printf("White:    %c          %c  \n", (plate & max_kcastle_flag(0)) ? 'Y' : 'N', (plate & max_qcastle_flag(0)) ? 'Y' : 'N');
     printf("Black:    %c          %c  \n", (plate & max_kcastle_flag(1)) ? 'Y' : 'N', (plate & max_qcastle_flag(1)) ? 'Y' : 'N');
-    print_checker(board->check.attacks[0]);
-    print_checker(board->check.attacks[1]);
+    print_checker(state->check.attacks[0]);
+    print_checker(state->check.attacks[1]);
     
 }
 

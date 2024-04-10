@@ -94,39 +94,14 @@ bool max_board_update_discovery(max_board_t *const board, max_bpos_t empty, max_
 }
 
 
-/// Undo the given move
-void max_board_unupdate_check(max_board_t *const board, max_move_t move) {
-    max_check_reset(&board->check);
-
-    max_checker_t *check = &board->check.attacks[0];
-    max_bpos_t kpos = max_board_get_king_pos(board);
-
-    if(move.attr & MAX_MOVE_CAPTURE) {
-        puts("UNDO CAPTURE");
-        if(max_board_piece_delivers_check(board, move.to, kpos, check)) {
-            check += 1;
-        }
-    } else if(max_board_update_discovery(board, move.to, check)) {
-        check += 1;
-    }
-
-
-    if(move.from == kpos || move.to == kpos) {
-        max_board_attacks(board, kpos, check);
-        return;
-    }
-}
-
-void max_board_update_check(max_board_t *const board, max_move_t move) {
-    max_check_reset(&board->check);
-
-    max_checker_t *check = &board->check.attacks[0];
+void max_board_update_check(max_board_t *const board, max_move_t move, max_check_t *checks) {
+    max_check_reset(checks);
+    max_checker_t *check = &checks->attacks[0];
 
     max_bpos_t kpos = max_board_get_king_pos(board);
 
     
-    
-    printf("TRY %c%c->%c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to));
+    //printf("TRY %c%c->%c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to));
     if(max_board_piece_delivers_check(board, move.to, kpos, check)) {
         printf("CHECK @ %c%c->%c%c\nkpos: %c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to), MAX_BPOS_FORMAT(kpos));
         check += 1;
@@ -138,7 +113,6 @@ void max_board_update_check(max_board_t *const board, max_move_t move) {
         check += 1;
     }
     if(move.attr == MAX_MOVE_EN_PASSANT) {
-        puts("EP");
         max_bpos_t captured = max_bpos_inc(move.to, max_board_get_enemy_pawn_advance_dir(board));
         max_board_update_discovery(board, captured, check);
     }

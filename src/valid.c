@@ -14,21 +14,26 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     max_piececode_t color = piece & MAX_PIECECODE_COLOR_MASK;
     
     max_bpos_t kpos = max_board_get_king_pos(board);
+    max_irreversible_t *state = max_board_state(board);
 
 
     if(move.from == kpos) {
         switch(move.attr) {
             case MAX_MOVE_KCASTLE: {
-                return !max_check_exists(board->check) && max_board_attacks(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT), NULL) == 0 && max_board_attacks(board, move.to, NULL) == 0;
+                return !max_check_exists(state->check) &&
+                    !max_board_attacks(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT), NULL) &&
+                    !max_board_attacks(board, move.to, NULL);
             } break;
 
             case MAX_MOVE_QCASTLE: {
-                return !max_check_exists(board->check) && max_board_attacks(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT), NULL) == 0 && max_board_attacks(board, move.to, NULL) == 0;
+                return !max_check_exists(state->check) &&
+                    !max_board_attacks(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT), NULL) &&
+                    !max_board_attacks(board, move.to, NULL);
             } break;
 
             default: {
-                if(max_check_exists(board->check) && max_checker_is_sliding(board->check.attacks[0])) {
-                    max_line_t line = board->check.attacks[0].attack.ray;
+                if(max_check_exists(state->check) && max_checker_is_sliding(state->check.attacks[0])) {
+                    max_line_t line = state->check.attacks[0].attack.ray;
                     
                     max_increment_t after_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(line.origin, move.to)];
                     if(after_line == line.line) {
@@ -41,14 +46,14 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
         }
     } else {
         //King in check, need to see if the move blocks check
-        if(max_check_exists(board->check)) {
+        if(max_check_exists(state->check)) {
             //Only king moves allowed in double check
-            if(max_check_is_double(board->check)) {
+            if(max_check_is_double(state->check)) {
                 return false;
             }
 
-            if(max_checker_is_sliding(board->check.attacks[0])) {
-                max_line_t check_sliding = board->check.attacks[0].attack.ray;
+            if(max_checker_is_sliding(state->check.attacks[0])) {
+                max_line_t check_sliding = state->check.attacks[0].attack.ray;
 
                 if(move.to == check_sliding.origin) {
                     goto check_pin;
@@ -69,7 +74,7 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                     return false;
                 }
             } else {
-                if(move.to != board->check.attacks[0].attack.jump) {
+                if(move.to != state->check.attacks[0].attack.jump) {
                     return false;
                 }
             }
@@ -77,7 +82,8 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
 
         if(move.attr == MAX_MOVE_EN_PASSANT) {
             max_bpos_t captured = max_bpos_inc(move.to, -max_board_get_enemy_pawn_advance_dir(board));
-
+            
+            //FIXME: This will cause en passant to be denied even when the captured piece is vertically pinned
             if(max_board_is_pinned(board, captured)) {
                 return false;
             }

@@ -72,7 +72,7 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
         max_bpos_t kpos = engine->board.sides[(engine->board.ply & 1)].king.pos[0];
         if(movecount > 0) {
             return alpha;
-        } else if(max_check_exists(engine->board.check)) {
+        } else if(max_check_exists(max_board_state(&engine->board)->check)) {
             return -(MAX_KING_VALUE + depth);
         } else {
             return -MAX_KING_VALUE / 2;
@@ -81,6 +81,8 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
 }
 
 bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth) {
+    max_board_reset_stack(&engine->board);
+
     engine->diagnostic.nodes = 0;
     engine->diagnostic.futility_pruned = 0;
     max_movelist_t moves = max_movelist_new(engine->search.moves);

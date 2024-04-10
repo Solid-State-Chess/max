@@ -69,7 +69,7 @@ MAX_HOT void max_board_pawnmovegen_loud(
     
 
     //If the EP file is invalid on the stack, then this will be an invalid index
-    max_bpos_t epsquare = (board->stack[board->ply] & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side];
+    max_bpos_t epsquare = (max_board_state(board)->packed_state & MAX_PLYPLATE_EP_MASK) | PAWN_EPRANK[side];
 
     if(max_bpos_valid(epsquare)) {
         if(max_bpos_inc(pos, MAX_INCREMENT_RIGHT) == epsquare || max_bpos_inc(pos, MAX_INCREMENT_LEFT) == epsquare) {

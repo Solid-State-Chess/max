@@ -24,6 +24,8 @@ typedef struct {
 typedef struct {
     max_board_t board;
     max_search_state_t search;
+    /// Stack used by the board to reverse moves
+    max_irreversible_t board_stack[16];
     max_search_diagnostic_t diagnostic;
 } max_engine_t;
 

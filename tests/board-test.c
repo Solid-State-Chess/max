@@ -43,18 +43,21 @@ static bool board_same(max_board_t *a, max_board_t *b) {
         printf("%u to %u\n", a->captures.head, b->captures.head);
         return false;
     }
+    
+    max_irreversible_t *a_state = max_board_state(a);
+    max_irreversible_t *b_state = max_board_state(b);
 
-    if(max_checker_is_valid(a->check.attacks[0])) {
-        if(!max_checker_is_valid(b->check.attacks[0])) {
+    if(max_checker_is_valid(a_state->check.attacks[0])) {
+        if(!max_checker_is_valid(b_state->check.attacks[0])) {
             puts("BAD CHECK ROLLBACK");
             return false;
         }
     }
     
     #define VALID_CHECK_ROLLBACK(n, msg)                                                            \
-        if(max_checker_is_valid(a->check.attacks[(n)])) {                                           \
+        if(max_checker_is_valid(a_state->check.attacks[(n)])) {                                           \
             if(                                                                                     \
-                !max_checker_is_valid(b->check.attacks[(n)])                                        \
+                !max_checker_is_valid(b_state->check.attacks[(n)])                                        \
             ) {                                                                                     \
                 puts("BAD " #msg " CHECK ROLLBACK");                                                \
                 return false;                                                                       \
@@ -71,11 +74,11 @@ static bool board_same(max_board_t *a, max_board_t *b) {
 
 size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsigned n) {
     size_t count = 0;
-    /*max_bpos_t kpos = max_board_king_pos(board);
+    max_bpos_t kpos = max_board_king_pos(board);
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         puts("BAD BOARD");
         max_board_debugprint(board);
-        for(unsigned i = 8; i > n; --i) {
+        for(unsigned i = 7; i > n; --i) {
             printf(
                 "%c%c%c%c\n",
                 MAX_BPOS_FORMAT(history[i - 1].from),
@@ -83,13 +86,13 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
             );
         }
         exit(-1);
-    }*/
+    }
 
     switch(n) {
         case 0: {
             return 1;
         } break;
-        case 100000000: {
+        case 1: {
             size_t count = 0;
             max_board_movegen_pseudo(board, &moves);
             for(unsigned i = 0; i < moves.len; ++i) {
@@ -109,15 +112,15 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
                 }
 
                 max_move_t move = moves.moves[i];
-                max_board_t copy;
-                memcpy(&copy, board, sizeof(copy));
+                /*max_board_t copy;
+                memcpy(&copy, board, sizeof(copy));*/
                 max_board_make_move(board, move);
 
                 *history = move;
                 count += perft(board, max_movelist_new(moves.moves + moves.len), history - 1, n - 1);
                 max_board_unmake_move(board, move);
 
-                if(!board_same(&copy, board)) {
+                /*if(!board_same(&copy, board)) {
                     puts("Move unmaking is invalid");
                     puts("====BEFORE====");
                     max_board_debugprint(&copy);
@@ -135,7 +138,11 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
                     }
                     exit(-1);
 
-                }
+                }*/
+            }
+
+            if(count == 0) {
+                max_board_debugprint(board);
             }
 
             return count;
@@ -146,15 +153,18 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
 
 
 int board_tests(void) {
+    max_irreversible_t stack[16];
     max_init_statics();
 
     max_move_t buf[2056];
 
     max_board_t board;
-    max_board_new(&board);
+    max_board_new(&board, stack);
 
     max_board_t original;
     memcpy(&original, &board, sizeof(max_board_t));
+
+    max_board_debugprint(&board);
     
     max_movelist_t moves = max_movelist_new(buf);
     max_move_t history[10];
@@ -171,7 +181,7 @@ int board_tests(void) {
     
     time_t begin = time(NULL);
 
-    size_t nodes = perft(&board, moves, history + 4, 5);
+    size_t nodes = perft(&board, moves, history + 6, 7);
     
     time_t end = time(NULL);
     printf("%zu N\n%zu s\n", nodes, end - begin);

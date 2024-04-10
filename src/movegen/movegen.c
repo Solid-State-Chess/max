@@ -75,7 +75,7 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
         NORMALMOVE(kingpos, max_bpos_inc(kingpos, MAX_INCREMENT_DR));
         NORMALMOVE(kingpos, max_bpos_inc(kingpos, MAX_INCREMENT_DL));
         
-        max_plyplate_t plate = board->stack[board->ply];
+        max_plyplate_t plate = max_board_state(board)->packed_state;
         if(plate & max_kcastle_flag(board->ply)) {
             max_piececode_t color = MAX_PIECECODE_WHITE << side;
 

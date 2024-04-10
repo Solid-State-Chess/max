@@ -37,8 +37,10 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     //0 if white, 1 if black
     uint8_t side_to_move = board->ply & 1;
     max_pieces_t *side = &board->sides[side_to_move];
+    
+    max_irreversible_t state = *max_board_state(board);
 
-    max_plyplate_t state_plate = board->stack[board->ply] | MAX_PLYPLATE_EP_INVALID;
+    max_plyplate_t state_plate = state.packed_state | MAX_PLYPLATE_EP_INVALID;
     if(piece & MAX_PIECECODE_KING) {
         state_plate &= ~(MAX_PLYPLATE_WCASTLEMASK << (side_to_move << 1));
     } else {
@@ -116,7 +118,8 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     }
 
     board->ply += 1;
-    board->stack[board->ply] = state_plate;
+    max_board_update_check(board, move, &state.check);
+    max_irreversible_stack_push(&board->stack, state);
     
     #ifdef MAX_SANITY
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
@@ -125,12 +128,11 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
         exit(-1);
     }
     #endif
-
-    max_board_update_check(board, move);
 }
 
 MAX_HOT
 void max_board_unmake_move(max_board_t *const board, max_move_t move) {
+    max_irreversible_stack_pop(&board->stack);
     board->ply -= 1;
     uint8_t side_to_move = board->ply & 1;
     max_piececode_t piece = board->pieces[move.to];
@@ -189,7 +191,4 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
             max_board_shift_piece(board, side, rook_pos, old_rook_pos);
         } break;
     }
-
-
-    max_board_unupdate_check(board, move);
 }
