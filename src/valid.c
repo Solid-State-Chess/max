@@ -19,11 +19,11 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
     if(move.from == kpos) {
         switch(move.attr) {
             case MAX_MOVE_KCASTLE: {
-                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT)) && !max_board_attacked(board, move.to);
+                return !max_check_exists(board->check) && max_board_attacks(board, max_bpos_inc(kpos, MAX_INCREMENT_RIGHT), NULL) == 0 && max_board_attacks(board, move.to, NULL) == 0;
             } break;
 
             case MAX_MOVE_QCASTLE: {
-                return !max_board_attacked(board, kpos) && !max_board_attacked(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT)) && !max_board_attacked(board, move.to);
+                return !max_check_exists(board->check) && max_board_attacks(board, max_bpos_inc(kpos, MAX_INCREMENT_LEFT), NULL) == 0 && max_board_attacks(board, move.to, NULL) == 0;
             } break;
 
             default: {
@@ -36,7 +36,7 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
                     }
                 }
                 
-                return !max_board_attacked(board, move.to);
+                return max_board_attacks(board, move.to, NULL) == 0;
             } break;
         }
     } else {

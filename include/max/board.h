@@ -141,7 +141,7 @@ MAX_INLINE_ALWAYS bool max_board_is_empty_between(max_board_t *const board, max_
 }
 
 /// Check if the piece on the given square is attacked
-bool max_board_attacked(max_board_t *const board, max_bpos_t pos);
+uint8_t max_board_attacks(max_board_t *const board, max_bpos_t pos, max_checker_t *attacks);
 
 /// Check if the given piece is pinned to the king
 bool max_board_is_pinned(max_board_t *const board, max_bpos_t from);

@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 
 /// A 0x88 board position that indexes a board array
 typedef uint8_t max_bpos_t;
@@ -106,6 +107,8 @@ extern const max_increment_t MAX_DIAGONALS[4];
 /// An array of directions for all four cardinal vectors
 extern const max_increment_t MAX_CARDINALS[4];
 
+#define MAX_ABSINTRIN
+
 /// Get the absolute value of the given increment
 MAX_INLINE_ALWAYS max_increment_t max_increment_abs(max_increment_t i) {
     #ifdef MAX_ABSINTRIN
@@ -122,7 +125,7 @@ MAX_INLINE_ALWAYS bool max_increment_is_diagonal(max_increment_t inc) {
     return (inc & 0x0F) != 0 && (inc & 0xF0) != 0;
 }
 
-/// Check if the given increment points in a cardinal direction (increment MUST not be zero)
+/// Check if the given increment points in a cardinal direction (increment should not be zero)
 MAX_INLINE_ALWAYS max_increment_t max_increment_is_cardinal(max_increment_t inc) { return !max_increment_is_diagonal(inc); }
 
 #define MAX_KNIGHT_MOVES_LEN (8)
@@ -140,6 +143,15 @@ extern const max_increment_t MAX_PAWNSIDES[2];
 
 /// Increment for a pawn advancement indexed by turn
 extern const max_increment_t MAX_PAWN_DIR[2];
+
+/// Bitmask for board positions of the promotion rank, indexed by the turn bit
+extern const max_bpos_t PAWN_PROMOTERANK[2];
+
+//Homerow lookup table, indexed by the current side to move
+extern const max_bpos_t PAWN_HOMEROW[2];
+
+/// Lookup table for rank bitmasks matching the rank that a pawn can be en passanted, indexed by the side to move
+extern const max_bpos_t PAWN_EPRANK[2];
 
 /// Array indexed by board position differences giving ray direction (if any) from a square to another square
 extern max_increment_t MAX_DIRECTION_BY_DIFF[240];

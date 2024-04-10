@@ -5,7 +5,9 @@
 #include "max/square.h"
 
 /// Update check data for the current side to play
-void max_board_update_check(max_board_t *const board, max_bpos_t from, max_bpos_t to);
+void max_board_update_check(max_board_t *const board, max_move_t move);
+
+void max_board_unupdate_check(max_board_t *const board, max_move_t move);
 
 /// Get the queenside castle right flag bits for the side to move on the given ply
 MAX_INLINE_ALWAYS max_plyplate_t max_qcastle_flag(uint16_t ply) {

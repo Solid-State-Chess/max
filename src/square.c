@@ -25,6 +25,25 @@ const max_increment_t MAX_PAWN_DIR[2] = {
     MAX_INCREMENT_DOWN
 };
 
+
+//Homerow lookup table, indexed by the current side to move
+const max_bpos_t PAWN_HOMEROW[2]  = {
+    MAX_RANK_2,
+    MAX_RANK_7
+};
+
+
+const max_bpos_t PAWN_PROMOTERANK[2] = {
+    MAX_RANK_8,
+    MAX_RANK_1
+};
+
+
+const max_bpos_t PAWN_EPRANK[2] = {
+    MAX_RANK_5,
+    MAX_RANK_4
+};
+
 const max_increment_t MAX_KNIGHT_MOVES[8] = {
     MAX_INCREMENT_UP    + MAX_INCREMENT_UR,
     MAX_INCREMENT_UP    + MAX_INCREMENT_UL,

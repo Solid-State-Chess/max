@@ -81,8 +81,8 @@ MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max
 /// (returns bishop for diagonals and rook for cardinals)
 MAX_INLINE_ALWAYS max_piececode_t max_get_piece_mask_attacks_direction(max_increment_t dir) {
     if(max_increment_is_diagonal(dir)) {
-        return MAX_PIECECODE_BISHOP;
+        return MAX_PIECECODE_DIAGONAL_MASK;
     } else {
-        return MAX_PIECECODE_ROOK;
+        return MAX_PIECECODE_CARDINAL_MASK;
     }
 }

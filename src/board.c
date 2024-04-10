@@ -1,7 +1,6 @@
 #include "max/board.h"
 #include "max/piece.h"
 #include "max/square.h"
-#include <stdlib.h>
 
 
 MAX_HOT
@@ -40,12 +39,6 @@ bool max_board_get_sliding_attack(
 
 MAX_HOT
 bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
-    /// Indexed by 0 = 0 in rank OR file difference, 1 = both rank and file difference(diagonal)
-    static const max_piececode_t PINNER_BY_DIR[2] = {
-        MAX_PIECECODE_ROOK,
-        MAX_PIECECODE_BISHOP
-    };
-
     max_bpos_t king = max_board_get_king_pos(board);
     max_bpos_t diff = max_bpos_diff(king, from);
     max_increment_t line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(king, from)];
@@ -75,12 +68,8 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
     if(board->pieces[pos] & friendly) {
         return false;
     }
-    
-    if(abs(line) == MAX_INCREMENT_UR || abs(line) == MAX_INCREMENT_UL) {
-        return candidate & MAX_PIECECODE_BISHOP;
-    } else {
-        return candidate & MAX_PIECECODE_ROOK;
-    }
+
+    return candidate & max_get_piece_mask_attacks_direction(line);
 }
 
 MAX_HOT
@@ -106,8 +95,9 @@ bool max_board_move_exits_pin(
 }
 
 MAX_HOT
-bool max_board_attacked(max_board_t *const board, max_bpos_t pos) {
-    static max_line_t _UNUSED;
+uint8_t max_board_attacks(max_board_t *const board, max_bpos_t pos, max_checker_t *attacks) {
+    max_line_t line;
+    uint8_t count = 0;
     max_piececode_t color = max_board_friendly_colormask(board);
     
 
@@ -132,10 +122,13 @@ bool max_board_attacked(max_board_t *const board, max_bpos_t pos) {
                     pos,
                     mask,
                     direction[j],
-                    &_UNUSED
+                    &line
                 )
             ) {
-                return true;
+                if(attacks != NULL) {
+                    attacks += 1;
+                }
+                count += 1;
             }
         }
     }
@@ -171,10 +164,14 @@ bool max_board_attacked(max_board_t *const board, max_bpos_t pos) {
                 (board->pieces[attacker] & color) == 0 &&
                 (board->pieces[attacker] & mask)
             ) {
-                return true;
+                if(attacks != NULL) {
+                    attacks->attack.jump = attacker;
+                    attacks += 1;
+                }
+                count += 1;
             }
         }
     }
     
-    return false;
+    return count;
 }

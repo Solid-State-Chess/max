@@ -1,5 +1,6 @@
 #include "max/board.h"
 #include "max/piece.h"
+#include "max/square.h"
 #include "private.h"
 
 #if !defined(MAX_CONSOLE)
@@ -25,6 +26,16 @@ static char piece_char(max_piececode_t piece) {
     }
     
     return code;
+}
+
+static void print_checker(max_checker_t check) {
+    if(max_checker_is_valid(check)) {
+        if(max_checker_is_sliding(check)) {
+            printf("Sliding check delivered from %c%c\n", MAX_BPOS_FORMAT(check.attack.ray.origin));
+        } else {
+            printf("Check delivered from %c%c\n", MAX_BPOS_FORMAT(check.attack.jump));
+        }
+    }
 }
 
 void max_board_debugprint(max_board_t const* board) {
@@ -59,6 +70,9 @@ void max_board_debugprint(max_board_t const* board) {
     puts  ("       K-Castle   Q-Castle\n");
     printf("White:    %c          %c  \n", (plate & max_kcastle_flag(0)) ? 'Y' : 'N', (plate & max_qcastle_flag(0)) ? 'Y' : 'N');
     printf("Black:    %c          %c  \n", (plate & max_kcastle_flag(1)) ? 'Y' : 'N', (plate & max_qcastle_flag(1)) ? 'Y' : 'N');
+    print_checker(board->check.attacks[0]);
+    print_checker(board->check.attacks[1]);
+    
 }
 
 #endif

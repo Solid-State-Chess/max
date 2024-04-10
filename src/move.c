@@ -126,7 +126,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     }
     #endif
 
-    max_board_update_check(board);
+    max_board_update_check(board, move);
 }
 
 MAX_HOT
@@ -190,5 +190,6 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move) {
         } break;
     }
 
-    max_board_update_check(board);
+
+    max_board_unupdate_check(board, move);
 }
