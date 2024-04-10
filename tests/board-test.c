@@ -72,17 +72,19 @@ static bool board_same(max_board_t *a, max_board_t *b) {
     return true;
 }
 
+#define SEARCH_PLY (7)
+
 size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsigned n) {
     size_t count = 0;
     max_bpos_t kpos = max_board_king_pos(board);
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         puts("BAD BOARD");
         max_board_debugprint(board);
-        for(unsigned i = 0; i < (5 - n); ++i) {
+        for(unsigned i = 0; i <= SEARCH_PLY; ++i) {
             printf(
                 "%c%c%c%c\n",
-                MAX_BPOS_FORMAT(history[i].from),
-                MAX_BPOS_FORMAT(history[i].to)
+                MAX_BPOS_FORMAT((history - i)->from),
+                MAX_BPOS_FORMAT((history - i)->to)
             );
         }
         exit(-1);
@@ -92,7 +94,7 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
         case 0: {
             return 1;
         } break;
-        case 1000: {
+        case 1: {
             size_t count = 0;
             max_board_movegen_pseudo(board, &moves);
             for(unsigned i = 0; i < moves.len; ++i) {
@@ -117,7 +119,7 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
                 max_board_make_move(board, move);
 
                 *history = move;
-                count += perft(board, max_movelist_new(moves.moves + moves.len), history - 1, n - 1);
+                count += perft(board, max_movelist_new(moves.moves + moves.len), history + 1, n - 1);
                 max_board_unmake_move(board, move);
 
                 /*if(!board_same(&copy, board)) {
@@ -181,7 +183,7 @@ int board_tests(void) {
     
     time_t begin = time(NULL);
 
-    size_t nodes = perft(&board, moves, history + 4, 5);
+    size_t nodes = perft(&board, moves, history, SEARCH_PLY);
     
     time_t end = time(NULL);
     printf("%zu N\n%zu s\n", nodes, end - begin);

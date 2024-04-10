@@ -121,7 +121,8 @@ MAX_INLINE_ALWAYS max_increment_t max_increment_abs(max_increment_t i) {
 /// Check if the given increment is diagonal (this returns true if both rank and file are changed by the increment)
 MAX_INLINE_ALWAYS bool max_increment_is_diagonal(max_increment_t inc) {
     inc = max_increment_abs(inc);
-    return (inc & 0x0F) != 0 && (inc & 0xF0) != 0;
+
+    return inc == 15 || inc == 17;
 }
 
 /// Check if the given increment points in a cardinal direction (increment should not be zero)

@@ -78,8 +78,8 @@ bool max_board_update_discovery(max_board_t *const board, max_bpos_t empty, max_
         if(max_bpos_valid(search_attacker)) {
             max_piececode_t possible_attacker = max_get_piece_mask_attacks_direction(discovered_line);
             max_piececode_t attacker = board->pieces[search_attacker];
-
-            if((attacker & possible_attacker) && (attacker & friendly) == 0) {
+            
+            if((attacker & possible_attacker) != 0 && (attacker & friendly) == 0) {
                 if(max_board_is_empty_between(board, empty, kpos)) {
                     check->attack.ray = (max_line_t) {
                         .origin = search_attacker,

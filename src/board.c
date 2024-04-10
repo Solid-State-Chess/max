@@ -41,7 +41,8 @@ MAX_HOT
 bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
     max_bpos_t king = max_board_get_king_pos(board);
     max_bpos_t diff = max_bpos_diff(king, from);
-    max_increment_t line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(king, from)];
+
+    max_increment_t line = MAX_DIRECTION_BY_DIFF[diff];
     if(line == 0) {
         return false;
     }
