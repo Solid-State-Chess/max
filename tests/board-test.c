@@ -8,6 +8,8 @@
 #include "test.h"
 #include "max/board.h"
 
+#include <time.h>
+
 static bool board_same(max_board_t *a, max_board_t *b) {
     if(memcmp(a->pieces, b->pieces, sizeof(a->pieces)) != 0) {
         return false;
@@ -45,13 +47,9 @@ static bool board_same(max_board_t *a, max_board_t *b) {
     return true;
 }
 
-static size_t CHECKS = 0;
-static size_t CAPTURES = 0;
-static size_t EP = 0;
-
-size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsigned n) {
+size_t perft(max_board_t *board, max_movelist_t moves, unsigned n) {
     size_t count = 0;
-    max_bpos_t kpos = max_board_king_pos(board);
+    /*max_bpos_t kpos = max_board_king_pos(board);
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         puts("BAD BOARD");
         max_board_debugprint(board);
@@ -63,50 +61,57 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
             );
         }
         exit(-1);
-    }
+    }*/
 
-    if(n == 0) { return 1; }
-
-    max_board_movegen_pseudo(board, &moves);
-    
-    for(unsigned i = 0; i < moves.len; ++i) {
-        if(!max_board_move_is_valid(board, moves.moves[i])) {
-            continue;
-        }
-
-        if(board->pieces[moves.moves[i].to] != MAX_PIECECODE_EMPTY) {
-            CAPTURES += 1;
-        }
-
-        if(moves.moves[i].attr == MAX_MOVE_EN_PASSANT) {
-            EP += 1;
-        }
-
-        max_move_t move = moves.moves[i];
-        max_board_t copy;
-        memcpy(&copy, board, sizeof(copy));
-        max_board_make_move(board, move);
-        
-        history[n] = move;
-        count += perft(board, max_movelist_new(moves.moves + moves.len), history, n - 1);
-        max_board_unmake_move(board, move);
-
-        if(!board_same(&copy, board)) {
-            puts("Move unmaking is invalid");
-            max_board_debugprint(board);
-            for(unsigned i = 8; i > n; --i) {
-                printf(
-                    "%c%c%c%c\n",
-                    MAX_BPOS_FORMAT(history[i - 1].from),
-                    MAX_BPOS_FORMAT(history[i - 1].to)
-                );
+    switch(n) {
+        case 0: {
+            return 1;
+        } break;
+        case 1: {
+            size_t count = 0;
+            max_board_movegen_pseudo(board, &moves);
+            for(unsigned i = 0; i < moves.len; ++i) {
+                if(max_board_move_is_valid(board, moves.moves[i])) {
+                    count += 1;
+                }
             }
-            exit(-1);
 
-        }
+            return count;
+        } break;
+        default: {
+            max_board_movegen_pseudo(board, &moves);
+    
+            for(unsigned i = 0; i < moves.len; ++i) {
+                if(!max_board_move_is_valid(board, moves.moves[i])) {
+                    continue;
+                }
+
+                max_move_t move = moves.moves[i];
+                //max_board_t copy;
+                //memcpy(&copy, board, sizeof(copy));
+                max_board_make_move(board, move);
+                count += perft(board, max_movelist_new(moves.moves + moves.len), n - 1);
+                max_board_unmake_move(board, move);
+
+                /*if(!board_same(&copy, board)) {
+                    puts("Move unmaking is invalid");
+                    max_board_debugprint(board);
+                    for(unsigned i = 8; i > n; --i) {
+                        printf(
+                            "%c%c%c%c\n",
+                            MAX_BPOS_FORMAT(history[i - 1].from),
+                            MAX_BPOS_FORMAT(history[i - 1].to)
+                        );
+                    }
+                    exit(-1);
+
+                }*/
+            }
+
+            return count;
+
+        } break;
     }
-
-    return count;
 }
 
 
@@ -133,9 +138,13 @@ int board_tests(void) {
     ASSERT_EQ(size_t, perft(&board, moves, history, 7), 3195901860 , "%zu");*/
     
     //max_board_make_move(&board, max_move_new(MAX_E2, MAX_E4, MAX_MOVE_DOUBLE));
+    
+    time_t begin = time(NULL);
 
-    size_t nodes = perft(&board, moves, history, 8);
-    printf("%zu\nCAPTURE: %zu\nEP: %zu\nCHECK: %zu\n", nodes, CAPTURES, EP, CHECKS);
+    size_t nodes = perft(&board, moves, 8);
+    
+    time_t end = time(NULL);
+    printf("%zu N\n%zu s\n", nodes, end - begin);
 
     if(!board_same(&board, &original)) {
         puts("Move making / unmaking not good");

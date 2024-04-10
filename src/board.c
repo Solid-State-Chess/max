@@ -1,84 +1,8 @@
 #include "max/board.h"
 #include "max/piece.h"
 #include "max/square.h"
-#include "private.h"
+#include <stdlib.h>
 
-
-void max_board_update_check(max_board_t *const board) {
-    max_check_reset(&board->check);
-
-    max_bpos_t kpos = max_board_king_pos(board);
-    max_piececode_t color = max_board_friendly_colormask(board);
-    
-    //Pointer to the latest detected checker
-    max_checker_t *check = board->check.attacks;
-
-    static const max_piececode_t SLIDERMASK[2] = {
-        MAX_PIECECODE_DIAGONAL_MASK,
-        MAX_PIECECODE_CARDINAL_MASK,
-    };
-
-    static const max_increment_t *DIRECTIONS[2] = {
-        MAX_DIAGONALS,
-        MAX_CARDINALS
-    };
-    
-    for(unsigned i = 0; i < 2; ++i) {
-        max_increment_t const *direction = DIRECTIONS[i];
-        max_piececode_t mask = SLIDERMASK[i];
-
-        for(unsigned j = 0; j < 4; ++j) {
-            if(
-                max_board_get_sliding_attack(
-                    board,
-                    kpos,
-                    mask,
-                    direction[j],
-                    &check->attack.ray
-                )
-            ) {
-                //Safe because piece cannot be triple checked - so we don't need to check for that
-                check += 1;
-            }
-        }
-    }
-    
-    static const max_piececode_t JUMPMASK[2] = {
-        MAX_PIECECODE_PAWN,
-        MAX_PIECECODE_KNIGHT
-    };
-
-    max_increment_t pawn_attackers[2];
-    pawn_attackers[0] = MAX_PAWNSIDES[0] - max_board_get_enemy_pawn_advance_dir(board);
-    pawn_attackers[1] = MAX_PAWNSIDES[1] - max_board_get_enemy_pawn_advance_dir(board);
-    
-    /// Offsets to check for knight and pawn moves
-    max_increment_t const *offsets[2] = {
-        pawn_attackers,
-        MAX_KNIGHT_MOVES
-    };
-
-    uint8_t offset_lens[2] = {2, MAX_KNIGHT_MOVES_LEN};
-    
-    //Iterate through knight and pawn moves
-    for(unsigned i = 0; i < 2; ++i) {
-        max_increment_t const *offset = offsets[i];
-        uint8_t offsets_len = offset_lens[i];
-        max_piececode_t mask = JUMPMASK[i];
-
-        for(unsigned j = 0; j < offsets_len; ++j) {
-            max_bpos_t attacker = max_bpos_inc(kpos, offset[j]);
-            if(
-                max_bpos_valid(attacker) &&
-                (board->pieces[attacker] & color) == 0 &&
-                (board->pieces[attacker] & mask)
-            ) {
-                check->attack.jump = attacker;
-                check += 1;
-            }
-        }
-    }
-}
 
 MAX_HOT
 bool max_board_get_sliding_attack(
@@ -123,6 +47,7 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
     };
 
     max_bpos_t king = max_board_get_king_pos(board);
+    max_bpos_t diff = max_bpos_diff(king, from);
     max_increment_t line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(king, from)];
     if(line == 0) {
         return false;
@@ -145,18 +70,17 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
         return false;
     }
 
-    max_piececode_t candidate = board->pieces[pos];
-    uint8_t is_diagonal = ((king & 0x0F) != (from & 0x0F) && (king & 0xF0) != (from & 0xF0));
-    max_piececode_t possible_pinner = PINNER_BY_DIR[is_diagonal];
+    max_piececode_t candidate = board->pieces[pos]; 
 
-    if(
-        (candidate & possible_pinner) &&
-        (board->pieces[pos] & friendly) == 0
-    ) {
-        return true;
+    if(board->pieces[pos] & friendly) {
+        return false;
     }
     
-    return false;
+    if(abs(line) == MAX_INCREMENT_UR || abs(line) == MAX_INCREMENT_UL) {
+        return candidate & MAX_PIECECODE_BISHOP;
+    } else {
+        return candidate & MAX_PIECECODE_ROOK;
+    }
 }
 
 MAX_HOT

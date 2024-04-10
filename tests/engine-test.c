@@ -8,6 +8,8 @@
 #include "test.h"
 #include <stdlib.h>
 
+#include "valgrind/callgrind.h"
+
 static bool board_same(max_board_t *a, max_board_t *b) {
     if(memcmp(a->pieces, b->pieces, sizeof(a->pieces)) != 0) {
         return false;
@@ -50,11 +52,11 @@ int engine_tests(void) {
     
     max_move_t buf[256];
     max_searchresult_t search;
-    //CALLGRIND_START_INSTRUMENTATION;
-    //CALLGRIND_TOGGLE_COLLECT;
-    //max_engine_search(engine, &search, 3);
-    //CALLGRIND_TOGGLE_COLLECT;
-    //CALLGRIND_STOP_INSTRUMENTATION;
+    CALLGRIND_START_INSTRUMENTATION;
+    CALLGRIND_TOGGLE_COLLECT;
+    //max_engine_search(engine, &search, 6);
+    CALLGRIND_TOGGLE_COLLECT;
+    CALLGRIND_STOP_INSTRUMENTATION;
 
     return 0;
 }

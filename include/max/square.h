@@ -1,6 +1,7 @@
 #pragma once
 
 #include "max/def.h"
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -105,6 +106,24 @@ extern const max_increment_t MAX_DIAGONALS[4];
 /// An array of directions for all four cardinal vectors
 extern const max_increment_t MAX_CARDINALS[4];
 
+/// Get the absolute value of the given increment
+MAX_INLINE_ALWAYS max_increment_t max_increment_abs(max_increment_t i) {
+    #ifdef MAX_ABSINTRIN
+    return abs(i);
+    #else
+    max_increment_t const mask = i >> (sizeof(max_increment_t) * CHAR_BIT - 1);
+    return (i + mask) ^ mask;
+    #endif
+}
+
+/// Check if the given increment is diagonal (this returns true if both rank and file are changed by the increment)
+MAX_INLINE_ALWAYS bool max_increment_is_diagonal(max_increment_t inc) {
+    inc = max_increment_abs(inc);
+    return (inc & 0x0F) != 0 && (inc & 0xF0) != 0;
+}
+
+/// Check if the given increment points in a cardinal direction (increment MUST not be zero)
+MAX_INLINE_ALWAYS max_increment_t max_increment_is_cardinal(max_increment_t inc) { return !max_increment_is_diagonal(inc); }
 
 #define MAX_KNIGHT_MOVES_LEN (8)
 

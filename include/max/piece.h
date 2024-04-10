@@ -76,3 +76,13 @@ MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max
 
     return (max_piecelist_t*)((uint8_t*)pieces + lookup[piece & MAX_PIECECODE_TYPE_MASK]);
 }
+
+/// Get a piececode bitmask for piece types that can attack along the given direction
+/// (returns bishop for diagonals and rook for cardinals)
+MAX_INLINE_ALWAYS max_piececode_t max_get_piece_mask_attacks_direction(max_increment_t dir) {
+    if(max_increment_is_diagonal(dir)) {
+        return MAX_PIECECODE_BISHOP;
+    } else {
+        return MAX_PIECECODE_ROOK;
+    }
+}

@@ -21,6 +21,7 @@ check_ipo_supported(RESULT IPO_SUPPORT OUTPUT IPO_SUPPORT_ERR)
 file(
     GLOB SRC CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/movegen/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/*.c"
 )
 
@@ -34,6 +35,7 @@ endif()
 if(IPO_SUPPORT)
     message(STATUS "IPO / LTO enabled")
     set_property(TARGET max PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    target_compile_options(max PRIVATE -march=native)
 else()
     message(STATUS "IPO / LTO not supported: <${IPO_SUPPORT_ERR}>")
 endif()
