@@ -116,6 +116,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
             max_board_shift_piece(board, side, move.from, move.to);
         } break;
     }
+    
 
     board->ply += 1;
     max_board_update_check(board, move, &state.check);

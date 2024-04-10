@@ -54,6 +54,7 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
         return false;
     }
 
+
     pos = from;
     do {
         pos = max_bpos_inc(pos, line);
@@ -65,11 +66,15 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
 
     max_piececode_t candidate = board->pieces[pos]; 
 
-    if(board->pieces[pos] & friendly) {
+    if((candidate & friendly) != 0) {
         return false;
     }
 
-    return candidate & max_get_piece_mask_attacks_direction(line);
+    if((candidate & max_get_piece_mask_attacks_direction(line)) != 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 MAX_HOT
@@ -90,7 +95,7 @@ bool max_board_move_exits_pin(
     if(line == MAX_DIRECTION_BY_DIFF[after_diff]) {
         return false;
     }
-        
+
     return max_board_is_pinned(board, from);
 }
 

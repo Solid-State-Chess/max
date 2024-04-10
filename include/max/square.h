@@ -1,10 +1,9 @@
 #pragma once
 
 #include "max/def.h"
-#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <math.h>
+#include <stdlib.h>
 
 /// A 0x88 board position that indexes a board array
 typedef uint8_t max_bpos_t;

@@ -53,6 +53,7 @@ bool max_board_piece_delivers_check(max_board_t *const board, max_bpos_t pos, ma
                     };
                     return true;
                 }
+            } else {
             }
         } break;
     }
@@ -99,21 +100,19 @@ void max_board_update_check(max_board_t *const board, max_move_t move, max_check
     max_checker_t *check = &checks->attacks[0];
 
     max_bpos_t kpos = max_board_get_king_pos(board);
-
     
     //printf("TRY %c%c->%c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to));
     if(max_board_piece_delivers_check(board, move.to, kpos, check)) {
-        printf("CHECK @ %c%c->%c%c\nkpos: %c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to), MAX_BPOS_FORMAT(kpos));
         check += 1;
     }
 
     //Search for a discovered attack by a sliding piece hidden behind the piece
     if(max_board_update_discovery(board, move.from, check)) {
-        printf("DISCOVERED\n");
         check += 1;
     }
     if(move.attr == MAX_MOVE_EN_PASSANT) {
         max_bpos_t captured = max_bpos_inc(move.to, max_board_get_enemy_pawn_advance_dir(board));
-        max_board_update_discovery(board, captured, check);
+        if(max_board_update_discovery(board, captured, check)) {
+        }
     }
 }
