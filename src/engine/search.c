@@ -9,7 +9,7 @@ static const max_score_t SCORE_MUL[2] = {1, -1};
 /// Perform a quiescence search of the given node
 static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_score_t beta, uint16_t move_head) {
     max_score_t standing = max_evaluate(engine) * SCORE_MUL[engine->board.ply & 1];
-    if(standing >= beta) {
+    if(engine->board.stack.plies_since_reset >= MAX_ENGINE_MAX_PLY || standing >= beta) {
         return beta;
     }
     if(standing > alpha) {

@@ -4,6 +4,8 @@
 
 #define MAX_ENGINE_MAX_MOVES (2048)
 
+#define MAX_ENGINE_MAX_PLY (24)
+
 /// A signed score as the result of a board evaluation measured in centipawns
 typedef int32_t max_score_t;
 
@@ -25,7 +27,7 @@ typedef struct {
     max_board_t board;
     max_search_state_t search;
     /// Stack used by the board to reverse moves
-    max_irreversible_t board_stack[16];
+    max_irreversible_t board_stack[MAX_ENGINE_MAX_PLY];
     max_search_diagnostic_t diagnostic;
 } max_engine_t;
 

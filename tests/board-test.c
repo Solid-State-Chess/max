@@ -172,21 +172,21 @@ int board_tests(void) {
     max_move_t history[10];
 
 
-    //ASSERT_EQ(size_t, perft(&board, moves, history, 2), 400, "%zu");
-    //ASSERT_EQ(size_t, perft(&board, moves, history, 3), 8902, "%zu");
-    /*ASSERT_EQ(size_t, perft(&board, moves, history, 4), 197281, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, history, 2), 400, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, history, 3), 8902, "%zu");
+    ASSERT_EQ(size_t, perft(&board, moves, history, 4), 197281, "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, history, 5), 4865609  , "%zu");
     ASSERT_EQ(size_t, perft(&board, moves, history, 6), 119060324, "%zu");
-    ASSERT_EQ(size_t, perft(&board, moves, history, 7), 3195901860 , "%zu");*/
+    ASSERT_EQ(size_t, perft(&board, moves, history, 7), 3195901860 , "%zu");
     
     //max_board_make_move(&board, max_move_new(MAX_E2, MAX_E4, MAX_MOVE_DOUBLE));
     
-    time_t begin = time(NULL);
+    /*time_t begin = time(NULL);
 
     size_t nodes = perft(&board, moves, history, SEARCH_PLY);
     
     time_t end = time(NULL);
-    printf("%zu N\n%zu s\n", nodes, end - begin);
+    printf("%zu N\n%zu s\n", nodes, end - begin);*/
 
     if(!board_same(&board, &original)) {
         puts("Move making / unmaking not good");
