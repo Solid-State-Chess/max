@@ -81,7 +81,7 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
         }
 
         if(move.attr == MAX_MOVE_EN_PASSANT) {
-            max_bpos_t captured = max_bpos_inc(move.to, -max_board_get_enemy_pawn_advance_dir(board));
+            max_bpos_t captured = max_bpos_inc(move.to, max_board_get_enemy_pawn_advance_dir(board));
             
             //FIXME: This will cause en passant to be denied even when the captured piece is vertically pinned
             if(max_board_is_pinned(board, captured)) {

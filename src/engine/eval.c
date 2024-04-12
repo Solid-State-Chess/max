@@ -191,14 +191,16 @@ static max_score_t max_evaluate_side(max_board_t *board, max_pieces_t *side, uns
          20, 20,  0,  0,  0,  0, 20, 20,
          20, 30, 10,  0,  0, 10, 30, 20
     };
+
+    max_score_t extra[2] = {13, -13};
     
     max_score_t material = 
-        (side->pawns.len   * MAX_PAWN_VALUE  ) +
-        (side->knights.len * MAX_KNIGHT_VALUE) +
-        (side->bishops.len * MAX_BISHOP_VALUE) +
-        (side->rooks.len   * MAX_ROOK_VALUE  ) +
-        (side->queens.len  * MAX_QUEEN_VALUE ) +
-        (side->king.len    * MAX_KING_VALUE  );
+        (side->pawns.len   * (MAX_PAWN_VALUE   + extra[white])) +
+        (side->knights.len * (MAX_KNIGHT_VALUE + extra[white])) +
+        (side->bishops.len * (MAX_BISHOP_VALUE + extra[white])) +
+        (side->rooks.len   * (MAX_ROOK_VALUE   + extra[white])) +
+        (side->queens.len  * (MAX_QUEEN_VALUE  + extra[white])) +
+        (side->king.len    * (MAX_KING_VALUE   + extra[white]));
     
     max_score_t position = 
         max_evaluate_positions((max_piecelist_t*)&side->pawns,   PAWN_PSTBL,   white) +
@@ -207,10 +209,6 @@ static max_score_t max_evaluate_side(max_board_t *board, max_pieces_t *side, uns
         max_evaluate_positions((max_piecelist_t*)&side->rooks,   ROOK_PSTBL,   white) +
         max_evaluate_positions((max_piecelist_t*)&side->queens,  QUEEN_PSTBL,  white) +
         max_evaluate_positions((max_piecelist_t*)&side->king,    KING_PSTBL,   white);
-    
-    //max_score_t connected_rooks = max_evaluate_connected_rooks(board, side);
-    max_score_t stacked_pawns   = max_evaluate_stacked_pawns(board, side);
-    max_score_t control         = max_evaluate_slider_control(board, side);
     
     return material +
         position +
@@ -223,5 +221,5 @@ max_score_t max_evaluate(max_engine_t *engine) {
     engine->diagnostic.nodes += 1;
     max_score_t white = max_evaluate_side(&engine->board, &engine->board.white, 0);
     max_score_t black = max_evaluate_side(&engine->board, &engine->board.black, 1);
-    return white - black;
+    return (white - black) - 436;
 }
