@@ -192,7 +192,7 @@ static max_score_t max_evaluate_side(max_board_t *board, max_pieces_t *side, uns
          20, 30, 10,  0,  0, 10, 30, 20
     };
 
-    max_score_t extra[2] = {13, -13};
+    max_score_t extra[2] = {6, -6};
     
     max_score_t material = 
         (side->pawns.len   * (MAX_PAWN_VALUE   + extra[white])) +
@@ -221,5 +221,5 @@ max_score_t max_evaluate(max_engine_t *engine) {
     engine->diagnostic.nodes += 1;
     max_score_t white = max_evaluate_side(&engine->board, &engine->board.white, 0);
     max_score_t black = max_evaluate_side(&engine->board, &engine->board.black, 1);
-    return (white - black) - 436;
+    return (white - black) - 192;
 }
