@@ -1,5 +1,4 @@
-
-#include "max/square.h"
+#include "max/board/square.h"
 
 const max_increment_t  MAX_DIAGONALS[4] = {
     MAX_INCREMENT_UR,

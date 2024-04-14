@@ -1,14 +1,13 @@
 #include "max.h"
-#include "max/piece.h"
-#include "max/square.h"
+#include "max/board/piece.h"
+#include "max/board/square.h"
 #include <stdlib.h>
 #include <string.h>
 #define MAX_CONSOLE
-#include "max/move.h"
+#include "max/board/move.h"
 #include "test.h"
-#include "max/board.h"
+#include "max/board/board.h"
 
-#include <time.h>
 
 static bool board_same(max_board_t *a, max_board_t *b) {
     if(memcmp(a->pieces, b->pieces, sizeof(a->pieces)) != 0) {

@@ -1,8 +1,8 @@
-#include "max/move.h"
-#include "max/board.h"
+#include "max/board/move.h"
+#include "max/board/board.h"
 #include "max/def.h"
-#include "max/piece.h"
-#include "private.h"
+#include "max/board/piece.h"
+#include "../private.h"
 
 /// Perform the given pawn promotion move by adding a piece to the given square and removing it from the previous pawn position
 /// Note that piece capture must be handled separately

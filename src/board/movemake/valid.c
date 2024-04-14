@@ -1,8 +1,8 @@
-#include "max/board.h"
+#include "max/board/board.h"
 #include "max/def.h"
-#include "max/move.h"
-#include "max/piece.h"
-#include "max/square.h"
+#include "max/board/move.h"
+#include "max/board/piece.h"
+#include "max/board/square.h"
 
 max_increment_t MAX_DIRECTION_BY_DIFF[240] = {0x3E};
 

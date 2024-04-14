@@ -1,4 +1,4 @@
-#include "max/piece.h"
+#include "max/board/piece.h"
 #include "private.h"
 
 /// Get a Most-Valuable Victim / Least Valuable Aggressor score to sort capture moves by

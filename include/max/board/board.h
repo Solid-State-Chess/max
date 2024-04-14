@@ -1,3 +1,8 @@
+/// @file
+/// Definition of the max engine's internal chessboard representation based on 0x88.
+///
+/// @see max_board_new()
+
 #pragma once
 #include "max/def.h"
 #include "move.h"

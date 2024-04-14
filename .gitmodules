@@ -1,3 +1,6 @@
 [submodule "arena/cmake/sdl2-cmake-modules"]
 	path = arena/cmake/sdl2-cmake-modules
 	url = https://github.com/aminosbh/sdl2-cmake-modules.git
+[submodule "cmake/doxygen-awesome-css"]
+	path = cmake/doxygen-awesome-css
+	url = https://github.com/jothepro/doxygen-awesome-css.git

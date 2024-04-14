@@ -1,6 +1,6 @@
 #pragma once
 
-#include "max/board.h"
+#include "max/board/board.h"
 #include <stdbool.h>
 
 /// Attempt to parse a board position in Forsyth-Edwards Notation from the given string

@@ -1,0 +1,10 @@
+INPUT                  = @SRC_LIST@ @INCLUDE_LIST@
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX = NO
+FULL_SIDEBAR = NO
+HTML_EXTRA_STYLESHEET  = @CMAKE_CURRENT_SOURCE_DIR@/cmake/doxygen-awesome-css/doxygen-awesome.css
+LAYOUT_FILE            = @CMAKE_CURRENT_SOURCE_DIR@/cmake/DoxygenLayout.xml
+HTML_COLORSTYLE        = LIGHT # required with Doxygen >= 1.9.5
+
+OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@/doc/
+PROJECT_NAME           = @CMAKE_PROJECT_NAME@

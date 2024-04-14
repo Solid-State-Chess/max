@@ -1,6 +1,6 @@
-#include "max/board.h"
-#include "max/piece.h"
-#include "max/square.h"
+#include "max/board/board.h"
+#include "max/board/piece.h"
+#include "max/board/square.h"
 #include "private.h"
 
 #if !defined(MAX_CONSOLE)

@@ -1,6 +1,6 @@
 #pragma once
-#include "max/piece.h"
-#include "max/board.h"
+#include "max/board/piece.h"
+#include "max/board/board.h"
 
 void max_board_pawnmovegen_quiet(
     max_board_t *const board,

@@ -2,7 +2,7 @@
 #include <string.h>
 #define MAX_CONSOLE
 #define MAX_DEBUG
-#include "max/board.h"
+#include "max/board/board.h"
 #include "max/engine.h"
 #include "max.h"
 #include "test.h"
