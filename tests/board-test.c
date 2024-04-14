@@ -1,9 +1,9 @@
-#include "max.h"
-#include "max/board/piece.h"
-#include "max/board/square.h"
 #include <stdlib.h>
 #include <string.h>
 #define MAX_CONSOLE
+#include "max.h"
+#include "max/board/piece.h"
+#include "max/board/square.h"
 #include "max/board/move.h"
 #include "test.h"
 #include "max/board/board.h"
@@ -38,8 +38,8 @@ static bool board_same(max_board_t *a, max_board_t *b) {
         }
     }
     
-    if(a->captures.head != b->captures.head || memcmp(a->captures.captures, b->captures.captures, a->captures.head) != 0) {
-        printf("%u to %u\n", a->captures.head, b->captures.head);
+    if(a->captures.len != b->captures.len || memcmp(a->captures.captures, b->captures.captures, a->captures.len) != 0) {
+        printf("%u to %u\n", a->captures.len, b->captures.len);
         return false;
     }
     

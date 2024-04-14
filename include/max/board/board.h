@@ -10,20 +10,62 @@
 #include <stdint.h>
 
 
-/// Stack structure holding all pieces that have been captured, used for move unmaking
+/// A stack containing all pieces that have been captured over the course of the game.
+/// This structure is used for the same purpose as the #max_irreversible_t, but differs
+/// in that it has a fixed size requirement unaffected by the desired move make / unmake depth because
+/// only a fixed number of pieces can ever be captured in a game.
+///
+/// \see #max_irreversible_stack_t
 typedef struct {
+    /// Fixed size array of all pieces captured in this game
     max_piececode_t captures[MAX_BOARD_PIECES_COUNT];
-    uint8_t head;
+    /// Length of the stack (NOT HEAD INDEX) - if this is zero, then the stack is empty
+    uint8_t len;
 } max_board_capturestack_t;
 
 
-/// A plate in the history stack of a `max_board_t` tracking irreversible parts of the game to allow
-/// move unmaking
+/// A plate in the history stack of a `max_board_t` tracking irreversible parts of the game.
+/// Stored as part of the irreversible game state in a #max_irreversible_t.
 ///
 /// [2 bits for black castle rights] - [2 bits for white castle rights] - [4 bits for en passant file index]
+/// \see #MAX_PLYPLATE_EP_MASK
+/// \see #MAX_PLYPLATE_WCASTLEMASK
+/// \see #MAX_PLYPLATE_BCASTLEMASK
+/// \see #max_irreversible_t
 typedef uint8_t max_plyplate_t;
 
-/// Structure storing all irreversible state that the board is capable of restoring
+enum {
+    /// Mask for the lower 4 bits of a ::max_plyplate_t containing a single file index as stored in
+    /// a ::max_bpos_t. If the lower four bits are > 7, then the file is invalid and thus there is no
+    /// en passant possible for this ply. Otherwise, this is set to the file on which the enemy has
+    /// just moved a pawn two spaces forwards to indicate en passant is available
+    MAX_PLYPLATE_EP_MASK     = 0x0F,
+    /// Helper definition for an invalid en passant file as stored in a ::max_plyplate_t - marks that en
+    /// passant is not possible for the side to move on this ply
+    MAX_PLYPLATE_EP_INVALID  = MAX_PLYPLATE_EP_MASK,
+    /// Mask for bits [4, 5] of a ::max_plyplate_t holding king and queenside castle rights for
+    /// white.
+    /// \see MAX_PLYPLATE_QCASTLE
+    /// \see MAX_PLYPLATE_KCASTLE
+    MAX_PLYPLATE_WCASTLEMASK = 0x30,
+    /// Mask for bits [6, 7] of a ::max_plyplate_t holding king and queenside castle rights for black.
+    MAX_PLYPLATE_BCASTLEMASK = 0xC0,
+    /// Bitmask for black and white queenside castle rights - the lower bit of 
+    /// #MAX_PLYPLATE_WCASTLEMASK or #MAX_PLYPLATE_BCASTLEMASK stored queenside castle
+    /// availability
+    MAX_PLYPLATE_QCASTLE     = 0x01,
+    /// Bitmask for black and white kingside castle rights - the upper bit of a #MAX_PLYPLATE_WCASTLEMASK or
+    /// #MAX_PLYPLATE_BCASTLEMASK stores kingside castle rights
+    MAX_PLYPLATE_KCASTLE     = 0x02,
+    /// Bit offset of #MAX_PLYPLATE_WCASTLEMASK - if #MAX_PLYPLATE_QCASTLE or #MAX_PLYPLATE_KCASTLE are shifted
+    /// by this amount, then you will have a mask for WHITE king or queenside castle rights respectively
+    MAX_PLYPLATE_WCASTLE_OFFSET = 4,
+};
+
+/// Structure containing cached state for the current game ply. When placed into a 
+/// #max_irreversible_stack_t, this enables the board to make and unmake game moves without
+/// requiring recomputation of check, castle rights, and en passant status.
+/// \see #max_irreversible_stack_t
 typedef struct {
     /// Data for if and where check is delivered from for the side to play
     max_check_t check;
@@ -31,29 +73,29 @@ typedef struct {
     max_plyplate_t packed_state;
 } max_irreversible_t;
 
-/// A stack structure caching all state that cannot be *efficiently* recomputed with each move unmake
-/// Stored up to MAX_BOARD_REVERSE_LEN
+/// A stack structure caching game state that cannot be *efficiently* recomputed when a move is unmade.
+/// Includes castle rights, en passant file, and check status of the side to move. There are some important
+/// notes around the size of this stack.
+///
+/// \section size Stack Size Requirements
+/// The stack size determines how many sequential moves can be unmade in a row. When a move is made,
+/// the old game state is pushed to this stack, to be restored by a pop when that same move is unmade.
+/// In order to reduce memory footprint, this stack is bounded in size and must be *reset* periodically,
+/// clearing all saved game state.
+///
+/// \see max_irreversible_stack_push()
+/// \see max_irreversible_stack_pop()
 typedef struct {
-    /// Array of all reversible state, indexed by the difference between current game ply and last reset
-    /// ply count
+    /// Array of all reversible state, indexed by #plies_since_reset
     max_irreversible_t *array;
-    /// The ply count that the stack was last reset at, index into stack array is index = ply - reset_ply
+    /// Index of the head of the stack, incremented each time a move is made and
+    /// decremented each time a move is unmade
     uint16_t plies_since_reset;
 } max_irreversible_stack_t;
 
-enum {
-    /// Mask for 4 bits representing en passantable file (invalid file means no en passant in possible)
-    MAX_PLYPLATE_EP_MASK     = 0x0F,
-    MAX_PLYPLATE_EP_INVALID  = MAX_PLYPLATE_EP_MASK,
-    MAX_PLYPLATE_WCASTLEMASK = 0x30,
-    MAX_PLYPLATE_BCASTLEMASK = 0xC0,
-    MAX_PLYPLATE_QCASTLE     = 0x01,
-    MAX_PLYPLATE_KCASTLE     = 0x02,
-    /// Amount to bit shift `MAX_PLYPLATE_QCASTLE` to reach the white castle right bits
-    MAX_PLYPLATE_CASTLE_OFFSET = 4,
-};
-
-/// Chessboard representation loosely based on 'New Architectures in Computer Chess' by Fritz Reul
+/// Chessboard representation loosely based on 'New Architectures in Computer Chess' [1] by Fritz Reul.
+///
+/// [1] https://pure.uvt.nl/ws/files/1098572/Proefschrift_Fritz_Reul_170609.pdf
 typedef struct {
     /// Piece lists for white and black, tracking list position by square and square position by list position
     union {
@@ -78,9 +120,6 @@ typedef struct {
     /// Ply (halfmove) counter, if the LSB is set (ply is odd) then black is to move
     uint16_t ply;
 } max_board_t;
-
-/// A value of either 0 or 1 to indicate the current side to move - 0 is white and 1 is black
-typedef struct { uint8_t v; } max_turn_t;
 
 
 /// Get the piece list of the side that is currently to move
@@ -200,14 +239,14 @@ bool max_board_move_exits_pin(
 
 /// Add a piece to the given capture stack
 MAX_INLINE_ALWAYS void max_capturestack_push(max_board_capturestack_t *stack, max_piececode_t piece) {
-    stack->captures[stack->head] = piece;
-    stack->head += 1;
+    stack->captures[stack->len] = piece;
+    stack->len += 1;
 }
 
 /// Pop the top element from the capture stack
 MAX_INLINE_ALWAYS max_piececode_t max_capturestack_pop(max_board_capturestack_t *stack) {
-    stack->head -= 1;
-    max_piececode_t piece = stack->captures[stack->head];
+    stack->len -= 1;
+    max_piececode_t piece = stack->captures[stack->len];
     return piece;
 }
 

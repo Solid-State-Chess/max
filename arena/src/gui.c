@@ -1,6 +1,6 @@
 #include "gui.h"
 #include "max/board/board.h"
-#include "max/engine.h"
+#include "max/engine/engine.h"
 #include "max/board/move.h"
 #include "max/board/piece.h"
 #include "max/board/square.h"

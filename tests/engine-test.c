@@ -3,7 +3,7 @@
 #define MAX_CONSOLE
 #define MAX_DEBUG
 #include "max/board/board.h"
-#include "max/engine.h"
+#include "max/engine/engine.h"
 #include "max.h"
 #include "test.h"
 #include <stdlib.h>
@@ -32,8 +32,8 @@ static bool board_same(max_board_t *a, max_board_t *b) {
         }
     }
     
-    if(a->captures.head != b->captures.head || memcmp(a->captures.captures, b->captures.captures, a->captures.head) != 0) {
-        printf("%u to %u\n", a->captures.head, b->captures.head);
+    if(a->captures.len != b->captures.len || memcmp(a->captures.captures, b->captures.captures, a->captures.len) != 0) {
+        printf("%u to %u\n", a->captures.len, b->captures.len);
         return false;
     }
 

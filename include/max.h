@@ -9,7 +9,7 @@
 /// \see max_engine_new()
 
 
-#include "max/engine.h"
+#include "max/engine/engine.h"
 
 /// Initialize all static tables and etc.
 void max_init_statics(void);

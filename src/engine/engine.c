@@ -1,4 +1,4 @@
-#include "max/engine.h"
+#include "max/engine/engine.h"
 #include "max/board/board.h"
 
 void max_engine_new(max_engine_t *engine) {

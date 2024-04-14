@@ -1,5 +1,5 @@
 #include "max/board/board.h"
-#include "max/engine.h"
+#include "max/engine/engine.h"
 #include "private.h"
 #include <stdint.h>
 

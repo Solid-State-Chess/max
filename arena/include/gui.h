@@ -1,5 +1,5 @@
 #pragma once
-#include "max/engine.h"
+#include "max/engine/engine.h"
 #include <SDL2/SDL.h>
 
 typedef struct {

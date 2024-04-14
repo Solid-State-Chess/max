@@ -1,6 +1,6 @@
 #pragma once
 
-#include "max/engine.h"
+#include "max/engine/engine.h"
 #include "max/board/piece.h"
 #include <stdint.h>
 
