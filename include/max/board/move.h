@@ -1,6 +1,6 @@
 #pragma once
 #include "max/def.h"
-#include "max/square.h"
+#include "square.h"
 #include <stdint.h>
 
 #ifdef MAX_DEBUG

@@ -1,9 +1,9 @@
 #include "gui.h"
-#include "max/board.h"
+#include "max/board/board.h"
 #include "max/engine.h"
-#include "max/move.h"
-#include "max/piece.h"
-#include "max/square.h"
+#include "max/board/move.h"
+#include "max/board/piece.h"
+#include "max/board/square.h"
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_mouse.h>
@@ -146,16 +146,18 @@ int gui_state_run(gui_state_t *state) {
     state->squarex = w / 8;
     state->squarey= h / 8;
 
-    bool enginedone = true;
+    volatile bool enginedone = false;
     SDL_SemPost(state->shared->lock);
 
     for(;;) {
     outer:
-        enginedone = SDL_SemValue(state->shared->lock) == 0;
+        enginedone = state->shared->done;
         
         SDL_Event event;
         SDL_RenderClear(state->render);
+        if(enginedone) {
         gui_state_render(state);
+        }
 
         if(state->grabbed.grabbed != NULL) {
             SDL_Rect pos;
@@ -166,7 +168,6 @@ int gui_state_run(gui_state_t *state) {
             pos.y -= pos.h / 2;
             SDL_RenderCopy(state->render, state->grabbed.grabbed, NULL, &pos);
         }
-
 
         SDL_RenderPresent(state->render);
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "max/board.h"
-#include "max/piece.h"
+#include "max/board/board.h"
+#include "max/board/piece.h"
 
 /// Generate all quiet and loud sliding moves in the given direction
 static MAX_INLINE_ALWAYS void max_slidegen_all(

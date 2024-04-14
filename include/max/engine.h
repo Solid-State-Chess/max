@@ -1,13 +1,13 @@
 #pragma once
 
-#include "max/board.h"
+#include "max/board/board.h"
 
 #define MAX_ENGINE_MAX_MOVES (2048)
 
 #define MAX_ENGINE_MAX_PLY (24)
 
 /// A signed score as the result of a board evaluation measured in centipawns
-typedef int32_t max_score_t;
+typedef int16_t max_score_t;
 
 /// Diagnostic information for a best-move search
 typedef struct {

@@ -1,5 +1,5 @@
-#include "max/piece.h"
-#include "max/board.h"
+#include "max/board/piece.h"
+#include "max/board/board.h"
 
 
 MAX_HOT void max_board_pawnmovegen_quiet(

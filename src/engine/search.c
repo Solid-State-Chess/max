@@ -1,4 +1,4 @@
-#include "max/board.h"
+#include "max/board/board.h"
 #include "max/engine.h"
 #include "private.h"
 #include <stdint.h>
@@ -89,7 +89,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
     max_board_movegen_pseudo(&engine->board, &moves);
     max_engine_sortmoves(engine, &moves);
 
-    search->best_score = INT32_MIN;
+    search->best_score = INT16_MIN;
 
     for(uint8_t i = 0; i < moves.len; ++i) {
         if(!max_board_move_is_valid(&engine->board, moves.moves[i])) {
@@ -98,7 +98,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
 
         max_board_make_move(&engine->board, moves.moves[i]);
         
-        max_score_t score = -max_alpha_beta(engine, INT32_MIN + 20, INT32_MAX - 20, moves.len, depth);
+        max_score_t score = -max_alpha_beta(engine, INT16_MIN + 20, INT16_MAX - 20, moves.len, depth);
 
         max_board_unmake_move(&engine->board, moves.moves[i]);
 
@@ -108,5 +108,5 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
         }
     }
 
-    return search->best_score != INT32_MIN;
+    return search->best_score != INT16_MIN;
 }

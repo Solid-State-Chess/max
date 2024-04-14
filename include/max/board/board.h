@@ -1,7 +1,7 @@
 #pragma once
 #include "max/def.h"
-#include "max/move.h"
-#include "max/piece.h"
+#include "move.h"
+#include "piece.h"
 #include <stdint.h>
 
 

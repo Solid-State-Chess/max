@@ -1,9 +1,9 @@
-#include "max/board.h"
+#include "max/board/board.h"
 #include "max/def.h"
-#include "max/move.h"
-#include "max/piece.h"
-#include "max/square.h"
-#include "private.h"
+#include "max/board/move.h"
+#include "max/board/piece.h"
+#include "max/board/square.h"
+#include "../private.h"
 
 /// Check if the piece on the given `pos` delivers check to the given `kpos`
 MAX_INLINE_ALWAYS static
@@ -22,7 +22,7 @@ bool max_board_piece_delivers_check(max_board_t *const board, max_bpos_t pos, ma
                 max_board_get_enemy_pawn_advance_dir(board)
             );
 
-            if(max_bpos_inc(down, MAX_INCREMENT_LEFT ) == kpos || max_bpos_inc(down, MAX_INCREMENT_RIGHT) == kpos) {
+            if(max_bpos_inc(down, MAX_INCREMENT_LEFT)  == kpos || max_bpos_inc(down, MAX_INCREMENT_RIGHT) == kpos) {
                 checker->attack.jump = pos;
                 return true;
             }

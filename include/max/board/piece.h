@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "max/def.h"
-#include "max/square.h"
+#include "square.h"
 
 #define MAX_TOTAL_PAWNS (8)
 #define MAX_TOTAL_KNIGHTS (10)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "max/engine.h"
-#include "max/piece.h"
+#include "max/board/piece.h"
 #include <stdint.h>
 
 #define MAX_PAWN_VALUE    (100)
@@ -9,7 +9,7 @@
 #define MAX_BISHOP_VALUE  (310)
 #define MAX_ROOK_VALUE    (500)
 #define MAX_QUEEN_VALUE   (900)
-#define MAX_KING_VALUE    (100000)
+#define MAX_KING_VALUE    (20000)
 
 
 /// Get the score in centipawns associated with the given piece type (irrespective of piece colo)

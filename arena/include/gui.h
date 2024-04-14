@@ -28,6 +28,8 @@ typedef struct {
     SDL_sem *lock;
     /// Set while the GUI has a lock indicating that the engine thread should exit
     bool quit;
+    /// Set when the engine thread is finished processing
+    volatile bool done;
 } gui_shared_t;
 
 /// State for pawn promotion

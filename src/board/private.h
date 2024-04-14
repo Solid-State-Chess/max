@@ -1,8 +1,8 @@
 #pragma once
 
-#include "max/board.h"
+#include "max/board/board.h"
 #include "max/def.h"
-#include "max/square.h"
+#include "max/board/square.h"
 
 /// Update check data for the current side to play
 void max_board_update_check(max_board_t *const board, max_move_t move, max_check_t *check);

@@ -10,6 +10,7 @@ int gui_engine_thread(void *_data) {
 
     for(;;) {
         if(SDL_SemWait(data->lock) == 0) {
+            data->done = false;
             if(data->quit) {
                 break;
             }
@@ -37,6 +38,7 @@ int gui_engine_thread(void *_data) {
 
             max_movelist_clear(&data->moves);
             max_board_movegen_pseudo(&data->engine.board, &data->moves);
+            data->done = true;
         } else {
             printf("Failed to wait semaphore in engine thread: %s\n", SDL_GetError());
             break;
