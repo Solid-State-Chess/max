@@ -1,4 +1,6 @@
 #include "gui.h"
+#include "max/board/board.h"
+#include "max/board/movegen.h"
 #include <SDL_error.h>
 #include <SDL_timer.h>
 

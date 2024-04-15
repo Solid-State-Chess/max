@@ -14,7 +14,7 @@ max_score_t max_evaluate_positions(max_piecelist_t *pieces, max_score_t const *p
 
     for(max_lidx_t i = 0; i < pieces->len; ++i) {
         max_bpos_t pos = pieces->pos[i] ^ SQTRANSFORM[white];
-        pos = (pos + (pos & 7)) >> 1;
+        pos = max_bpos_compress(pos);
         score += pstbl[pos];
     }
 
