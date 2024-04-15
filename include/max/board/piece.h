@@ -10,10 +10,14 @@
 #define MAX_TOTAL_ROOKS (10)
 #define MAX_TOTAL_QUEENS (9)
 
-/// Index into a #max_piecelist_t array
+/// Index into a #max_piecelist_t array.
+/// Stored in the #max_pieces_t::index array mapping board positions to list indices
+/// in a #max_pieces_t structure.
 typedef uint8_t max_lidx_t;
 
-/// A variable-sized piece array with length and board positions of one type of piece
+/// A variable-sized piece array with length and board positions of one type of piece.
+/// This structure provides a uniform interface for piece lists of static size contained in
+/// #max_pieces_t.
 typedef struct {
     /// Length of the #pos list
     max_lidx_t len;
@@ -70,7 +74,13 @@ enum {
     MAX_PIECECODE_COLOR_MASK  = 0x60,
 };
 
-/// Get the position array for a piece given by the piece code
+/// \ingroup utils
+/// Get the positions list for the given piece code.
+/// Internally, this looks up an address directly using the #max_piececode_t & #MAX_PIECECODE_TYPE_MASK -
+/// so invalid piece types or empty piece codes will return an undefined result.
+///
+/// \return A pointer to the #max_piecelist_t inside of #pieces that stores positions for pieces of the same kind
+/// as #piece
 MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max_piececode_t piece) {
     static const uint8_t lookup[17] = {
         [MAX_PIECECODE_PAWN]   = offsetof(max_pieces_t, pawns),
@@ -84,6 +94,7 @@ MAX_INLINE_ALWAYS max_piecelist_t* max_pieces_get_list(max_pieces_t *pieces, max
     return (max_piecelist_t*)((uint8_t*)pieces + lookup[piece & MAX_PIECECODE_TYPE_MASK]);
 }
 
+/// \ingroup utils
 /// Get a piececode bitmask for piece types that can attack along the given direction
 /// (returns bishop for diagonals and rook for cardinals)
 MAX_INLINE_ALWAYS max_piececode_t max_get_piece_mask_attacks_direction(max_increment_t dir) {

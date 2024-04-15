@@ -1,4 +1,5 @@
 #include "max/board/board.h"
+#include "max/board/op.h"
 #include "max/def.h"
 #include "max/engine/engine.h"
 #include "max/board/piece.h"

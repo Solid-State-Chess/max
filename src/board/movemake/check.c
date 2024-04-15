@@ -1,4 +1,5 @@
 #include "max/board/board.h"
+#include "max/board/op.h"
 #include "max/def.h"
 #include "max/board/move.h"
 #include "max/board/piece.h"
@@ -101,7 +102,6 @@ void max_board_update_check(max_board_t *const board, max_move_t move, max_check
 
     max_bpos_t kpos = max_board_friendly_king_pos(board);
     
-    //printf("TRY %c%c->%c%c\n", MAX_BPOS_FORMAT(move.from), MAX_BPOS_FORMAT(move.to));
     if(max_board_piece_delivers_check(board, move.to, kpos, check)) {
         check += 1;
     }

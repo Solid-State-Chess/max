@@ -1,16 +1,37 @@
 #pragma once
+/// \file
+/// Definitions for types representing positions and directions on a 0x88 chessboard.
+///
+/// \see #max_bpos_t
+/// \see #max_increment_t
+/// \see #max_line_t
+
 
 #include "max/def.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-/// A 0x88 board position that indexes a board array
+
+/// \defgroup bpos 0x88 Board Position
+/// Functions and structures that map rank and file coordinates to an index in an array.
+/// @{
+
+/// Rank and file coordinates packed into a single byte in Least Significant File format.
+/// [4 Bit Rank] [4 Bit File]
+/// This method of packing coordinates allows invalid board positions to be expressed - 
+/// if the most significant bit of either nibble is set, then the board position is not valid (see #MAX_BPOS_INVALID_MASK).
+///
+/// \see max_bpos_new()
+/// \see #MAX_FILE_MASK
+/// \see #MAX_RANK_MASK
 typedef uint8_t max_bpos_t;
 
+/// Utility macro to provide printf style format arguments for a #max_bpos_t.
+/// Note that the format string must contain "%c%c" to format rank and file correctly
 #define MAX_BPOS_FORMAT(pos) (max_bpos_file(pos) + 'a'), (max_bpos_rank(pos) + '1')
 
-/// Create a new board position index from the given rank and file in the range 0..7
+/// Create a new board position index from the given rank and file in the range 0..7.
 MAX_INLINE_ALWAYS max_bpos_t max_bpos_new(uint8_t file, uint8_t rank) {
     return (rank << 4) + file;
 }
@@ -39,6 +60,7 @@ enum {
 #undef FILE
 
 enum {
+    /// Bitmask for the lower nibble of a #max_bpos_t
     MAX_FILE_MASK = 0x0F,
     MAX_FILE_A    = 0x00,
     MAX_FILE_B    = 0x01,
@@ -51,6 +73,7 @@ enum {
 };
 
 enum {
+    /// Bitmask for the upper nibble of a #max_bpos_t
     MAX_RANK_MASK = 0xF0,
     MAX_RANK_1    = 0x00,
     MAX_RANK_2    = 0x10,
@@ -63,11 +86,12 @@ enum {
 };
 
 enum {
-    /// Bitmask used to check if a given board position is invalid
+    /// Bitmask used to check if a given #max_bpos_t is invalid with an AND operation.
+    /// \see max_bpos_valid()
     MAX_BPOS_INVALID_MASK = 0x88,
 };
 
-/// Check if the given position is valid within the 8x8 board
+/// Check if the given position is valid on the board
 MAX_INLINE_ALWAYS bool max_bpos_valid(max_bpos_t pos) { return (pos & MAX_BPOS_INVALID_MASK) == 0; }
 
 /// Get the rank between 0 and 7 of the given position
@@ -76,15 +100,23 @@ MAX_INLINE_ALWAYS uint8_t max_bpos_rank(max_bpos_t pos) { return pos >> 4; }
 /// Get the file between 0 and 7 of the given position
 MAX_INLINE_ALWAYS uint8_t max_bpos_file(max_bpos_t pos) { return pos & MAX_FILE_MASK; }
 
-/// Type representing changes in a `max_bpos_t`
+/// Type representing a change in a `max_bpos_t` - common constants for the cardinal directions are defined.
+///
+/// \see #MAX_CARDINALS
+/// \see #MAX_DIAGONALS
 typedef int8_t max_increment_t;
 
-/// Get a difference index between 0 and 238 to index lookup tables by square difference
+/// Get a unique index given by the difference between two positions.
+/// 0x88 coordinate differences have the useful property of being unique with respect to 
+/// distance and direction - so the value from this function in the range [0..240) can be used in lookup tables
+/// to find values by direction.
+///
+/// \see #MAX_DIRECTION_BY_DIFF
 MAX_INLINE_ALWAYS max_bpos_t max_bpos_diff(max_bpos_t from, max_bpos_t to) {
     return (0x77 + from) - to;
 }
 
-/// Apply the given increment to the given position
+/// Apply the given direction to the board position
 MAX_INLINE_ALWAYS max_bpos_t max_bpos_inc(max_bpos_t pos, max_increment_t inc) {
     return (max_bpos_t)((max_increment_t)(pos) + inc);
 }
@@ -108,7 +140,7 @@ extern const max_increment_t MAX_CARDINALS[4];
 
 #define MAX_ABSINTRIN
 
-/// Get the absolute value of the given increment
+/// Get the absolute value of the given increment, utilizing a bitwise implementation if #MAX_ABSINTRIN is defined
 MAX_INLINE_ALWAYS max_increment_t max_increment_abs(max_increment_t i) {
     #ifdef MAX_ABSINTRIN
     return abs(i);
@@ -118,21 +150,24 @@ MAX_INLINE_ALWAYS max_increment_t max_increment_abs(max_increment_t i) {
     #endif
 }
 
-/// Check if the given increment is diagonal (this returns true if both rank and file are changed by the increment)
+/// Check if the given increment is diagonal
 MAX_INLINE_ALWAYS bool max_increment_is_diagonal(max_increment_t inc) {
     inc = max_increment_abs(inc);
 
     return inc == 15 || inc == 17;
 }
 
-/// Check if the given increment points in a cardinal direction (increment should not be zero)
+/// Check if the given nonzero increment points in a cardinal direction.
 MAX_INLINE_ALWAYS max_increment_t max_increment_is_cardinal(max_increment_t inc) { return !max_increment_is_diagonal(inc); }
 
+/// Length of the static #MAX_KNIGHT_MOVES array
+/// \see #MAX_KNIGHT_MOVES
 #define MAX_KNIGHT_MOVES_LEN (8)
 
 /// All knight increments, for iterating during movegen / attack checking
 extern const max_increment_t MAX_KNIGHT_MOVES[MAX_KNIGHT_MOVES_LEN];
 
+/// Length of the static #MAX_KING_MOVES array
 #define MAX_KING_MOVES_LEN (8)
 
 /// Increments for all king moves
@@ -171,3 +206,6 @@ typedef struct {
     /// Direction that the ray travels outward from the origin square
     max_increment_t line;
 } max_line_t;
+
+
+/// @}

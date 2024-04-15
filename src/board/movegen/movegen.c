@@ -3,7 +3,6 @@
 #include "max/board/move.h"
 #include "max/board/piece.h"
 #include "max/board/square.h"
-#include "../private.h"
 #include <stdbool.h>
 #include "pawn.h"
 #include "slider.h"

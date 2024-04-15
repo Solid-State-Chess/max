@@ -1,4 +1,5 @@
 #include "max/board/board.h"
+#include "max/board/op.h"
 #include "max/def.h"
 #include "max/board/move.h"
 #include "max/board/piece.h"
@@ -127,7 +128,6 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
 
         return !max_board_move_exits_pin(
             board,
-            piece,
             move.from,
             move.to
         );

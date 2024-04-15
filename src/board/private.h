@@ -7,16 +7,6 @@
 /// Update check data for the current side to play
 void max_board_update_check(max_board_t *const board, max_move_t move, max_check_t *check);
 
-/// Get the queenside castle right flag bits for the side to move on the given ply
-MAX_INLINE_ALWAYS max_plyplate_t max_qcastle_flag(uint16_t ply) {
-    return (MAX_PLYPLATE_KCASTLE << MAX_PLYPLATE_WCASTLE_OFFSET) << ((ply & 1) << 1);
-}
-
-/// Get the kingside castle flag bits for the side to move on the given ply
-MAX_INLINE_ALWAYS max_plyplate_t max_kcastle_flag(uint16_t ply) {
-    return (MAX_PLYPLATE_QCASTLE << MAX_PLYPLATE_WCASTLE_OFFSET) << ((ply & 1) << 1);
-}
-
 /// Remove a piece by position from the given side
 MAX_HOT
 MAX_INLINE_ALWAYS void max_board_remove_piece(max_board_t *board, max_pieces_t *side, max_bpos_t pos) {

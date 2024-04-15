@@ -1,4 +1,5 @@
 #include "max/board/board.h"
+#include "max/board/movegen.h"
 #include "max/engine/engine.h"
 #include "private.h"
 #include <stdint.h>
@@ -22,7 +23,7 @@ static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_scor
 
     max_movelist_t captures = max_movelist_new(engine->search.moves + move_head);
     max_board_capturegen_pseudo(&engine->board, &captures);
-    max_engine_sortmoves(engine, &captures);
+    max_engine_sortmoves(engine, &captures, 0);
     for(unsigned i = 0; i < captures.len; ++i) {
         max_move_t capture = captures.moves[i];
         if(!max_board_move_is_valid(&engine->board, capture)) {
@@ -45,15 +46,22 @@ static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_scor
     return alpha;
 }
 
-max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t beta, uint16_t move_head, uint8_t depth) {
+max_score_t max_alpha_beta(
+    max_engine_t *engine,
+    max_score_t alpha,
+    max_score_t beta,
+    uint16_t move_head,
+    uint8_t depth
+) {
     if(depth == 0) {
         return max_quiesce(engine, alpha, beta, move_head);
     } else {
         max_movelist_t moves = max_movelist_new(engine->search.moves + move_head);
         max_board_movegen_pseudo(&engine->board, &moves);
-        max_engine_sortmoves(engine, &moves);
+        max_engine_sortmoves(engine, &moves, depth);
         
         uint8_t movecount = 0;
+        
         for(uint8_t i = 0; i < moves.len; ++i) {
             max_move_t move = moves.moves[i];
             if(!max_board_move_is_valid(&engine->board, move)) {
@@ -62,18 +70,18 @@ max_score_t max_alpha_beta(max_engine_t *engine, max_score_t alpha, max_score_t 
 
             max_board_make_move(&engine->board, move);
             movecount += 1;
-
             max_score_t score = -max_alpha_beta(engine, -beta, -alpha, move_head + moves.len, depth - 1);
             max_board_unmake_move(&engine->board, move);
+            
             if(score >= beta) {
                 return beta;
             }
             if(score > alpha) {
                 alpha = score;
             }
+
         }
         
-        max_bpos_t kpos = engine->board.sides[(engine->board.ply & 1)].king.pos[0];
         if(movecount > 0) {
             return alpha;
         } else if(max_check_exists(max_board_state(&engine->board)->check)) {
@@ -91,7 +99,8 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
     engine->diagnostic.futility_pruned = 0;
     max_movelist_t moves = max_movelist_new(engine->search.moves);
     max_board_movegen_pseudo(&engine->board, &moves);
-    max_engine_sortmoves(engine, &moves);
+    
+    max_engine_sortmoves(engine, &moves, depth);
 
     search->best_score = INT16_MIN;
 
@@ -101,9 +110,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
         }
 
         max_board_make_move(&engine->board, moves.moves[i]);
-        
         max_score_t score = -max_alpha_beta(engine, INT16_MIN + 20, INT16_MAX - 20, moves.len, depth);
-
         max_board_unmake_move(&engine->board, moves.moves[i]);
 
         if(score > search->best_score) {
@@ -111,6 +118,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t
             search->bestmove = moves.moves[i];
         }
     }
+
 
     return search->best_score != INT16_MIN;
 }

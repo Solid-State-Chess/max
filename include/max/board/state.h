@@ -211,6 +211,7 @@ MAX_INLINE_ALWAYS max_irreversible_t* max_irreversible_stack_peek(max_irreversib
     return &stack->array[stack->plies_since_reset];
 }
 
+
 /// Get a default packed state with full white and black castle rights, and no en passant file.
 MAX_INLINE_ALWAYS
 max_plyplate_t max_plyplate_default(void) {
@@ -225,4 +226,17 @@ max_irreversible_t max_irreversible_default(void) {
     state.packed_state = max_plyplate_default();
     max_check_reset(&state.check);
     return state;
+}
+
+/// Add a piece to the given capture stack
+MAX_INLINE_ALWAYS void max_capturestack_push(max_board_capturestack_t *stack, max_piececode_t piece) {
+    stack->captures[stack->len] = piece;
+    stack->len += 1;
+}
+
+/// Pop the top element from the capture stack
+MAX_INLINE_ALWAYS max_piececode_t max_capturestack_pop(max_board_capturestack_t *stack) {
+    stack->len -= 1;
+    max_piececode_t piece = stack->captures[stack->len];
+    return piece;
 }

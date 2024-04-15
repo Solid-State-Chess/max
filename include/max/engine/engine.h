@@ -19,15 +19,22 @@ typedef struct {
 
 /// State required at all stages of an alpha-beta search
 typedef struct {
+    /// Static buffer for moves that have been generated
     max_move_t moves[MAX_ENGINE_MAX_MOVES];
+    /// Stored principle variation used to aid move ordering by searching the idea developed in prior searches first.
+    /// Indexed by ply depth
+    max_move_t principle_variation_buf[MAX_ENGINE_MAX_PLY];
 } max_search_state_t;
 
 /// Complete engine state including lookup tables, settings, and chessboard representation
 typedef struct {
+    /// Board representation to make moves on and evaluate
     max_board_t board;
+    /// Search state with move buffer
     max_search_state_t search;
     /// Stack used by the board to reverse moves
     max_irreversible_t board_stack[MAX_ENGINE_MAX_PLY];
+    /// Diagonstics with node count and pruning data for benchmarking
     max_search_diagnostic_t diagnostic;
 } max_engine_t;
 

@@ -1,10 +1,11 @@
 #include "max/board/board.h"
+#include "max/board/op.h"
 #include "max/board/piece.h"
 #include "max/board/square.h"
 
 
 MAX_HOT
-bool max_board_get_sliding_attack(
+static bool max_board_get_sliding_attack(
     max_board_t *board,
     max_bpos_t attacked,
     max_piececode_t typemask,
@@ -81,7 +82,6 @@ bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
 MAX_HOT
 bool max_board_move_exits_pin(
     max_board_t *const board,
-    max_piececode_t piece,
     max_bpos_t from,
     max_bpos_t to
 ) {

@@ -16,7 +16,7 @@ int gui_engine_thread(void *_data) {
             }
             
             uint64_t start = SDL_GetTicks64();
-            if(!max_engine_search(&data->engine, &search, 5)) {
+            if(!max_engine_search(&data->engine, &search, 6)) {
                 puts("Bot is in checkmate");
                 return 0;
             }
