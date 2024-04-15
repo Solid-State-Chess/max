@@ -2,7 +2,7 @@
 #include "private.h"
 
 /// Get a Most-Valuable Victim / Least Valuable Aggressor score to sort capture moves by
-max_score_t max_engine_mvvlva(max_engine_t *engine, max_move_t move) {
+static max_score_t max_engine_mvvlva(max_engine_t *engine, max_move_t move) {
     return max_piecevalue(engine, engine->board.pieces[move.to]) - max_piecevalue(engine, engine->board.pieces[move.from]);
 }
 

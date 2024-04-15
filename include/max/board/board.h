@@ -48,7 +48,7 @@ typedef struct {
     max_irreversible_stack_t stack;
     
     /// Ply (halfmove) counter, if the LSB is set (ply is odd) then black is to move
-    /// \see #max_turn_t
+    /// \see #max_side_t
     uint16_t ply;
 } max_board_t;
 
@@ -57,6 +57,7 @@ typedef struct {
 /// example, to look up the pawn promotion rank in an array for the current side to move.
 ///
 /// 0 - White
+///
 /// 1 - Black
 ///
 /// \see #MAX_SIDE_WHITE
@@ -137,12 +138,19 @@ MAX_INLINE_ALWAYS max_increment_t max_board_enemy_pawn_advance_dir(max_board_t *
     return MAX_PAWN_DIR[max_board_enemy_side(board)];
 }
 
-/// Get the queenside castle right flag bits for the side to move on the given ply
+/// Get the queenside castle right flag bits for the side to move.
+///
+/// \param ply Ply used to check which side will move for this turn.
+/// \return A bitmask that can be used to check if the side to move has queenside castle rights.
 MAX_INLINE_ALWAYS max_plyplate_t max_qcastle_flag(uint16_t ply) {
     return (MAX_PLYPLATE_KCASTLE << MAX_PLYPLATE_WCASTLE_OFFSET) << ((ply & 1) << 1);
 }
 
-/// Get the kingside castle flag bits for the side to move on the given ply
+/// Get the kingside castle flag bits for the side to move.
+///
+/// \param ply Ply used to check what side will move on this turn.
+/// \return A bitmask that can be used to check if the current packed state allows the
+/// side to play a kingside castle.
 MAX_INLINE_ALWAYS max_plyplate_t max_kcastle_flag(uint16_t ply) {
     return (MAX_PLYPLATE_QCASTLE << MAX_PLYPLATE_WCASTLE_OFFSET) << ((ply & 1) << 1);
 }
