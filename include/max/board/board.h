@@ -13,31 +13,51 @@
 
 /// Chessboard representation loosely based on 'New Architectures in Computer Chess' [1] by Fritz Reul.
 ///
+/// \section repr Board Representation
+/// The board is represented by three main data structures. First, the 8x16 #pieces array stores #max_piececode_t
+/// indexed by a 0x88 index - enabling efficient off-the-board tests during movegen and direction lookup by position
+/// difference. In addition, each side maintains individual lists for each piece type containing the board positions
+/// of pieces of that type. In order to map from board position to list index, each side also maintains a 0x88 board
+/// containing the list index of the piece on each square. While this adds memory requirements, the improvements to 
+/// evaluation performance and movegen should outweigh the cost of bookkeeping the lists.
+///
 /// [1] https://pure.uvt.nl/ws/files/1098572/Proefschrift_Fritz_Reul_170609.pdf
 typedef struct {
-    /// Piece lists for white and black, tracking list position by square and square position by list position
     union {
         struct {
+            /// Piece lists and board position to list position map for white
             max_pieces_t white;
+            /// Piece lists and board position to list position mapfor black
             max_pieces_t black;
         };
-
+        
+        /// Piece lists for both white and black stored as an array indexed by the current side to play #max_turn_t
         max_pieces_t sides[2];
     };
     
-    /// Piece code 0x88 array for directly looking up piece by square
+    /// Piece code 0x88 array for directly looking up piece codes by their
+    /// #max_bpos_t positions. Most movegen operations use this board
     max_piececode_t pieces[MAX_BOARD_0x88_LEN];
 
-    /// Tracking for the last captured piece for move unmaking
+    /// Stack tracking all captures made in this game enabling capture move unmaking
     max_board_capturestack_t captures;
     
     /// A stack of all irreversible state used to unmake moves efficiently without
-    /// recomputing too much state
+    /// recomputing too much
     max_irreversible_stack_t stack;
     
     /// Ply (halfmove) counter, if the LSB is set (ply is odd) then black is to move
+    /// \see #max_turn_t
     uint16_t ply;
 } max_board_t;
+
+/// Convenience typedef for a single-bit value representing the current side to move.
+/// This value is standard and used for lookup tables in movegen, move validation, and evaluation - for
+/// example, to look up the pawn promotion rank in an array for the current side to move.
+///
+/// 0 - White
+/// 1 - Black
+typedef uint8_t max_side_t;
 
 
 /// Get the piece list of the side that is currently to move
@@ -91,19 +111,7 @@ MAX_INLINE_ALWAYS max_irreversible_t* max_board_state(max_board_t const *const b
 
 /// Reset the given board's state stack pointer- after calling this moves made before the call must not be unmade
 MAX_INLINE_ALWAYS void max_board_reset_stack(max_board_t *const board) {
-    max_irreversible_t latest = *max_board_state(board);
-    board->stack.plies_since_reset = 1;
-    board->stack.array[0] = latest;
-}
-
-MAX_INLINE_ALWAYS void max_irreversible_stack_push(max_irreversible_stack_t *stack, max_irreversible_t state) {
-    stack->array[stack->plies_since_reset] = state;
-    stack->plies_since_reset += 1;
-}
-
-MAX_INLINE_ALWAYS max_irreversible_t max_irreversible_stack_pop(max_irreversible_stack_t *stack) {
-    stack->plies_since_reset -= 1;
-    return stack->array[stack->plies_since_reset];
+    max_irreversible_stack_reset(&board->stack); 
 }
 
 /// Create a new chessboard structure initialized to the starting position,

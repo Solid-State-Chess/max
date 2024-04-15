@@ -1,6 +1,7 @@
 #include "max/board/board.h"
 #include "max/board/piece.h"
 #include "max/board/square.h"
+#include "max/board/state.h"
 #include "private.h"
 #include <stdlib.h>
 #include <string.h>
@@ -40,14 +41,7 @@ void max_board_new(max_board_t *const board, max_irreversible_t *stack) {
     board->pieces[MAX_E8] = MAX_PIECECODE_KING | MAX_PIECECODE_BLACK;
 
     max_board_init_lists(board);
-    
-
-    board->stack.array = stack;
-    board->stack.plies_since_reset = 1;
-
-    max_irreversible_t *state = &board->stack.array[0];
-    state->packed_state = MAX_PLYPLATE_WCASTLEMASK | MAX_PLYPLATE_BCASTLEMASK | MAX_PLYPLATE_EP_INVALID;
-    max_check_reset(&state->check);
+    max_irreversible_stack_new(&board->stack, stack, max_irreversible_default());
 }
 
 /// Initialize piece lists for each side by iterating through each square and set all valid empty squares to the proper piece code
@@ -67,7 +61,6 @@ static void max_board_init_lists(max_board_t *const board) {
         }
     }
 }
-
 
 
 static MAX_INLINE_ALWAYS int8_t sign(int8_t n) {

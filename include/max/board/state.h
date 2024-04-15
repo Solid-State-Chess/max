@@ -9,6 +9,7 @@
 
 #pragma once
 #include "max/board/piece.h"
+#include "max/def.h"
 
 /// A stack containing all pieces that have been captured over the course of the game.
 /// This structure is used for the same purpose as the #max_irreversible_t, but differs
@@ -172,4 +173,50 @@ MAX_INLINE_ALWAYS
 void max_check_reset(max_check_t *check) {
     check->attacks[0] = max_checker_empty();
     check->attacks[1] = max_checker_empty();
+}
+
+/// Initialize a new game stack from the given array and an initial state
+MAX_INLINE_ALWAYS void max_irreversible_stack_new(
+    max_irreversible_stack_t *stack,
+    max_irreversible_t *storage,
+    max_irreversible_t state
+) {
+    stack->array = storage;
+    stack->plies_since_reset = 0;
+    stack->array[0] = state;
+}
+
+/// Reset the given stack - moving the head to the bottom of the array and resetting the head index to 0
+MAX_INLINE_ALWAYS void max_irreversible_stack_reset(max_irreversible_stack_t *stack) {
+    max_irreversible_t state = stack->array[stack->plies_since_reset];
+    stack->plies_since_reset = 0;
+    stack->array[0] = state;
+}
+
+/// Push the given game state to the stack
+MAX_INLINE_ALWAYS void max_irreversible_stack_push(max_irreversible_stack_t *stack, max_irreversible_t state) {
+    stack->plies_since_reset += 1;
+    stack->array[stack->plies_since_reset] = state;
+}
+
+/// Pop the top game state from this stack and return it.
+MAX_INLINE_ALWAYS max_irreversible_t max_irreversible_stack_pop(max_irreversible_stack_t *stack) {
+    stack->plies_since_reset -= 1;
+    return stack->array[stack->plies_since_reset];
+}
+
+/// Get a default packed state with full white and black castle rights, and no en passant file.
+MAX_INLINE_ALWAYS
+max_plyplate_t max_plyplate_default(void) {
+    return MAX_PLYPLATE_WCASTLEMASK | MAX_PLYPLATE_BCASTLEMASK | MAX_PLYPLATE_EP_INVALID;
+}
+
+/// Get a default state for the chess board with filled castle rights, no en passant possible,
+/// and no check delivered.
+MAX_INLINE_ALWAYS
+max_irreversible_t max_irreversible_default(void) {
+    max_irreversible_t state;
+    state.packed_state = max_plyplate_default();
+    max_check_reset(&state.check);
+    return state;
 }
