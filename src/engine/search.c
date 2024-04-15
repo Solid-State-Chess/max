@@ -9,11 +9,15 @@ static const max_score_t SCORE_MUL[2] = {1, -1};
 /// Perform a quiescence search of the given node
 static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_score_t beta, uint16_t move_head) {
     max_score_t standing = max_evaluate(engine) * SCORE_MUL[engine->board.ply & 1];
-    if(engine->board.stack.plies_since_reset >= (MAX_ENGINE_MAX_PLY - 1) || standing >= beta) {
+    if(standing >= beta) {
         return beta;
     }
     if(standing > alpha) {
         alpha = standing;
+    }
+
+    if(engine->board.stack.plies_since_reset >= (MAX_ENGINE_MAX_PLY - 1)) {
+        return standing;
     }
 
     max_movelist_t captures = max_movelist_new(engine->search.moves + move_head);
