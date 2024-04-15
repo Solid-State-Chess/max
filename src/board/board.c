@@ -39,7 +39,7 @@ bool max_board_get_sliding_attack(
 
 MAX_HOT
 bool max_board_is_pinned(max_board_t *const board, max_bpos_t from) {
-    max_bpos_t king = max_board_get_king_pos(board);
+    max_bpos_t king = max_board_friendly_king_pos(board);
     max_bpos_t diff = max_bpos_diff(king, from);
 
     max_increment_t line = MAX_DIRECTION_BY_DIFF[diff];
@@ -85,7 +85,7 @@ bool max_board_move_exits_pin(
     max_bpos_t from,
     max_bpos_t to
 ) {
-    max_bpos_t king = max_board_king_pos(board);
+    max_bpos_t king = max_board_friendly_king_pos(board);
 
     max_bpos_t diff = max_bpos_diff(king, from);
     max_bpos_t after_diff = max_bpos_diff(king, to);
@@ -146,8 +146,8 @@ uint8_t max_board_attacks(max_board_t *const board, max_bpos_t pos, max_checker_
     };
 
     max_increment_t pawn_attackers[2];
-    pawn_attackers[0] = MAX_PAWNSIDES[0] - max_board_get_enemy_pawn_advance_dir(board);
-    pawn_attackers[1] = MAX_PAWNSIDES[1] - max_board_get_enemy_pawn_advance_dir(board);
+    pawn_attackers[0] = MAX_PAWNSIDES[0] - max_board_enemy_pawn_advance_dir(board);
+    pawn_attackers[1] = MAX_PAWNSIDES[1] - max_board_enemy_pawn_advance_dir(board);
     
     /// Offsets to check for knight, pawn and king moves
     max_increment_t const *offsets[3] = {

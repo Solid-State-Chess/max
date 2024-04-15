@@ -10,16 +10,18 @@
 #define MAX_TOTAL_ROOKS (10)
 #define MAX_TOTAL_QUEENS (9)
 
-/// Index into a piece list
+/// Index into a #max_piecelist_t array
 typedef uint8_t max_lidx_t;
 
-/// A variable-sized piece list with length and array of pieces
+/// A variable-sized piece array with length and board positions of one type of piece
 typedef struct {
+    /// Length of the #pos list
     max_lidx_t len;
+    /// Variable-sized positions array
     max_bpos_t pos[];
 } max_piecelist_t;
 
-
+/// Create a new unnamed struct type that can be aliased by a pointer to #max_piecelist_t
 #define PIECELIST(size) struct { max_lidx_t len; max_bpos_t pos[(size)]; }
 
 /// A complete list of the positions of the pieces on one side of the board
@@ -29,14 +31,19 @@ typedef struct {
     PIECELIST(MAX_TOTAL_BISHOPS) bishops;
     PIECELIST(MAX_TOTAL_ROOKS) rooks;
     PIECELIST(MAX_TOTAL_QUEENS) queens;
+    /// King position stored as a piece list with length one in order to unify 
+    /// list handling
     PIECELIST(1) king;
-    /// Board position -> list index map
+    /// 0x88 map of #max_bpos_t to #max_lidx_t in the list specified by the piece type that is on the same square
     max_lidx_t index[MAX_BOARD_0x88_LEN];
 } max_pieces_t;
 
 #undef PIECELIST
 
 /// A piece code with color, validity, and type specifiers
+///
+/// \section layout Layout
+/// []
 typedef uint8_t max_piececode_t;
 
 enum {

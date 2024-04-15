@@ -11,7 +11,7 @@ MAX_INLINE_ALWAYS
 void max_board_promote(max_board_t *const board, max_pieces_t *side, max_move_t move, max_piececode_t piece, max_piececode_t promoted) {
     if(move.attr & MAX_MOVE_CAPTURE) {
         max_capturestack_push(&board->captures, board->pieces[move.to]);
-        max_board_remove_piece(board, max_board_get_enemy(board), move.to);
+        max_board_remove_piece(board, max_board_enemy_pieces(board), move.to);
     }
     max_board_remove_piece(board, side, move.from);
     max_board_add_piece(board, side, move.to, promoted);
@@ -24,7 +24,7 @@ void max_board_unpromote(max_board_t *const board, max_pieces_t *side, max_move_
     max_board_remove_piece(board, side, move.to);
     max_board_add_piece(board, side, move.from, MAX_PIECECODE_PAWN | color);
     if(move.attr & MAX_MOVE_CAPTURE) {
-        max_board_add_piece(board, max_board_get_enemy(board), move.to, max_capturestack_pop(&board->captures));
+        max_board_add_piece(board, max_board_enemy_pieces(board), move.to, max_capturestack_pop(&board->captures));
     }
 }
 

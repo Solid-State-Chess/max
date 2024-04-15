@@ -75,7 +75,7 @@ static bool board_same(max_board_t *a, max_board_t *b) {
 
 size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsigned n) {
     size_t count = 0;
-    max_bpos_t kpos = max_board_king_pos(board);
+    max_bpos_t kpos = max_board_friendly_king_pos(board);
     if(board->sides[0].king.len == 0 || board->sides[1].king.len == 0) {
         puts("BAD BOARD");
         max_board_debugprint(board);

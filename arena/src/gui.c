@@ -155,9 +155,7 @@ int gui_state_run(gui_state_t *state) {
         
         SDL_Event event;
         SDL_RenderClear(state->render);
-        if(enginedone) {
         gui_state_render(state);
-        }
 
         if(state->grabbed.grabbed != NULL) {
             SDL_Rect pos;

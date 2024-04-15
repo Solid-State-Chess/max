@@ -8,12 +8,10 @@ max_increment_t MAX_DIRECTION_BY_DIFF[240] = {0x3E};
 
 MAX_HOT
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
-    static max_move_t BUFFER[256] = {0};
-
     max_piececode_t piece = board->pieces[move.from];
     max_piececode_t color = piece & MAX_PIECECODE_COLOR_MASK;
     
-    max_bpos_t kpos = max_board_get_king_pos(board);
+    max_bpos_t kpos = max_board_friendly_king_pos(board);
     max_irreversible_t *state = max_board_state(board);
 
 
@@ -81,7 +79,7 @@ bool max_board_move_is_valid(max_board_t *const board, max_move_t move) {
         }
 
         if(move.attr == MAX_MOVE_EN_PASSANT) {
-            max_bpos_t captured = max_bpos_inc(move.to, max_board_get_enemy_pawn_advance_dir(board));
+            max_bpos_t captured = max_bpos_inc(move.to, max_board_enemy_pawn_advance_dir(board));
             
             //FIXME: This will cause en passant to be denied even when the captured piece is vertically pinned
             if(max_board_is_pinned(board, captured)) {

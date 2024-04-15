@@ -27,7 +27,7 @@ MAX_INLINE_ALWAYS max_score_t max_evaluate_stacked_pawns(max_board_t *const boar
 
     for(unsigned i = 0; i < pieces->pawns.len; ++i) {
         max_piececode_t piece = board->pieces[pieces->pawns.pos[i]];
-        max_bpos_t above = max_bpos_inc(pieces->pawns.pos[i], max_board_get_friendly_pawn_advance_dir(board));
+        max_bpos_t above = max_bpos_inc(pieces->pawns.pos[i], max_board_friendly_pawn_advance_dir(board));
         //Don't need to check validity because pawns may not be on the final ranks
         if(max_bpos_valid(above)) {
             max_piececode_t above_piece = board->pieces[above];
@@ -192,7 +192,7 @@ static max_score_t max_evaluate_side(max_board_t *board, max_pieces_t *side, uns
          20, 30, 10,  0,  0, 10, 30, 20
     };
 
-    max_score_t extra[2] = {6, -6};
+    max_score_t extra[2] = {0, 0};
     
     max_score_t material = 
         (side->pawns.len   * (MAX_PAWN_VALUE   + extra[white])) +
@@ -221,5 +221,5 @@ max_score_t max_evaluate(max_engine_t *engine) {
     engine->diagnostic.nodes += 1;
     max_score_t white = max_evaluate_side(&engine->board, &engine->board.white, 0);
     max_score_t black = max_evaluate_side(&engine->board, &engine->board.black, 1);
-    return (white - black) - 192;
+    return (white - black);
 }

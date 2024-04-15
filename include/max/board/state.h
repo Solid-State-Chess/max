@@ -201,8 +201,14 @@ MAX_INLINE_ALWAYS void max_irreversible_stack_push(max_irreversible_stack_t *sta
 
 /// Pop the top game state from this stack and return it.
 MAX_INLINE_ALWAYS max_irreversible_t max_irreversible_stack_pop(max_irreversible_stack_t *stack) {
+    max_irreversible_t state = stack->array[stack->plies_since_reset];
     stack->plies_since_reset -= 1;
-    return stack->array[stack->plies_since_reset];
+    return state;
+}
+
+/// Peek the top element of the state stack
+MAX_INLINE_ALWAYS max_irreversible_t* max_irreversible_stack_peek(max_irreversible_stack_t *stack) {
+    return &stack->array[stack->plies_since_reset];
 }
 
 /// Get a default packed state with full white and black castle rights, and no en passant file.

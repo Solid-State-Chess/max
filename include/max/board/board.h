@@ -57,42 +57,56 @@ typedef struct {
 ///
 /// 0 - White
 /// 1 - Black
+///
+/// \see #MAX_SIDE_WHITE
+/// \see #MAX_SIDE_BLACK
 typedef uint8_t max_side_t;
 
+enum {
+    /// #max_side_t value indicating white side in arrays
+    MAX_SIDE_WHITE = 0,
+    /// #max_side_t value indicating black side in arrays
+    MAX_SIDE_BLACK = 1
+};
 
-/// Get the piece list of the side that is currently to move
-MAX_INLINE_ALWAYS max_pieces_t* max_board_get_to_move(max_board_t *board) {
-    return &board->sides[(board->ply & 1)];
+/// Get a #max_side_t representing the side that will play a move this ply
+MAX_INLINE_ALWAYS max_side_t max_board_friendly_side(max_board_t *board) {
+    return board->ply & 1;
 }
 
-/// Get side state for the side that is not to move this ply
-MAX_INLINE_ALWAYS max_pieces_t* max_board_get_enemy(max_board_t *board) {
-    return &board->sides[(board->ply & 1) ^ 1];
+/// Get a #max_side_t index representing the side that will not play a move this ply
+MAX_INLINE_ALWAYS max_side_t max_board_enemy_side(max_board_t *board) {
+    return (board->ply & 1) ^ 1;
+}
+
+/// Get the piece list of the side that will play a move this ply
+MAX_INLINE_ALWAYS max_pieces_t* max_board_friendly_pieces(max_board_t *board) {
+    return &board->sides[max_board_friendly_side(board)];
+}
+
+/// Get piece list for the side that is not playing a move this ply
+MAX_INLINE_ALWAYS max_pieces_t* max_board_enemy_pieces(max_board_t *board) {
+    return &board->sides[max_board_enemy_side(board)];
 }
 
 /// Get the king's position for the side to play
-MAX_INLINE_ALWAYS max_bpos_t max_board_king_pos(max_board_t *board) {
-    return max_board_get_to_move(board)->king.pos[0];
+MAX_INLINE_ALWAYS max_bpos_t max_board_friendly_king_pos(max_board_t *board) {
+    return max_board_friendly_pieces(board)->king.pos[0];
 }
 
 /// Get a colormask for friendly pieces
 MAX_INLINE_ALWAYS max_piececode_t max_board_friendly_colormask(max_board_t *board) {
-    return MAX_PIECECODE_WHITE << (board->ply & 1);
-}
-
-/// Get the position of the friendly king
-MAX_INLINE_ALWAYS max_bpos_t max_board_get_king_pos(max_board_t *board) {
-    return max_board_get_to_move(board)->king.pos[0];
+    return MAX_PIECECODE_WHITE << max_board_friendly_side(board);
 }
 
 //// Get the direction (up or down) that enemy pawns will advance
-MAX_INLINE_ALWAYS max_increment_t max_board_get_friendly_pawn_advance_dir(max_board_t *board) {
-    return MAX_PAWN_DIR[(board->ply & 1)];
+MAX_INLINE_ALWAYS max_increment_t max_board_friendly_pawn_advance_dir(max_board_t *board) {
+    return MAX_PAWN_DIR[max_board_friendly_side(board)];
 }
 
 // Get the direction (up or down) that enemy pawns will advance
-MAX_INLINE_ALWAYS max_increment_t max_board_get_enemy_pawn_advance_dir(max_board_t *board) {
-    return MAX_PAWN_DIR[(board->ply & 1) ^ 1];
+MAX_INLINE_ALWAYS max_increment_t max_board_enemy_pawn_advance_dir(max_board_t *board) {
+    return MAX_PAWN_DIR[max_board_enemy_side(board)];
 }
 
 /// Generate all pseudo-valid moves for the current side to move on the given board
@@ -105,8 +119,8 @@ void max_board_capturegen_pseudo(max_board_t *const board, max_movelist_t *const
 bool max_board_move_is_valid(max_board_t *const board, max_move_t move);
 
 /// Get the current castle rights, check, and en passant state for this board
-MAX_INLINE_ALWAYS max_irreversible_t* max_board_state(max_board_t const *const board) {
-    return &board->stack.array[board->stack.plies_since_reset - 1];
+MAX_INLINE_ALWAYS max_irreversible_t* max_board_state(max_board_t *const board) {
+    return max_irreversible_stack_peek(&board->stack);
 }
 
 /// Reset the given board's state stack pointer- after calling this moves made before the call must not be unmade
