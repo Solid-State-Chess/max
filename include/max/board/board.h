@@ -4,6 +4,7 @@
 /// \see max_board_new()
 
 #pragma once
+#include "max/board/zobrist.h"
 #include "max/def.h"
 #include "move.h"
 #include "piece.h"
@@ -46,6 +47,9 @@ typedef struct {
     /// A stack of all irreversible state used to unmake moves efficiently without
     /// recomputing too much
     max_irreversible_stack_t stack;
+    
+    /// Incrementally updated zobrist hash key that represents this board
+    max_zobrist_state_t zobrist;
     
     /// Ply (halfmove) counter, if the LSB is set (ply is odd) then black is to move
     /// \see #max_side_t

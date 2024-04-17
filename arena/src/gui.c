@@ -4,6 +4,7 @@
 #include "max/board/move.h"
 #include "max/board/piece.h"
 #include "max/board/square.h"
+#include "max/board/movegen.h"
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_mouse.h>
@@ -217,6 +218,7 @@ int gui_state_run(gui_state_t *state) {
                                             max_board_make_move(&state->shared->engine.board, move);
                                             gui_state_drop_grabbed(state);
                                             enginedone = false;
+                                            printf("Zobrist key: %0X\n", state->shared->engine.board.zobrist.hash);
                                             SDL_SemPost(state->shared->lock);
                                             break;
                                         }

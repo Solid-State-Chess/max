@@ -5,6 +5,7 @@
 #include "max/board/piece.h"
 #include "max/board/square.h"
 #include "max/board/move.h"
+#include "max/board/movegen.h"
 #include "test.h"
 #include "max/board/board.h"
 
@@ -66,7 +67,10 @@ static bool board_same(max_board_t *a, max_board_t *b) {
     VALID_CHECK_ROLLBACK(0, "SINGLE")
     VALID_CHECK_ROLLBACK(1, "DOUBLE")
 
-
+    if(a->zobrist.hash != b->zobrist.hash) {
+        printf("BAD ZOBRIST ROLLBACK: %0X -> %0X\n", a->zobrist.hash, b->zobrist.hash);
+        return false;
+    }
 
     return true;
 }
@@ -113,15 +117,15 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
                 }
 
                 max_move_t move = moves.moves[i];
-                /*max_board_t copy;
-                memcpy(&copy, board, sizeof(copy));*/
+                max_board_t copy;
+                memcpy(&copy, board, sizeof(copy));
                 max_board_make_move(board, move);
 
                 *history = move;
                 count += perft(board, max_movelist_new(moves.moves + moves.len), history + 1, n - 1);
                 max_board_unmake_move(board, move);
 
-                /*if(!board_same(&copy, board)) {
+                if(!board_same(&copy, board)) {
                     puts("Move unmaking is invalid");
                     puts("====BEFORE====");
                     max_board_debugprint(&copy);
@@ -139,7 +143,7 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
                     }
                     exit(-1);
 
-                }*/
+                }
             }
 
             /*if(count == 0) {

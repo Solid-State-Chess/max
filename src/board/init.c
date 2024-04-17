@@ -2,12 +2,14 @@
 #include "max/board/piece.h"
 #include "max/board/square.h"
 #include "max/board/state.h"
+#include "max/board/zobrist.h"
 #include "private.h"
 #include <stdlib.h>
 #include <string.h>
 
 
 static void max_board_init_lists(max_board_t *const board);
+static void max_board_init_zobrist(max_board_t *const board);
 
 void max_board_new(max_board_t *const board, max_irreversible_t *stack) {
     board->ply = 0;
@@ -40,6 +42,7 @@ void max_board_new(max_board_t *const board, max_irreversible_t *stack) {
     board->pieces[MAX_E1] = MAX_PIECECODE_KING | MAX_PIECECODE_WHITE;
     board->pieces[MAX_E8] = MAX_PIECECODE_KING | MAX_PIECECODE_BLACK;
 
+    max_board_init_zobrist(board);
     max_board_init_lists(board);
     max_irreversible_stack_new(&board->stack, stack, max_irreversible_default());
 }
@@ -60,6 +63,25 @@ static void max_board_init_lists(max_board_t *const board) {
             max_board_add_piece(board, side, pos, piece);
         }
     }
+}
+
+/// Initialize zobrist hash elements with randomly generated numbers for each piece on each square
+static void max_board_init_zobrist(max_board_t *const board) {
+    for(unsigned i = 0; i < 12; ++i) {
+        for(unsigned j = 0; j < 64; ++j) {
+            MAX_ZOBRIST_PIECEPOS[i][j] = max_zobrist_rand(board);
+        }
+    }
+
+    for(unsigned i = 0; i < 16; ++i) {
+        MAX_ZOBRIST_CASTLERIGHTS[i] = max_zobrist_rand(board);
+    }
+
+    for(unsigned i = 0; i < 8; ++i) {
+        MAX_ZOBRIST_EPFILE[i] = max_zobrist_rand(board);
+    }
+
+    board->zobrist.hash = 0;
 }
 
 
