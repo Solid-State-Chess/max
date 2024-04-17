@@ -209,7 +209,6 @@ static bool max_engine_search_part(max_engine_t *engine, max_movelist_t moves, m
 
 bool max_engine_search(max_engine_t *engine, max_searchresult_t *search) {
     engine->diagnostic.nodes = 0;
-    engine->diagnostic.futility_pruned = 0;
     engine->diagnostic.tt_hits = 0;
     engine->start = time(NULL);
 

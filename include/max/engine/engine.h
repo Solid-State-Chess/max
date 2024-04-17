@@ -9,35 +9,41 @@
 
 #define MAX_ENGINE_MAX_PLY (24)
 
+#define MAX_ENGINE_MAX_MOVESCORES (56)
+
 /// Diagnostic information for a best-move search
 typedef struct {
     /// Number of nodes that have had the evaluation function executed
     uint64_t nodes;
-    /// No. of nodes ignored due to futility pruning
-    uint64_t futility_pruned;
     /// Number of transposition table hits
     uint64_t tt_hits;
 } max_search_diagnostic_t;
+
+/// A list of moves that have each been scored with a search by the engine.
+/// Scores and depth of analysis are both stored with the same indices as the move list..
+typedef struct {
+    max_move_t moves[MAX_ENGINE_MAX_MOVESCORES];
+    max_score_t scores[MAX_ENGINE_MAX_MOVESCORES];
+    uint8_t depths[MAX_ENGINE_MAX_MOVESCORES];
+    uint8_t len;
+} max_scored_movelist_t;
 
 /// State required at all stages of an alpha-beta search
 typedef struct {
     /// Static buffer for moves that have been generated
     max_move_t moves[MAX_ENGINE_MAX_MOVES];
-    /// Stored principle variation used to aid move ordering by searching the idea developed in prior searches first.
-    /// Indexed by ply depth
-    max_move_t principle_variation_buf[MAX_ENGINE_MAX_PLY];
 } max_search_state_t;
 
 /// Complete engine state including lookup tables, settings, and chessboard representation
 typedef struct {
     /// Transposition table that caches the result of previous searches
     max_ttbl_t tt;
-    /// Board representation to make moves on and evaluate
-    max_board_t board;
     /// Search state with move buffer
     max_search_state_t search;
     /// Stack used by the board to reverse moves
     max_irreversible_t board_stack[MAX_ENGINE_MAX_PLY];
+    /// Board representation to make moves on and evaluate
+    max_board_t board;
     /// Diagonstics with node count and pruning data for benchmarking
     max_search_diagnostic_t diagnostic;
     /// Time that the engine began processing a new search at
