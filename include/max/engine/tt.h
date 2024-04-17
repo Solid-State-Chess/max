@@ -92,12 +92,19 @@ typedef struct {
     max_ttentry_t array[MAX_TTBL_LEN];
 } max_ttbl_t;
 
+/// Get an index into the array of a #max_ttbl_t that addresses a #max_ttentry_t by masking the lower
+/// bits of the hash. See the max_extract_ttbl_key() function in order to extract the rest of the key, used
+/// to determine key collisions
 MAX_INLINE_ALWAYS
 static uint32_t max_extract_tbl_index(max_zobrist_t hash) {
     static const max_zobrist_t MASK = (1 << MAX_TTBL_INDEX_BITS) - 1;
     return hash & MASK;
 }
 
+/// Get the portion of a zobrist hash left after extracting an index using the 
+/// max_extract_tbl_index() function. This key can then be used to compare the full zobrist key
+/// when probing the table to determine if two indices have collided. (Note that this does not
+/// guarantee that two positions hash to the same value)
 MAX_INLINE_ALWAYS
 static max_zobrist_key_t max_extract_ttbl_key(max_zobrist_t hash) {
     return hash >> MAX_TTBL_INDEX_BITS;

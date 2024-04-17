@@ -73,15 +73,16 @@ max_score_t max_alpha_beta(
                     }
                 } break;
                 case MAX_TTENTRY_TYPE_UPPER: {
-                    if(record->attr.depth >= depth && record->score < beta) {
+                    if(record->attr.depth >= depth && record->score <= alpha) {
                         engine->diagnostic.tt_hits += 1;
-                        beta = record->score;
+                        return alpha;
                     }
                 } break;
                 case MAX_TTENTRY_TYPE_LOWER: {
-                    if(record->attr.depth >= depth && record->score > alpha) {
+                    if(record->attr.depth >= depth && record->score > alpha && record->score >= beta) {
                         engine->diagnostic.tt_hits += 1;
                         alpha = record->score;
+                        return beta;
                     }
                 } break;
             }
