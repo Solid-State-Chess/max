@@ -1,9 +1,12 @@
 #include "max/board/board.h"
+#include "max/board/move.h"
 #include "max/board/movegen.h"
 #include "max/engine/engine.h"
 #include "max/engine/tt.h"
 #include "private.h"
 #include <stdint.h>
+
+#define MAX_TIME 15
 
 /// Amount to multiply the score of an evaluation by for the side to play
 static const max_score_t SCORE_MUL[2] = {1, -1};
@@ -63,19 +66,20 @@ max_score_t max_alpha_beta(
         if((record = max_ttbl_probe(&engine->tt, engine->board.zobrist.hash)) != NULL) {
             switch(record->attr.node_type) {
                 case MAX_TTENTRY_TYPE_PV: {
-                    if(record->attr.depth >= depth && record->score <= alpha && record->score < beta) {
+                    if(record->attr.depth >= depth && record->score >= alpha && record->score < beta) {
                         engine->diagnostic.tt_hits += 1;
+                        alpha = record->score;
                         return record->score;
                     }
                 } break;
                 case MAX_TTENTRY_TYPE_UPPER: {
-                    if(record->score < beta) {
+                    if(record->attr.depth >= depth && record->score < beta) {
                         engine->diagnostic.tt_hits += 1;
                         beta = record->score;
                     }
                 } break;
                 case MAX_TTENTRY_TYPE_LOWER: {
-                    if(record->score > alpha) {
+                    if(record->attr.depth >= depth && record->score > alpha) {
                         engine->diagnostic.tt_hits += 1;
                         alpha = record->score;
                     }
@@ -159,43 +163,88 @@ max_score_t max_alpha_beta(
     }
 }
 
-static bool max_engine_search_part(max_engine_t *engine, max_searchresult_t *search, uint8_t depth) {
+typedef struct {
+    max_score_t score;
+    uint8_t depth;
+} movescore_t;
+
+static bool max_engine_search_part(max_engine_t *engine, max_movelist_t moves, movescore_t *buf, uint8_t depth) {
     max_board_reset_stack(&engine->board);
-    max_movelist_t moves = max_movelist_new(engine->search.moves);
-    max_board_movegen_pseudo(&engine->board, &moves);
-    max_engine_sortmoves(engine, &moves);
 
-    search->best_score = INT16_MIN;
-
+    bool checkmate = true;
     for(uint8_t i = 0; i < moves.len; ++i) {
+        if(time(NULL) - engine->start > MAX_TIME) {
+            return false; 
+        }
+
         if(!max_board_move_is_valid(&engine->board, moves.moves[i])) {
             continue;
         }
+        checkmate = false;
 
         max_board_make_move(&engine->board, moves.moves[i]);
         max_score_t score = -max_alpha_beta(engine, INT16_MIN + 20, INT16_MAX - 20, moves.len, depth);
         max_board_unmake_move(&engine->board, moves.moves[i]);
-
-        if(score > search->best_score) {
-            search->best_score = score;
-            search->bestmove = moves.moves[i];
-        }
+        buf[i].score = score;
+        buf[i].depth = depth;
     }
 
-
-    return search->best_score != INT16_MIN;
+    return checkmate;
 }
 
 
-bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth) {
+bool max_engine_search(max_engine_t *engine, max_searchresult_t *search) {
     engine->diagnostic.nodes = 0;
     engine->diagnostic.futility_pruned = 0;
     engine->diagnostic.tt_hits = 0;
-    for(unsigned i = 2; i <= depth; ++i) {
-        if(!max_engine_search_part(engine, search, i)) {
+    engine->start = time(NULL);
+
+    max_searchresult_t tmp;
+
+    max_movelist_t moves = max_movelist_new(engine->search.moves);
+    max_board_movegen_pseudo(&engine->board, &moves);
+    
+    static movescore_t buf[2048];
+
+    uint8_t depth = 1;
+    while(time(NULL) - engine->start <= MAX_TIME) {
+        for(;;) {
+            bool sorted = true;
+            for(unsigned i = 0; i < moves.len - 1; ++i) {
+                if(buf[i].score < buf[i + 1].score) {
+                    movescore_t score = buf[i];
+                    max_move_t move = moves.moves[i];
+                    buf[i] = buf[i + 1];
+                    buf[i + 1] = score;
+                    moves.moves[i] = moves.moves[i + 1];
+                    moves.moves[i + 1] = move;
+                    sorted = false;
+                }
+            }
+
+            if(sorted) {
+                break;
+            }
+        }
+        if(max_engine_search_part(engine, moves, buf, depth)) {
             return false;
         }
+
+        depth += 1;
     }
+
+    uint8_t best = 0;
+    for(unsigned i = 0; i < moves.len; ++i) {
+        if(max_board_move_is_valid(&engine->board, moves.moves[i])) {
+            if(buf[i].score > buf[best].score + (10 * ((int8_t)(buf[i].depth) - (int8_t)(buf[best].depth)))) {
+                best = i;
+            }
+        }
+    }
+
+    search->best_score = buf[best].score;
+    search->bestmove = moves.moves[best];
+    search->depth = buf[best].depth;
 
     return true;
 }

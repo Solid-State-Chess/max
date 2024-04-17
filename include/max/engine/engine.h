@@ -3,6 +3,7 @@
 #include "max/engine/score.h"
 #include "max/engine/tt.h"
 #include "max/board/board.h"
+#include <time.h>
 
 #define MAX_ENGINE_MAX_MOVES (2048)
 
@@ -39,6 +40,7 @@ typedef struct {
     max_irreversible_t board_stack[MAX_ENGINE_MAX_PLY];
     /// Diagonstics with node count and pruning data for benchmarking
     max_search_diagnostic_t diagnostic;
+    time_t start;
 } max_engine_t;
 
 /// Result of a move search with diagnostic information and selected move
@@ -47,6 +49,8 @@ typedef struct {
     max_move_t bestmove;
     /// Score in centipawns of the selected move
     max_score_t best_score;
+    /// Depth that the given move was searched to
+    uint8_t depth;
 } max_searchresult_t;
 
 /// Initialize an engine with an initial chess board position
@@ -54,4 +58,4 @@ void max_engine_new(max_engine_t *engine);
 
 /// Search for the best move on this board for the side to play
 /// returns true if a valid move is available to be played, and false otherwise
-bool max_engine_search(max_engine_t *engine, max_searchresult_t *search, uint8_t depth);
+bool max_engine_search(max_engine_t *engine, max_searchresult_t *search);

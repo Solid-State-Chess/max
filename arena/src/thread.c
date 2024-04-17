@@ -18,7 +18,7 @@ int gui_engine_thread(void *_data) {
             }
             
             uint64_t start = SDL_GetTicks64();
-            if(!max_engine_search(&data->engine, &search, 6)) {
+            if(!max_engine_search(&data->engine, &search)) {
                 puts("Bot is in checkmate");
                 return 0;
             }
@@ -32,12 +32,13 @@ int gui_engine_thread(void *_data) {
 
             double mn_s = meganodes / time;
             printf(
-                "%.3f MN - %.2f s [%.2f MN/s] @ %i (%.0f TT Hits)\n",
+                "%.3f MN - %.2f s [%.2f MN/s] @ %i (%.0f TT Hits) (depth %d)\n",
                 meganodes,
                 time,
                 mn_s,
                 search.best_score,
-                tt_hits
+                tt_hits,
+                search.depth
             );
 
             max_movelist_clear(&data->moves);
