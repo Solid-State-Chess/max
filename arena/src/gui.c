@@ -200,27 +200,25 @@ int gui_state_run(gui_state_t *state) {
                                 for(unsigned i = 0; i < moves.len; ++i) {
                                     max_move_t move = moves.moves[i];
                                     if(move.from == state->grabbed.from && move.to == to) {
-                                        if(max_board_move_is_valid(&state->shared->engine.board, move)) {
-                                            if(max_move_attr_is_promote(move.attr)) {
-                                                if(!state->promote.selecting) {
-                                                    state->promote.selecting = true;
-                                                    state->promote.selected = 0;
-                                                    state->promote.promote_sq = move.to;
-                                                    goto outer;
-                                                } else if(state->promote.selected != 0) {
-                                                    move.attr = (move.attr & MAX_MOVE_CAPTURE) | state->promote.selected;
-                                                    state->promote.selecting = false;
-                                                } else {
-                                                    goto outer;
-                                                }
+                                        if(max_move_attr_is_promote(move.attr)) {
+                                            if(!state->promote.selecting) {
+                                                state->promote.selecting = true;
+                                                state->promote.selected = 0;
+                                                state->promote.promote_sq = move.to;
+                                                goto outer;
+                                            } else if(state->promote.selected != 0) {
+                                                move.attr = (move.attr & MAX_MOVE_CAPTURE) | state->promote.selected;
+                                                state->promote.selecting = false;
+                                            } else {
+                                                goto outer;
                                             }
-
-                                            max_board_make_move(&state->shared->engine.board, move);
-                                            gui_state_drop_grabbed(state);
-                                            enginedone = false;
-                                            SDL_SemPost(state->shared->lock);
-                                            break;
                                         }
+
+                                        max_board_make_move(&state->shared->engine.board, move);
+                                        gui_state_drop_grabbed(state);
+                                        enginedone = false;
+                                        SDL_SemPost(state->shared->lock);
+                                        break;
                                     }
                                 }
                             }

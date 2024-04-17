@@ -30,9 +30,6 @@ static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_scor
     max_engine_sortmoves(engine, &captures);
     for(unsigned i = 0; i < captures.len; ++i) {
         max_move_t capture = captures.moves[i];
-        if(!max_board_move_is_valid(&engine->board, capture)) {
-            continue;
-        }
 
         max_board_make_move(&engine->board, capture);
         max_score_t score = -max_quiesce(engine, -beta, -alpha, move_head + captures.len);
@@ -99,9 +96,6 @@ max_score_t max_alpha_beta(
         
         for(uint8_t i = 0; i < moves.len; ++i) {
             max_move_t move = moves.moves[i];
-            if(!max_board_move_is_valid(&engine->board, move)) {
-                continue;
-            }
 
             max_board_make_move(&engine->board, move);
             movecount += 1;
@@ -191,9 +185,6 @@ static bool max_engine_search_part(max_engine_t *engine, max_movelist_t moves, m
             return false; 
         }
 
-        if(!max_board_move_is_valid(&engine->board, moves.moves[i])) {
-            continue;
-        }
         checkmate = false;
 
         max_board_make_move(&engine->board, moves.moves[i]);

@@ -1,5 +1,6 @@
 #include "max/board/piece.h"
 #include "max/board/board.h"
+#include "movegen.h"
 
 
 MAX_HOT void max_board_pawnmovegen_quiet(
@@ -16,7 +17,7 @@ MAX_HOT void max_board_pawnmovegen_quiet(
             max_movelist_add(moves, max_move_normal(pos, up));
             max_bpos_t up2 = max_bpos_inc(up, MAX_PAWN_DIR[side]);
             if((pos & MAX_RANK_MASK) == PAWN_HOMEROW[side] && board->pieces[up2] == MAX_PIECECODE_EMPTY) {
-                max_movelist_add(moves, max_move_new(pos, up2, MAX_MOVE_DOUBLE));
+                max_board_addmove(board, moves, max_move_new(pos, up2, MAX_MOVE_DOUBLE));
             }
         }
     }
@@ -31,10 +32,10 @@ bool max_board_pawn_promotegen(
     max_move_attr_t flags
 ) {
     if(max_bpos_valid(square) && (square & MAX_RANK_MASK) == PAWN_PROMOTERANK[side]) {
-        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_KNIGHT));
-        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_BISHOP));
-        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_ROOK));
-        max_movelist_add(moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_QUEEN));
+        max_board_addmove(board, moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_KNIGHT));
+        max_board_addmove(board, moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_BISHOP));
+        max_board_addmove(board, moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_ROOK));
+        max_board_addmove(board, moves, max_move_new(pos, square, flags | MAX_MOVE_PROMOTE_QUEEN));
         return true;
     }
 
@@ -56,14 +57,14 @@ MAX_HOT void max_board_pawnmovegen_loud(
     max_bpos_t right = max_bpos_inc(up, MAX_INCREMENT_RIGHT);
     if(max_bpos_valid(right) && (board->pieces[right] & enemy_color)) {
         if(!max_board_pawn_promotegen(board, moves, pos, right, side, MAX_MOVE_CAPTURE)) {
-            max_movelist_add(moves, max_move_capture(pos, right));
+            max_board_addmove(board, moves, max_move_capture(pos, right));
         }
     }
 
     max_bpos_t left = max_bpos_inc(up, MAX_INCREMENT_LEFT);
     if(max_bpos_valid(left) && (board->pieces[left] & enemy_color)) {
         if(!max_board_pawn_promotegen(board, moves, pos, left, side, MAX_MOVE_CAPTURE)) {
-            max_movelist_add(moves, max_move_capture(pos, left));
+            max_board_addmove(board, moves, max_move_capture(pos, left));
         }
     }
     
@@ -74,7 +75,7 @@ MAX_HOT void max_board_pawnmovegen_loud(
     if(max_bpos_valid(epsquare)) {
         if(max_bpos_inc(pos, MAX_INCREMENT_RIGHT) == epsquare || max_bpos_inc(pos, MAX_INCREMENT_LEFT) == epsquare) {
             max_bpos_t moveto = max_bpos_inc(epsquare, MAX_PAWN_DIR[side]);
-            max_movelist_add(moves, max_move_new(pos, moveto, MAX_MOVE_EN_PASSANT));
+            max_board_addmove(board, moves, max_move_new(pos, moveto, MAX_MOVE_EN_PASSANT));
         }
     }
 }

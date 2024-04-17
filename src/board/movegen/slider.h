@@ -1,6 +1,7 @@
 #pragma once
 #include "max/board/board.h"
 #include "max/board/piece.h"
+#include "movegen.h"
 
 /// Generate all quiet and loud sliding moves in the given direction
 static MAX_INLINE_ALWAYS void max_slidegen_all(
@@ -16,10 +17,10 @@ static MAX_INLINE_ALWAYS void max_slidegen_all(
         if(!max_bpos_valid(pos)) { break; }
         max_piececode_t square = board->pieces[pos];
         if(square == MAX_PIECECODE_EMPTY) {
-            max_movelist_add(moves, max_move_normal(start, pos));
+            max_board_addmove(board, moves, max_move_normal(start, pos));
         } else {
             if(square & enemy) {
-                max_movelist_add(moves, max_move_capture(start, pos));
+                max_board_addmove(board, moves, max_move_capture(start, pos));
             }
             break;
         }
@@ -44,7 +45,7 @@ static MAX_INLINE_ALWAYS void max_slidegen_loud(
     }
 
     if(square & enemy) {
-        max_movelist_add(moves, max_move_capture(start, pos));
+        max_board_addmove(board, moves, max_move_capture(start, pos));
     }
 }
 

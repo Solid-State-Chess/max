@@ -1,3 +1,4 @@
+#include "movegen.h"
 #include "max/board/board.h"
 #include "max/def.h"
 #include "max/board/move.h"
@@ -27,9 +28,9 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
         if(max_bpos_valid(dest)) {                                          \
             max_piececode_t piece = board->pieces[dest];                    \
             if(piece == MAX_PIECECODE_EMPTY) {                              \
-                max_movelist_add(moves, max_move_normal((from), dest));     \
+                max_board_addmove(board, moves, max_move_normal((from), dest));     \
             } else if(piece & enemy_color) {                                \
-                max_movelist_add(moves, max_move_capture((from), dest));    \
+                max_board_addmove(board, moves, max_move_capture((from), dest));    \
             }                                                               \
         }                                                                   \
     } while(0)
@@ -84,7 +85,7 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
                 max_bpos_inc(kingpos, MAX_INCREMENT_RIGHT * 3),
             };
                     if(board->pieces[between[0]] == MAX_PIECECODE_EMPTY && board->pieces[between[1]] == MAX_PIECECODE_EMPTY && board->pieces[between[2]] == (MAX_PIECECODE_ROOK | color)) {
-                max_movelist_add(moves, max_move_new(kingpos, between[1], MAX_MOVE_KCASTLE));
+                max_board_addmove(board, moves, max_move_new(kingpos, between[1], MAX_MOVE_KCASTLE));
             }
         }
  
@@ -103,7 +104,7 @@ void max_board_movegen_pseudo(max_board_t *const board, max_movelist_t *const mo
                 board->pieces[between[2]] == MAX_PIECECODE_EMPTY &&
                 board->pieces[between[3]] == (MAX_PIECECODE_ROOK | color)
             ) {
-                max_movelist_add(moves, max_move_new(kingpos, between[1], MAX_MOVE_QCASTLE));
+                max_board_addmove(board, moves, max_move_new(kingpos, between[1], MAX_MOVE_QCASTLE));
             }
         }
     }
@@ -129,7 +130,7 @@ void max_board_capturegen_pseudo(max_board_t *const board, max_movelist_t *const
         if(max_bpos_valid(dest)) {                                          \
             max_piececode_t piece = board->pieces[dest];                    \
             if(piece & enemy_color) {                                       \
-                max_movelist_add(moves, max_move_capture((from), dest));    \
+                max_board_addmove(board, moves, max_move_capture((from), dest));    \
             }                                                               \
         }                                                                   \
     } while(0)
