@@ -1,13 +1,12 @@
 #pragma once
 
+#include "max/engine/score.h"
+#include "max/engine/tt.h"
 #include "max/board/board.h"
 
 #define MAX_ENGINE_MAX_MOVES (2048)
 
 #define MAX_ENGINE_MAX_PLY (24)
-
-/// A signed score as the result of a board evaluation measured in centipawns
-typedef int16_t max_score_t;
 
 /// Diagnostic information for a best-move search
 typedef struct {
@@ -28,6 +27,8 @@ typedef struct {
 
 /// Complete engine state including lookup tables, settings, and chessboard representation
 typedef struct {
+    /// Transposition table that caches the result of previous searches
+    max_ttbl_t tt;
     /// Board representation to make moves on and evaluate
     max_board_t board;
     /// Search state with move buffer
