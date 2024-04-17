@@ -214,7 +214,7 @@ static max_score_t max_evaluate_side(max_board_t *board, max_pieces_t *side, uns
     return material +
         position +
         max_evaluate_stacked_pawns(board, side) +
-        max_evaluate_slider_control(board, side) +
+        //max_evaluate_slider_control(board, side) +
         max_evaluate_bishop_pair(board, side);
 }
 

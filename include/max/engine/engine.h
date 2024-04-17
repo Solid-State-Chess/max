@@ -14,6 +14,8 @@ typedef struct {
     uint64_t nodes;
     /// No. of nodes ignored due to futility pruning
     uint64_t futility_pruned;
+    /// Number of transposition table hits
+    uint64_t tt_hits;
 } max_search_diagnostic_t;
 
 /// State required at all stages of an alpha-beta search

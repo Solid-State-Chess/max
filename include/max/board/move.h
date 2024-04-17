@@ -76,3 +76,7 @@ MAX_INLINE_ALWAYS max_move_t max_move_normal(max_bpos_t from, max_bpos_t to) {
 MAX_INLINE_ALWAYS max_move_t max_move_capture(max_bpos_t from, max_bpos_t to) {
     return max_move_new(from, to, MAX_MOVE_CAPTURE);
 }
+
+MAX_INLINE_ALWAYS bool max_move_equal(max_move_t m1, max_move_t m2) {
+    return m1.from == m2.from && m1.to == m2.to && m1.attr == m2.attr;
+}

@@ -67,6 +67,7 @@ static void max_board_init_lists(max_board_t *const board) {
 
 /// Initialize zobrist hash elements with randomly generated numbers for each piece on each square
 static void max_board_init_zobrist(max_board_t *const board) {
+    board->zobrist.seed = 2192711094;
     for(unsigned i = 0; i < 12; ++i) {
         for(unsigned j = 0; j < 64; ++j) {
             MAX_ZOBRIST_PIECEPOS[i][j] = max_zobrist_rand(board);

@@ -24,6 +24,7 @@ int gui_engine_thread(void *_data) {
             }
             double time = (double)(SDL_GetTicks64() - start) / 1000;
             double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
+            double tt_hits = (double)(data->engine.diagnostic.tt_hits);
             
             if(search.bestmove.from != search.bestmove.to) {
                 max_board_make_move(&data->engine.board, search.bestmove);
@@ -31,11 +32,12 @@ int gui_engine_thread(void *_data) {
 
             double mn_s = meganodes / time;
             printf(
-                "%.3f MN - %.2f s [%.2f MN/s] @ %i\n",
+                "%.3f MN - %.2f s [%.2f MN/s] @ %i (%.0f TT Hits)\n",
                 meganodes,
                 time,
                 mn_s,
-                search.best_score
+                search.best_score,
+                tt_hits
             );
 
             max_movelist_clear(&data->moves);
