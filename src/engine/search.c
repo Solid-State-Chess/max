@@ -111,7 +111,7 @@ max_score_t max_alpha_beta(
             if(score >= beta) {
                 if(record) {
                     *record = (max_ttentry_t){
-                        .key_part = max_extract_ttbl_key(engine->board.zobrist.hash),
+                        .key_part = max_ttbl_extract_key(engine->board.zobrist.hash),
                         .score = score,
                         .move = move,
                         .attr = (max_ttentry_attr_t){
@@ -143,7 +143,7 @@ max_score_t max_alpha_beta(
             if(record) {
                 if(local_alpha >= alpha) {
                     *record = (max_ttentry_t){
-                        .key_part = max_extract_ttbl_key(engine->board.zobrist.hash),
+                        .key_part = max_ttbl_extract_key(engine->board.zobrist.hash),
                         .score = alpha,
                         .move = *best,
                         .attr = (max_ttentry_attr_t){
@@ -155,7 +155,7 @@ max_score_t max_alpha_beta(
                     };
                 } else {
                     *record = (max_ttentry_t){
-                        .key_part = max_extract_ttbl_key(engine->board.zobrist.hash),
+                        .key_part = max_ttbl_extract_key(engine->board.zobrist.hash),
                         .score = local_alpha,
                         .move = *best,
                         .attr = (max_ttentry_attr_t){
