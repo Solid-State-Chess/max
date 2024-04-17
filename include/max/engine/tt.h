@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/// \section transposition Transposition Table
+/// \defgroup transposition Transposition Table
 /// Definitions for types that utilize Zobrist hash keys to index a cache that allows the
 /// engine to 'remember' the results of previous searches. The size of both the cache and
 /// the zobrist hash are essential to reducing hash collisions and index collisions.
