@@ -6,7 +6,7 @@
 #include "private.h"
 #include <stdint.h>
 
-#define MAX_TIME 15
+#define MAX_TIME 25
 
 /// Amount to multiply the score of an evaluation by for the side to play
 static const max_score_t SCORE_MUL[2] = {1, -1};
@@ -87,6 +87,8 @@ max_score_t max_alpha_beta(
             }
         }
 
+        record = max_ttbl_slot(&engine->tt, engine->board.zobrist.hash, engine->board.ply, depth);
+
 
         max_movelist_t moves = max_movelist_new(engine->search.moves + move_head);
         max_board_movegen_pseudo(&engine->board, &moves);
@@ -106,16 +108,19 @@ max_score_t max_alpha_beta(
             max_board_unmake_move(&engine->board, move);
             
             if(score >= beta) {
-                max_ttbl_insert(
-                    &engine->tt,
-                    engine->board.zobrist.hash,
-                    max_ttentry_betacutoff(
-                        engine->board.zobrist.hash,
-                        beta,
-                        move,
-                        depth
-                    )
-                );
+                if(record) {
+                    *record = (max_ttentry_t){
+                        .key_part = max_extract_ttbl_key(engine->board.zobrist.hash),
+                        .score = score,
+                        .move = move,
+                        .attr = (max_ttentry_attr_t){
+                            .age = engine->board.ply,
+                            .depth = depth,
+                            .gravestone = false,
+                            .node_type = MAX_TTENTRY_TYPE_LOWER,
+                        }
+                    };
+                } 
                 return beta;
             }
             if(score > alpha) {
@@ -127,33 +132,41 @@ max_score_t max_alpha_beta(
                 best = &moves.moves[i];
             }
 
+            if(time(NULL) - engine->start > MAX_TIME) {
+                return alpha; 
+            }
+
         }
         
         if(movecount > 0) {
-            if(local_alpha >= alpha) {
-                max_ttbl_insert(
-                    &engine->tt,
-                    engine->board.zobrist.hash,
-                    max_ttentry_pv(
-                        engine->board.zobrist.hash,
-                        alpha,
-                        *best,
-                        depth
-                    )
-                );
-
-            } else {
-                max_ttbl_insert(
-                    &engine->tt,
-                    engine->board.zobrist.hash,
-                    max_ttentry_all(
-                        engine->board.zobrist.hash,
-                        local_alpha,
-                        *best,
-                        depth
-                    )
-                );
+            if(record) {
+                if(local_alpha >= alpha) {
+                    *record = (max_ttentry_t){
+                        .key_part = max_extract_ttbl_key(engine->board.zobrist.hash),
+                        .score = alpha,
+                        .move = *best,
+                        .attr = (max_ttentry_attr_t){
+                            .age = engine->board.ply,
+                            .depth = depth,
+                            .gravestone = false,
+                            .node_type = MAX_TTENTRY_TYPE_PV,
+                        }
+                    };
+                } else {
+                    *record = (max_ttentry_t){
+                        .key_part = max_extract_ttbl_key(engine->board.zobrist.hash),
+                        .score = local_alpha,
+                        .move = *best,
+                        .attr = (max_ttentry_attr_t){
+                            .age = engine->board.ply,
+                            .depth = depth,
+                            .gravestone = false,
+                            .node_type = MAX_TTENTRY_TYPE_UPPER,
+                        }
+                    };
+                }
             }
+
             return alpha;
         } else if(max_check_exists(max_board_state(&engine->board)->check)) {
             return -(MAX_KING_VALUE + depth);
@@ -208,24 +221,6 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search) {
 
     uint8_t depth = 1;
     while(time(NULL) - engine->start <= MAX_TIME) {
-        for(;;) {
-            bool sorted = true;
-            for(unsigned i = 0; i < moves.len - 1; ++i) {
-                if(buf[i].score < buf[i + 1].score) {
-                    movescore_t score = buf[i];
-                    max_move_t move = moves.moves[i];
-                    buf[i] = buf[i + 1];
-                    buf[i + 1] = score;
-                    moves.moves[i] = moves.moves[i + 1];
-                    moves.moves[i + 1] = move;
-                    sorted = false;
-                }
-            }
-
-            if(sorted) {
-                break;
-            }
-        }
         if(max_engine_search_part(engine, moves, buf, depth)) {
             return false;
         }
@@ -236,7 +231,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search) {
     uint8_t best = 0;
     for(unsigned i = 0; i < moves.len; ++i) {
         if(max_board_move_is_valid(&engine->board, moves.moves[i])) {
-            if(buf[i].score > buf[best].score + (10 * ((int8_t)(buf[i].depth) - (int8_t)(buf[best].depth)))) {
+            if(buf[i].score > buf[best].score + (30 * ((int8_t)(buf[i].depth) - (int8_t)(buf[best].depth)))) {
                 best = i;
             }
         }

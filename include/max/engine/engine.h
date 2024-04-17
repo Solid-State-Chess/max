@@ -40,6 +40,7 @@ typedef struct {
     max_irreversible_t board_stack[MAX_ENGINE_MAX_PLY];
     /// Diagonstics with node count and pruning data for benchmarking
     max_search_diagnostic_t diagnostic;
+    /// Time that the engine began processing a new search at
     time_t start;
 } max_engine_t;
 

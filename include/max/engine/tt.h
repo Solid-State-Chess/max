@@ -49,6 +49,7 @@ typedef struct {
     max_ttentry_type_t node_type : 2;
     /// Gravestone marker that is true for all transposition table entries that do not yet have a value.
     bool gravestone : 1;
+    uint8_t age;
 } max_ttentry_attr_t;
 
 #pragma pack(push)
@@ -85,20 +86,37 @@ typedef struct {
 /// Transposition table storing the results of previous analysis, used to accelerate searching
 /// massively and to enable iterative deepening
 typedef struct {
+    /// Buffer sized to fit as many elements as can be addressed with #MAX_TTBL_INDEX_BITS bits.
+    /// The size of this array is essential to ensuring that iterative deepening can be most efficient -
+    /// with a larger table we get fewer index collisions and thus can store the results of more analyses to use later.
     max_ttentry_t array[MAX_TTBL_LEN];
 } max_ttbl_t;
+
+MAX_INLINE_ALWAYS
+static uint32_t max_extract_tbl_index(max_zobrist_t hash) {
+    static const max_zobrist_t MASK = (1 << MAX_TTBL_INDEX_BITS) - 1;
+    return hash & MASK;
+}
+
+MAX_INLINE_ALWAYS
+static max_zobrist_key_t max_extract_ttbl_key(max_zobrist_t hash) {
+    return hash >> MAX_TTBL_INDEX_BITS;
+}
 
 
 /// Set all entries in the given transposition table to a gravestone value indicating that
 /// there is no entry at the given hash.
 void max_ttbl_new(max_ttbl_t *array);
 
+/// Probe the transposition table for an entry that corresponds to the given position.
+/// \return NULL if no entry is found for the given hash, or a #max_ttentry_t
+/// storing the result of a previous analysis stored with max_ttbl_slot()
 max_ttentry_t* max_ttbl_probe(max_ttbl_t *tbl, max_zobrist_t hash);
 
-void max_ttbl_insert(max_ttbl_t *tbl, max_zobrist_t hash, max_ttentry_t entry);
-
-max_ttentry_t max_ttentry_pv(max_zobrist_t pos, max_score_t score, max_move_t move, uint8_t depth);
-max_ttentry_t max_ttentry_betacutoff(max_zobrist_t pos, max_score_t score, max_move_t move, uint8_t depth);
-max_ttentry_t max_ttentry_all(max_zobrist_t pos, max_score_t score, max_move_t move, uint8_t depth);
+/// Get a writable slot for the given position hash.
+/// Depending on the values of #ply and #depth, this pointer may be NULL to
+/// indicate that no entry should be written to the slot because a better entry
+/// already exists there.
+max_ttentry_t* max_ttbl_slot(max_ttbl_t *tbl, max_zobrist_t hash, uint8_t ply, uint8_t depth);
 
 //@}
