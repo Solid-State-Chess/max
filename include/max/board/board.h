@@ -90,6 +90,15 @@ MAX_INLINE_ALWAYS void max_board_reset_stack(max_board_t *const board) {
 /// determines how many moves can be unmake between state resets
 void max_board_new(max_board_t *const board, max_irreversible_t *ply_buf);
 
+/// Remove all pieces from the given board and reset the ply counter and the state stack.
+/// Note that this board is INVALID for the majority of move generation and engine evaluation functions,
+/// as it is assumed that there will always be a white and black king on the board.
+void max_board_clear(max_board_t *const board);
+
+/// Clear the given #max_board_t and add all white and black pieces to their starting squares.
+/// Resets the ply counter to 0 (white to move), and empties any captures made or state stack plates pushed.
+void max_board_startpos(max_board_t *const board);
+
 /// Make the given move on a chessboard, with NO CHECK for move validity (assumes valid moves taken from max_movegen)
 void max_board_make_move(max_board_t *const board, max_move_t move);
 
@@ -101,6 +110,13 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move);
 /// Most of these functions do not have a specific purpose in mind - they are used
 /// for all parts of the engine and move generation.
 /// @{
+
+
+/// Get a #max_side_t for the given piece.
+/// If the piece is black, this will return 1 to index two-element side arrays.
+MAX_INLINE_ALWAYS max_side_t max_board_piece_side(max_piececode_t piece) {
+    return (piece & MAX_PIECECODE_BLACK) >> MAX_PIECECODE_BLACK_OFFSET;
+}
 
 /// Get a #max_side_t representing the side that will play a move this ply
 MAX_INLINE_ALWAYS max_side_t max_board_friendly_side(max_board_t *board) {
@@ -165,5 +181,8 @@ MAX_INLINE_ALWAYS max_plyplate_t max_kcastle_flag(uint16_t ply) {
 
 /// Print the given chessboard to the console
 void max_board_debugprint(max_board_t const* board);
+
+/// Print all pieces and their positions
+void max_board_debugprint_list(max_pieces_t *pieces);
 
 #endif

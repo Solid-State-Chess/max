@@ -75,6 +75,7 @@ typedef struct {
 
 /// Number of bits used to index the #max_ttbl_t::array field.
 /// Also determines the size of the array (2^#MAX_TTBL_INDEX_BITS).
+/// \see max_ttbl_extract_index()
 #define MAX_TTBL_INDEX_BITS (15)
 
 /// Power-of-two length of the #max_ttbl_t::array field.

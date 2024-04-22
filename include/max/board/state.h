@@ -9,6 +9,7 @@
 
 #pragma once
 #include "max/board/piece.h"
+#include "max/board/zobrist.h"
 #include "max/def.h"
 
 /// A stack containing all pieces that have been captured over the course of the game.
@@ -109,6 +110,9 @@ typedef struct {
 typedef struct {
     /// Data for if and where check is delivered from for the side to play
     max_check_t check;
+    /// Hash of the current position.
+    /// Used to determine draw by threefold repetitions.
+    max_zobrist_t pos;
     /// Castle rights and en passant state packed into one byte
     max_plyplate_t packed_state;
 } max_irreversible_t;

@@ -67,12 +67,44 @@ void max_board_debugprint(max_board_t const* board) {
     
 
     puts  ("===========STATUS=========\n");
+    printf("Zobrist Hash: %0X\n", board->zobrist.hash);
     puts  ("       K-Castle   Q-Castle\n");
     printf("White:    %c          %c  \n", (plate & max_kcastle_flag(0)) ? 'Y' : 'N', (plate & max_qcastle_flag(0)) ? 'Y' : 'N');
     printf("Black:    %c          %c  \n", (plate & max_kcastle_flag(1)) ? 'Y' : 'N', (plate & max_qcastle_flag(1)) ? 'Y' : 'N');
     print_checker(state->check.attacks[0]);
     print_checker(state->check.attacks[1]);
     
+}
+
+static void max_board_print_positions(max_piecelist_t *list) {
+    for(uint8_t i = 0; i < list->len; ++i) {
+        printf("%c%c", MAX_BPOS_FORMAT(list->pos[i]));
+        if(i != list->len - 1) {
+            fputs(" | ", stdout);
+        }
+    }
+}
+
+
+void max_board_debugprint_list(max_pieces_t *pieces) {
+    puts("PAWNS: ");
+    max_board_print_positions((max_piecelist_t*)&pieces->pawns);
+    putchar('\n');
+    puts("KNIGHTS: ");
+    max_board_print_positions((max_piecelist_t*)&pieces->knights);
+    putchar('\n');
+    puts("BISHOPS: ");
+    max_board_print_positions((max_piecelist_t*)&pieces->bishops);
+    putchar('\n');
+    puts("ROOKS: ");
+    max_board_print_positions((max_piecelist_t*)&pieces->rooks);
+    putchar('\n');
+    puts("QUEENS: ");
+    max_board_print_positions((max_piecelist_t*)&pieces->queens);
+    putchar('\n');
+    puts("KINGS: ");
+    max_board_print_positions((max_piecelist_t*)&pieces->king);
+    putchar('\n');
 }
 
 #endif

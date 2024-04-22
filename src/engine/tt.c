@@ -23,7 +23,7 @@ max_ttentry_t* max_ttbl_slot(max_ttbl_t *tbl, max_zobrist_t hash, uint8_t ply, u
 
     max_ttentry_t *slot = &tbl->array[max_ttbl_extract_index(hash)];
     if(!slot->attr.gravestone) {
-        if(slot->attr.age - ply >= 4 || slot->attr.depth < depth) {
+        if(slot->attr.age - ply >= 3 || slot->attr.depth < depth) {
             return slot;
         } else {
             return NULL;

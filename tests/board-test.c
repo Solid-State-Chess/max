@@ -33,6 +33,11 @@ static bool board_same(max_board_t *a, max_board_t *b) {
                     if(al->pos[k] == bl->pos[l]) { match = true; break; }
                 }
                 if(!match) {
+                    puts("PIECE LIST DIFFERS");
+                    puts("=====WHITE=====");
+                    max_board_debugprint_list(&a->sides[i]);
+                    puts("=====BLACK=====");
+                    max_board_debugprint_list(&b->sides[i]);
                     return false;
                 }
             }
@@ -146,10 +151,6 @@ size_t perft(max_board_t *board, max_movelist_t moves, max_move_t *history, unsi
                 }
             }
 
-            /*if(count == 0) {
-                max_board_debugprint(board);
-            }*/
-
             return count;
 
         } break;
@@ -165,11 +166,12 @@ int board_tests(void) {
 
     max_board_t board;
     max_board_new(&board, stack);
+    max_board_startpos(&board);
 
     max_board_t original;
     memcpy(&original, &board, sizeof(max_board_t));
 
-    //max_board_debugprint(&board);
+    max_board_debugprint(&board);
     
     max_movelist_t moves = max_movelist_new(buf);
     max_move_t history[10];

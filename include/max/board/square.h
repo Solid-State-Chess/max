@@ -99,6 +99,9 @@ MAX_INLINE_ALWAYS bool max_bpos_valid(max_bpos_t pos) { return (pos & MAX_BPOS_I
 /// a few more operations required to get the lookup table index.
 MAX_INLINE_ALWAYS uint8_t max_bpos_compress(max_bpos_t pos) { return (pos + (pos & 7)) >> 1; }
 
+/// Decompress a board position stored in the range [0, 64) into a 0x88 board index.
+MAX_INLINE_ALWAYS max_bpos_t max_bpos_decompress(uint8_t compressed) { return compressed + (compressed & ~7); }
+
 /// Get the rank between 0 and 7 of the given position
 MAX_INLINE_ALWAYS uint8_t max_bpos_rank(max_bpos_t pos) { return pos >> 4; }
 

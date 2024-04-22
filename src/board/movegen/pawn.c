@@ -14,7 +14,7 @@ MAX_HOT void max_board_pawnmovegen_quiet(
 
     if(max_bpos_valid(up)) {
         if((up & MAX_RANK_MASK) != PAWN_PROMOTERANK[side] && board->pieces[up] == MAX_PIECECODE_EMPTY) {
-            max_movelist_add(moves, max_move_normal(pos, up));
+            max_board_addmove(board, moves, max_move_normal(pos, up));
             max_bpos_t up2 = max_bpos_inc(up, MAX_PAWN_DIR[side]);
             if((pos & MAX_RANK_MASK) == PAWN_HOMEROW[side] && board->pieces[up2] == MAX_PIECECODE_EMPTY) {
                 max_board_addmove(board, moves, max_move_new(pos, up2, MAX_MOVE_DOUBLE));

@@ -210,7 +210,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search) {
     
     static movescore_t buf[2048];
 
-    uint8_t depth = 1;
+    uint8_t depth = 4;
     while(time(NULL) - engine->start <= MAX_TIME) {
         if(max_engine_search_part(engine, moves, buf, depth)) {
             return false;

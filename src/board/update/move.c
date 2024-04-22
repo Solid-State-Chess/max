@@ -121,6 +121,7 @@ void max_board_make_move(max_board_t *const board, max_move_t move) {
     board->ply += 1;
     max_board_update_check(board, move, &state.check);
     state.packed_state = state_plate;
+    state.pos = board->zobrist.hash;
     max_irreversible_stack_push(&board->stack, state);
     
     #ifdef MAX_SANITY
