@@ -19,6 +19,8 @@ typedef struct {
     /// Seed for the PRNG algorithm. This can be set in order to improve hash collision
     /// performance through trial and error
     max_zobrist_t seed;
+    /// Variables used for randomly generated numbers
+    uint64_t a,b,c,d;
 } max_zobrist_state_t;
 
 /// Zobrist elements assigned for a piece at any of the 64 squares.
