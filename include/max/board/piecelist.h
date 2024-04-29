@@ -14,9 +14,9 @@
 /// These allow efficient lookups during move generation and material / positional evaluation.
 /// @{
 
-/// Simple wrapper structure over a uint8_t meant to enforce more strict typechecking.
+/// Simple wrapper typedef over a uint8_t.
 /// This type is an index into a #max_loclist_t
-typedef struct { uint8_t v; } max_plidx_t;
+typedef uint8_t max_plidx_t;
 
 /// A piece list storing the locations of one piece type indexed by #max_plidx_t.
 /// This typedef has a variable size, and is thus only operated on by pointers.

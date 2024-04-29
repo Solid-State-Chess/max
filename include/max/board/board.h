@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include "max/board/capturelist.h"
 #include "max/board/loc.h"
 #include "max/board/piececode.h"
 #include "max/board/piecelist.h"
@@ -22,9 +23,14 @@
 /// The additional memory and complexity costs of the redundant structures are heavily outweighed by the gains
 /// in efficiency during evaluation and move generation.
 ///
+/// \section irrev Irreversible State
 /// In addition to the piece bookkeeping, we also track certain irreversible state of the game - castle rights,
-/// en passant availability, captures made, and the last two positions reached to determine draws by threefold repetition.
+/// en passant availability, captures made, and the last two positions reached to determine draws by threefold repetition. 
 /// 
+/// Two data structures are responsible for the bookkeeping required to make and unmake moves that change the state irreversibly.
+/// The capture stack stores the type and color code of each captured piece, enabling capture moves to be unmade by popping from the stack.
+/// In addition to this, a second stack maintains irreversible state computed for each ply - castle rights, en passant validity, check attack
+/// data, and a unique zobrist hash of the position.
 /// 
 /// [1] https://pure.uvt.nl/ws/files/1098572/Proefschrift_Fritz_Reul_170609.pdf
 typedef struct {
@@ -35,7 +41,7 @@ typedef struct {
     /// during all operations on the board.
     max_piececode_t pieces[MAX_0x88_LEN];
     
-    /// A reverse map storing the list position of the piece on each square indexed by a 0x88 board location.
+    /// A reverse map storing the list index of the piece on each square indexed by a 0x88 board location.
     /// These indices map into either the #white or #black piece lists depending on the color and type of the piececode
     /// in #pieces located at the same square.
     /// This structure must be kept in sync with the #pieces array and the respective piece lists for each side.
@@ -52,6 +58,9 @@ typedef struct {
 
         max_plist_t lists[2];
     };
+    
+    /// A stack of all captures made over the course of the game, enabling move unmaking for capture moves.
+    max_captures_t captures;
     
     /// Counter of the number of plies (halfmoves) that have been played so far.
     /// This counter is also used to derive the current #max_side_t index by bitwise ANDing
