@@ -167,13 +167,16 @@ int board_tests(void) {
 
     max_board_t board;
     max_board_new(&board, stack);
-    max_board_startpos(&board);
+    max_board_clear(&board);
     char *error;
-    if(!max_board_parse_from_fen(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w", &error)) {
+    max_board_debugprint(&board);
+    if(!max_board_parse_from_fen(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ", &error)) {
         puts("FAILED TO PARSE FEN");
         printf("Failed with %s left\n", error);
         return -1;
     }
+    max_board_debugprint(&board);
+    return -1;
 
     max_board_t original;
     memcpy(&original, &board, sizeof(max_board_t));
