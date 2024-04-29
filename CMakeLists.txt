@@ -7,6 +7,7 @@ project(
     LANGUAGES C
 )
 
+option(MAX_PACKED_MOVE "Enable 2 byte move representation instead of 3 bytes" OFF)
 option(MAX_TESTS   "Enable max-tests compilation" ON)
 option(MAX_DOC     "Enable Doxygen documentation build" OFF)
 option(MAX_ASSERTS "Enable internal self-check assertions for debugging" OFF)
@@ -41,6 +42,7 @@ target_compile_definitions(
     PUBLIC
     $<IF:$<STREQUAL:${MAX_ASSERTS},ON>,MAX_ASSERTS,>
     $<IF:$<STREQUAL:${MAX_CONSOLE},ON>,MAX_CONSOLE,>
+    $<IF:$<STREQUAL:${MAX_PACKED_MOVE},ON>,MAX_PACKED_MOVE,>
 )
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)
