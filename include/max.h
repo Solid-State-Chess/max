@@ -6,10 +6,8 @@
 /// megabytes large transposition tables.
 ///
 /// \section getting-started Getting Started
-/// \see max_engine_new()
+/// 
 
 
-#include "max/engine/engine.h"
 
-/// Initialize all static tables and etc.
-void max_init_statics(void);
+
