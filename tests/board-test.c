@@ -1,6 +1,7 @@
+#define MAX_CONSOLE
+#include "max/fen.h"
 #include <stdlib.h>
 #include <string.h>
-#define MAX_CONSOLE
 #include "max.h"
 #include "max/board/piece.h"
 #include "max/board/square.h"
@@ -167,6 +168,12 @@ int board_tests(void) {
     max_board_t board;
     max_board_new(&board, stack);
     max_board_startpos(&board);
+    char *error;
+    if(!max_board_parse_from_fen(&board, "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w", &error)) {
+        puts("FAILED TO PARSE FEN");
+        printf("Failed with %s left\n", error);
+        return -1;
+    }
 
     max_board_t original;
     memcpy(&original, &board, sizeof(max_board_t));

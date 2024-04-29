@@ -36,31 +36,43 @@ static bool max_board_parse_fen_piece(max_board_t *board, char code, uint8_t ran
     return true;
 }
 
-static char* max_board_parse_fen_rank(max_board_t *board, char *rankstr, uint8_t rank) {
-    for(uint8_t i = 0; i < 8;) {
-        if(isdigit(*rankstr)) {
-            i += *rankstr - '1';
+static int max_board_parse_fen_rank(max_board_t *board, char *rankstr, uint8_t rank, char **error) {
+    uint8_t file = 0;
+    uint8_t i  = 0;
+    while(file < 8) {
+        if(isdigit(rankstr[i])) {
+            file += rankstr[i] - '1';
+            i += 1;
             continue;
         }
 
-        if(!max_board_parse_fen_piece(board, rankstr[i], rank, i)) { return rankstr; }
+        if(!max_board_parse_fen_piece(board, *rankstr, rank, file)) {
+            *error = rankstr;
+            return -1;
+        }
+
         i += 1;
-        rankstr += 1;
+        file += 1;
     }
 
-    return rankstr;
+    return i;
 }
 
-bool max_board_parse_from_fen(max_board_t *board, char *str) {
+bool max_board_parse_from_fen(max_board_t *board, char *str, char **error) {
+    *error = NULL;
     max_board_clear(board);
 
     for(uint8_t rank = 0; rank < 8; ++rank) {
-        if((str  = max_board_parse_fen_rank(board, str, rank)) == NULL) {
+        int inc = 0;
+        if((inc = max_board_parse_fen_rank(board, str, rank, error)) < 0) {
             return false;
         }
 
+        str += inc;
+
         if(rank != 0 && rank != 7) {
             if(*str != '/') {
+                *error = str;
                 return false;
             }
             str += 1;
@@ -71,7 +83,7 @@ bool max_board_parse_from_fen(max_board_t *board, char *str) {
     switch(*str) {
         case 'w': board->ply = 0; break;
         case 'b': board->ply = 1; break;
-        default: return false;
+        default: *error = str; return false;
     }
 
     return true;
