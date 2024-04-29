@@ -74,12 +74,11 @@ void max_board_startpos(max_board_t *const board) {
     
     max_board_add_piece(board, &board->white, MAX_E1, MAX_PIECECODE_KING | MAX_PIECECODE_WHITE);
     max_board_add_piece(board, &board->black, MAX_E8, MAX_PIECECODE_KING | MAX_PIECECODE_BLACK);
-
 }
 
 /// Initialize zobrist hash elements with randomly generated numbers for each piece on each square
 static void max_board_init_zobrist(max_board_t *const board) {
-    board->zobrist.b = board->zobrist.c = board->zobrist.d = 0x69420B34;
+    board->zobrist.b = board->zobrist.c = board->zobrist.d = 0xa9a8ce381dca506c;
     for (uint8_t i = 0; i < 20; ++i) {
         max_zobrist_rand((max_board_t*)&board);
     }

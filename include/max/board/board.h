@@ -111,6 +111,19 @@ void max_board_unmake_move(max_board_t *const board, max_move_t move);
 /// for all parts of the engine and move generation.
 /// @{
 
+/// Check if the side to move can force a draw by threefold repetition
+MAX_INLINE_ALWAYS bool max_board_threefold_draw(max_board_t *const board) {
+    if(board->stack.head >= 2) {
+        max_zobrist_t p1, p2, p3;
+        p1 = board->stack.array[board->stack.head].pos;
+        p2 = board->stack.array[board->stack.head - 1].pos;
+        p3 = board->stack.array[board->stack.head - 2].pos;
+        return p1 == p2 && p2 == p3;
+    } else {
+        return false;
+    }
+}
+
 
 /// Get a #max_side_t for the given piece.
 /// If the piece is black, this will return 1 to index two-element side arrays.
@@ -180,7 +193,7 @@ MAX_INLINE_ALWAYS max_plyplate_t max_kcastle_flag(uint16_t ply) {
 #if defined(MAX_CONSOLE)
 
 /// Print the given chessboard to the console
-void max_board_debugprint(max_board_t const* board);
+void max_board_debugprint(max_board_t *board);
 
 /// Print all pieces and their positions
 void max_board_debugprint_list(max_pieces_t *pieces);

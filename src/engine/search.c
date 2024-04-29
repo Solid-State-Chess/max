@@ -6,7 +6,7 @@
 #include "private.h"
 #include <stdint.h>
 
-#define MAX_TIME 25
+#define MAX_TIME 15
 
 /// Amount to multiply the score of an evaluation by for the side to play
 static const max_score_t SCORE_MUL[2] = {1, -1};
@@ -21,7 +21,7 @@ static max_score_t max_quiesce(max_engine_t *engine, max_score_t alpha, max_scor
         alpha = standing;
     }
 
-    if(engine->board.stack.plies_since_reset >= (MAX_ENGINE_MAX_PLY - 1)) {
+    if(engine->board.stack.head >= (MAX_ENGINE_MAX_PLY - 1)) {
         return standing;
     }
 
@@ -57,6 +57,11 @@ max_score_t max_alpha_beta(
     if(depth == 0) {
         return max_quiesce(engine, alpha, beta, move_head);
     } else {
+        if(max_board_threefold_draw(&engine->board)) {
+            puts("TRIREP");
+            return 0;
+        }
+
         max_score_t local_alpha = INT16_MIN;
         max_move_t *best = NULL;
         max_ttentry_t *record;
@@ -84,10 +89,8 @@ max_score_t max_alpha_beta(
                 } break;
             }
         }
-
+        
         record = max_ttbl_slot(&engine->tt, engine->board.zobrist.hash, engine->board.ply, depth);
-
-
         max_movelist_t moves = max_movelist_new(engine->search.moves + move_head);
         max_board_movegen_pseudo(&engine->board, &moves);
         max_engine_sortmoves(engine, &moves);
@@ -210,7 +213,7 @@ bool max_engine_search(max_engine_t *engine, max_searchresult_t *search) {
     
     static movescore_t buf[2048];
 
-    uint8_t depth = 4;
+    uint8_t depth = 3;
     while(time(NULL) - engine->start <= MAX_TIME) {
         if(max_engine_search_part(engine, moves, buf, depth)) {
             return false;

@@ -37,7 +37,7 @@ static void print_checker(max_checker_t check) {
     }
 }
 
-void max_board_debugprint(max_board_t const* board) {
+void max_board_debugprint(max_board_t * board) {
     uint8_t rank = 8;
     while(rank != 0) {
         printf("%d | ", rank);
@@ -68,7 +68,8 @@ void max_board_debugprint(max_board_t const* board) {
 
     puts  ("===========STATUS=========\n");
     printf("Zobrist Hash: %0X\n", board->zobrist.hash);
-    puts  ("       K-Castle   Q-Castle\n");
+    printf("Stack Plates: %d\n", board->stack.head + 1);
+    puts  ("       K-Castle   Q-Castle");
     printf("White:    %c          %c  \n", (plate & max_kcastle_flag(0)) ? 'Y' : 'N', (plate & max_qcastle_flag(0)) ? 'Y' : 'N');
     printf("Black:    %c          %c  \n", (plate & max_kcastle_flag(1)) ? 'Y' : 'N', (plate & max_qcastle_flag(1)) ? 'Y' : 'N');
     print_checker(state->check.attacks[0]);

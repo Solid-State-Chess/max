@@ -17,13 +17,13 @@ max_ttentry_t* max_ttbl_probe(max_ttbl_t *tbl, max_zobrist_t hash) {
 }
 
 max_ttentry_t* max_ttbl_slot(max_ttbl_t *tbl, max_zobrist_t hash, uint8_t ply, uint8_t depth) {
-    if(depth <= 3) {
+    if(depth < 3) {
         return NULL;
     }
 
     max_ttentry_t *slot = &tbl->array[max_ttbl_extract_index(hash)];
     if(!slot->attr.gravestone) {
-        if(slot->attr.age - ply >= 4 || slot->attr.depth < depth) {
+        if(slot->attr.age - ply >= 2 || slot->attr.depth < depth) {
             return slot;
         } else {
             return NULL;

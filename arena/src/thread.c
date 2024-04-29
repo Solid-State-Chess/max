@@ -1,3 +1,4 @@
+#define MAX_CONSOLE
 #include "gui.h"
 #include "max/board/board.h"
 #include "max/board/movegen.h"
@@ -28,6 +29,7 @@ int gui_engine_thread(void *_data) {
             
             if(search.bestmove.from != search.bestmove.to) {
                 max_board_make_move(&data->engine.board, search.bestmove);
+                max_board_debugprint(&data->engine.board);
             }
 
             double mn_s = meganodes / time;

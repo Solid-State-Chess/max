@@ -67,7 +67,6 @@ bool max_board_update_discovery(max_board_t *const board, max_bpos_t empty, max_
     max_bpos_t kpos = max_board_friendly_king_pos(board);
     max_piececode_t friendly = max_board_friendly_colormask(board);
 
-
     //Search for a discovered attack by a sliding piece hidden behind the piece
     max_increment_t discovered_line = MAX_DIRECTION_BY_DIFF[max_bpos_diff(empty, kpos)];
     if(discovered_line != 0) {

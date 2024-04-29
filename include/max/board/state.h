@@ -111,30 +111,35 @@ typedef struct {
     /// Data for if and where check is delivered from for the side to play
     max_check_t check;
     /// Hash of the current position.
-    /// Used to determine draw by threefold repetitions.
+    /// Used to determine draw by threefold repetition.
     max_zobrist_t pos;
     /// Castle rights and en passant state packed into one byte
     max_plyplate_t packed_state;
 } max_irreversible_t;
 
 /// A stack structure caching game state that cannot be *efficiently* recomputed when a move is unmade.
-/// Includes castle rights, en passant file, and check status of the side to move. There are some important
-/// notes around the size of this stack.
+/// Includes castle rights, en passant file, and check status of the side to move. A hash of the current
+/// game position is also stored for each plate, enabling efficient threefold repetition draw checks.
+/// There are some important notes around the size of this stack.
 ///
-/// \section size Stack Size Requirements
+/// \section size Stack Capacity Requirements
 /// The stack size determines how many sequential moves can be unmade in a row. When a move is made,
 /// the old game state is pushed to this stack, to be restored by a pop when that same move is unmade.
 /// In order to reduce memory footprint, this stack is bounded in size and must be *reset* periodically,
 /// clearing all saved game state.
 ///
+/// \section len Stack Length Requirements
+/// This stack is used to compute the status of threefold repetition, so there is also a lower bound on the stack length - at least two
+/// plates must be on the stack at all times past move 1 (ply 2). See max_irreversible_stack_reset() for more.
+///
 /// \see max_irreversible_stack_push()
 /// \see max_irreversible_stack_pop()
 typedef struct {
-    /// Array of all reversible state, indexed by #plies_since_reset
+    /// Array of all reversible state, indexed by #head
     max_irreversible_t *array;
     /// Index of the head of the stack, incremented each time a move is made and
     /// decremented each time a move is unmade
-    uint16_t plies_since_reset;
+    uint16_t head;
 } max_irreversible_stack_t;
 
 /// Return a checker structure representing the absence of delivered check
@@ -186,33 +191,30 @@ MAX_INLINE_ALWAYS void max_irreversible_stack_new(
     max_irreversible_t state
 ) {
     stack->array = storage;
-    stack->plies_since_reset = 0;
+    stack->head = 0;
     stack->array[0] = state;
 }
 
-/// Reset the given stack - moving the head to the bottom of the array and resetting the head index to 0
-MAX_INLINE_ALWAYS void max_irreversible_stack_reset(max_irreversible_stack_t *stack) {
-    max_irreversible_t state = stack->array[stack->plies_since_reset];
-    stack->plies_since_reset = 0;
-    stack->array[0] = state;
-}
+/// Reset the given state stack. This pops all elements except the top 2, resetting the head index
+/// to min(stack length, 2)
+void max_irreversible_stack_reset(max_irreversible_stack_t *stack);
 
 /// Push the given game state to the stack
 MAX_INLINE_ALWAYS void max_irreversible_stack_push(max_irreversible_stack_t *stack, max_irreversible_t state) {
-    stack->plies_since_reset += 1;
-    stack->array[stack->plies_since_reset] = state;
+    stack->head += 1;
+    stack->array[stack->head] = state;
 }
 
 /// Pop the top game state from this stack and return it.
 MAX_INLINE_ALWAYS max_irreversible_t max_irreversible_stack_pop(max_irreversible_stack_t *stack) {
-    max_irreversible_t state = stack->array[stack->plies_since_reset];
-    stack->plies_since_reset -= 1;
+    max_irreversible_t state = stack->array[stack->head];
+    stack->head -= 1;
     return state;
 }
 
 /// Peek the top element of the state stack
 MAX_INLINE_ALWAYS max_irreversible_t* max_irreversible_stack_peek(max_irreversible_stack_t *stack) {
-    return &stack->array[stack->plies_since_reset];
+    return &stack->array[stack->head];
 }
 
 

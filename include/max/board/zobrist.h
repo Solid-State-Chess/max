@@ -16,9 +16,6 @@ typedef uint32_t max_zobrist_t;
 typedef struct {
     /// Incrementally updated hash code.
     max_zobrist_t hash;
-    /// Seed for the PRNG algorithm. This can be set in order to improve hash collision
-    /// performance through trial and error
-    max_zobrist_t seed;
     /// Variables used for randomly generated numbers
     uint64_t a,b,c,d;
 } max_zobrist_state_t;
