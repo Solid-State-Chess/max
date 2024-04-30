@@ -17,6 +17,8 @@
 
 /// Typedef over a uint8_t representing a four-bit tag indicating that a move performs some action
 /// other than simply shifting pieces - attacks, promotions, en passant, and castling.
+/// \see max_pmove_t
+/// \see max_smove_t
 /// @{
 typedef uint8_t max_movetag_t;
 
@@ -57,26 +59,49 @@ enum {
 ///     [4 bits - max_movetag_t tag] [6 bits - max_6bit_t to] [6 bits - max_6bit_t from]
 typedef uint16_t max_pmove_t;
 
-/// Packed Move Bitmasks and Offsets
+/// \name Packed Move Bitmasks and Offsets
 /// @{
 
-/// 
+/// Bitmask for the lower 6 bits of a 16 bit value
 #define MAX_PMOVE_FROM_MASK (0x003F)
+/// Bitmask for bits [11..6] of a 16 bit value
 #define MAX_PMOVE_TO_MASK   (0x0FC0)
+/// Bit position of the LSB of #MAX_PMOVE_TO_MASK, used to shift the destination square down
 #define MAX_PMOVE_TO_POS    (6)
+/// Bitmask for the upper four bits of a 16 bit value, used to store the move flags
 #define MAX_PMOVE_TAG_MASK  (0xF000)
+/// Bit position of the LSB of #MAX_PMOVE_TAG_MASK, used to shift the flags down
 #define MAX_PMOVE_TAG_POS   (12)
 
 /// @}
 
-MAX_INLINE_ALWAYS max_0x88_t max_pmove_from(max_pmove_t move) { return max_6bit_to_0x88((uint8_t)(move & MAX_PMOVE_FROM_MASK)); }
-MAX_INLINE_ALWAYS max_0x88_t max_pmove_to(max_pmove_t move) { return max_6bit_to_0x88((uint8_t)((move & MAX_PMOVE_TO_MASK) >> MAX_PMOVE_TO_POS)); }
-MAX_INLINE_ALWAYS max_movetag_t max_pmove_tag(max_pmove_t move) { return move >> MAX_PMOVE_TAG_POS; }
+/// \defgroup Packed Move Functions
+/// @{
+
+/// Get the 0x88 encoded source square from the given packed move.
+MAX_INLINE_ALWAYS max_0x88_t max_pmove_from(max_pmove_t move) {
+    return max_6bit_to_0x88((uint8_t)(move & MAX_PMOVE_FROM_MASK));
+}
+
+/// Get the 0x88 encoded destination square from the given packed move.
+MAX_INLINE_ALWAYS max_0x88_t max_pmove_to(max_pmove_t move) {
+    return max_6bit_to_0x88((uint8_t)((move & MAX_PMOVE_TO_MASK) >> MAX_PMOVE_TO_POS));
+}
+
+/// Get the four bit move tag from the given packed move.
+MAX_INLINE_ALWAYS max_movetag_t max_pmove_tag(max_pmove_t move) {
+    return move >> MAX_PMOVE_TAG_POS;
+}
+
+/// @}
 
 /// @}
 
 
 /// \defgroup smove Sparse Move Representation
+/// Move representation occupying three bytes in memory - storing source and destination squares in their
+/// 0x88 representations. This representation is best for processing speed, but may cost a few kilobytes in
+/// move list sizes.
 /// @{
 
 /// A move with from and to square, plus flags stored in a separate byte.
@@ -94,15 +119,18 @@ typedef struct {
 
 /// @}
 
+
+/// Compile-time conditional typedef between a #max_pmove_t
+/// or a #max_smove_t based on the compile time MAX_PACKED_MOVE flag.
+/// @{
+///
 #ifdef MAX_PACKED_MOVE
-
 typedef max_pmove_t max_move_t;
-
 #else
-
 typedef max_smove_t max_move_t;
-
 #endif
+
+/// @}
 
 /// @}
 
