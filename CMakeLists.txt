@@ -40,6 +40,7 @@ target_include_directories(max PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/include"
 target_compile_definitions(
     max
     PUBLIC
+    $<IF:$<STREQUAL:${MAX_TESTS},ON>,MAX_TESTS,>
     $<IF:$<STREQUAL:${MAX_ASSERTS},ON>,MAX_ASSERTS,>
     $<IF:$<STREQUAL:${MAX_CONSOLE},ON>,MAX_CONSOLE,>
     $<IF:$<STREQUAL:${MAX_PACKED_MOVE},ON>,MAX_PACKED_MOVE,>

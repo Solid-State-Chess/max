@@ -22,6 +22,21 @@
 /// the difference between two squares to a direction when checking for sliding attacks or pinned pieces.
 typedef uint8_t max_0x88_t;
 
+/// Get the rank in the range [0..7] of the given 0x88 encoded position.
+/// Note that for invalid positions, this may return out of bounds ranks.
+MAX_INLINE_ALWAYS uint8_t max_0x88_rank(max_0x88_t pos) { return pos >> 4; }
+/// Get the file index in the range [0..7] of the given 0x88 encoded position.
+/// Like max_0x88_rank(), this may return out of bounds values if the position is invalid.
+MAX_INLINE_ALWAYS uint8_t max_0x88_file(max_0x88_t pos) { return pos & 0x0F; }
+
+#ifdef MAX_CONSOLE
+
+/// Utility macro to create two format arguments when using a printf "%c%c" string.
+/// Formats board locations in algebraic a3, e4, etc. notation
+#define MAX_0x88_FORMAT(loc) (max_0x88_file(loc) + 'a'), (max_0x88_rank(loc) + '1')
+
+#endif
+
 /// Length of an array when indexed with the six-bit location encoding
 #define MAX_6BIT_LEN (64)
 

@@ -10,4 +10,9 @@
 
 
 
+#ifdef MAX_TESTS
 
+/// Run all unit tests registered for the library.
+void max_unit_tests(void);
+
+#endif

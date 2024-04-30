@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "max/board/loc.h"
+#include "max/def.h"
 
 
 /// \ingroup board
@@ -40,16 +41,68 @@ enum {
 
 /// @}
 
+/// \defgroup pmove Packed Move Representation
+/// Functions to operate on 2 byte packed moves.
+/// Despite a seemingly small memory gain in small numbers,
+/// the chess engine must maintain a list of all moves it is processing at every step of the
+/// game tree, and thus small memory savings can accumulate to kilobytes of space.
+/// @{
+
 /// A move that has been packed into two bytes using 6 bit square encoding.
 /// This leaves 4 bits free for move flags like capture, promotions, and castling.
 ///
 /// \section Representation
 ///
-/// Bit no.
-///
 ///              15..12                       11..6                      5..0
 ///     [4 bits - max_movetag_t tag] [6 bits - max_6bit_t to] [6 bits - max_6bit_t from]
 typedef uint16_t max_pmove_t;
+
+/// Packed Move Bitmasks and Offsets
+/// @{
+
+/// 
+#define MAX_PMOVE_FROM_MASK (0x003F)
+#define MAX_PMOVE_TO_MASK   (0x0FC0)
+#define MAX_PMOVE_TO_POS    (6)
+#define MAX_PMOVE_TAG_MASK  (0xF000)
+#define MAX_PMOVE_TAG_POS   (12)
+
+/// @}
+
+MAX_INLINE_ALWAYS max_0x88_t max_pmove_from(max_pmove_t move) { return max_6bit_to_0x88((uint8_t)(move & MAX_PMOVE_FROM_MASK)); }
+MAX_INLINE_ALWAYS max_0x88_t max_pmove_to(max_pmove_t move) { return max_6bit_to_0x88((uint8_t)((move & MAX_PMOVE_TO_MASK) >> MAX_PMOVE_TO_POS)); }
+MAX_INLINE_ALWAYS max_movetag_t max_pmove_tag(max_pmove_t move) { return move >> MAX_PMOVE_TAG_POS; }
+
+/// @}
+
+
+/// \defgroup smove Sparse Move Representation
+/// @{
+
+/// A move with from and to square, plus flags stored in a separate byte.
+/// This structure uses three bytes to represent a move with positions already stored
+/// in 0x88 form occupying one byte each - if memory is not a top priority this 
+/// representation enables faster processing to avoid packing and unpacking destination squares.
+typedef struct {
+    /// Four bits used to represent any special attributes required to specify the moves side effects.
+    max_movetag_t tag;
+    /// A 0x88 board index identifying the square that was moved to
+    max_0x88_t to;
+    /// A 0x88 board index identifying the square that was moved from
+    max_0x88_t from;
+} max_smove_t;
+
+/// @}
+
+#ifdef MAX_PACKED_MOVE
+
+typedef max_pmove_t max_move_t;
+
+#else
+
+typedef max_smove_t max_move_t;
+
+#endif
 
 /// @}
 
