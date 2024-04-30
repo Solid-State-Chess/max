@@ -3,6 +3,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "max/def.h"
 
 /// \ingroup board
@@ -29,13 +30,38 @@ typedef uint8_t max_0x88_t;
 /// Length of an array when indexed using the 0x88 scheme.
 #define MAX_0x88_LEN (128)
 
+/// Bitmask for the lower 4 bits of a 0x88 position
+#define MAX_0x88_FILE_MASK (0x0F)
+
+/// Bitmask for the upper 4 bits of a 0x88 board position
+#define MAX_0x88_RANK_MASK (0xF0)
+
+/// Bit position of the 4 rank bits stored in a 0x88 index
+#define MAX_0x88_RANK_POS  (4)
+
+/// The bitmask that allows 0x88 positions to be checked for validity efficiently,
+/// and where the encoding scheme gets its name.
+/// \see max_0x88_valid()
+#define MAX_0x88_INVALID_MASK (0x88)
+
+/// Create a new 0x88 board index from the given rank and file coordinates.
+/// \param rank Rank number, must be between 0 and 7 (not checked)
+/// \param file File number, must be between 0 and 7
+MAX_INLINE_ALWAYS max_0x88_t max_0x88_new(uint8_t rank, uint8_t file) {
+    return (rank << MAX_0x88_RANK_POS) | file;
+}
+
 /// Get the rank in the range [0..7] of the given 0x88 encoded position.
 /// Note that for invalid positions, this may return out of bounds ranks.
-MAX_INLINE_ALWAYS uint8_t max_0x88_rank(max_0x88_t pos) { return pos >> 4; }
+MAX_INLINE_ALWAYS uint8_t max_0x88_rank(max_0x88_t pos) { return pos >> MAX_0x88_RANK_POS; }
 
 /// Get the file index in the range [0..7] of the given 0x88 encoded position.
 /// Like max_0x88_rank(), this may return out of bounds values if the position is invalid.
-MAX_INLINE_ALWAYS uint8_t max_0x88_file(max_0x88_t pos) { return pos & 0x0F; }
+MAX_INLINE_ALWAYS uint8_t max_0x88_file(max_0x88_t pos) { return pos & MAX_0x88_FILE_MASK; }
+
+/// Check if the 0x88 index represents a valid square on the chessboard
+/// \return true if the position does not match the #MAX_0x88_INVALID_MASK bitmask
+MAX_INLINE_ALWAYS bool max_0x88_valid(max_0x88_t pos) { return pos & MAX_0x88_INVALID_MASK; }
 
 #ifdef MAX_CONSOLE
 
@@ -68,6 +94,18 @@ typedef uint8_t max_6bit_t;
 #define MAX_6BIT_RANK_MASK (0x38)
 /// Bit position of the 3 rank bits stored in a #max_6bit_t
 #define MAX_6BIT_RANK_POS (3)
+
+/// Create a 6 bit wide board index using the given rank and file
+/// \param rank The rank index of the created location, must be between 0 and 7
+/// \param file The file index of the created location, must be between 0 and 7
+MAX_INLINE_ALWAYS max_6bit_t max_6bit_new(uint8_t rank, uint8_t file) {
+    return (rank << MAX_6BIT_RANK_POS) | file;
+}
+
+/// Get the rank index between 0 and 7 of the given 6 bit board index.
+MAX_INLINE_ALWAYS uint8_t max_6bit_rank(max_6bit_t pos) { return pos >> MAX_6BIT_RANK_POS; }
+/// Get the file index between 0 and 7 of the given 6 bit board index.
+MAX_INLINE_ALWAYS uint8_t max_6bit_file(max_6bit_t pos) { return pos & MAX_6BIT_FILE_MASK; }
 
 /// @}
 
