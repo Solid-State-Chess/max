@@ -75,7 +75,7 @@ typedef uint16_t max_pmove_t;
 
 /// @}
 
-/// \defgroup Packed Move Functions
+/// \name Packed Move Functions
 /// @{
 
 /// Get the 0x88 encoded source square from the given packed move.

@@ -185,10 +185,12 @@
 
   <!-- Layout definition for a group page -->
   <group>
-    <briefdescription visible="yes"/>
+    <!--briefdescription visible="no"/-->
+    <detaileddescription title=""/>
     <groupgraph visible="yes"/>
     <memberdecl>
       <nestedgroups visible="yes" title=""/>
+      <membergroups visible="yes"/>
       <modules visible="yes" title=""/>
       <dirs visible="yes" title=""/>
       <files visible="yes" title=""/>
@@ -210,9 +212,7 @@
       <events title=""/>
       <properties title=""/>
       <friends title=""/>
-      <membergroups visible="yes"/>
     </memberdecl>
-    <detaileddescription title=""/>
     <memberdef>
       <pagedocs/>
       <inlineclasses title=""/>
