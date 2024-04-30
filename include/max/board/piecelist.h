@@ -30,7 +30,7 @@ typedef struct {
     max_0x88_t loc[];
 } max_loclist_t;
 
-/// Maximum capacity required for piece lists.
+/// \name Maximum capacity required for piece lists.
 /// @{
 #define MAX_LIST_CAP_KING   (1)
 #define MAX_LIST_CAP_QUEEN  (9)
