@@ -1,6 +1,5 @@
 #include "max.h"
 #include "max/board/zobrist.h"
-#include "private/board/zobrist.h"
 #include "private/max_assert.h"
 #include "private/board/loc.h"
 #include "private/max.h"
@@ -13,7 +12,7 @@ bool MAX_INITIALIZED = false;
 
 void max_init(max_zobrist_t seed) {
     MAX_ASSERT(!MAX_INITIALIZED && "max_init() called twice");
-    max_zobrist_init_static(seed);
+    MAX_INITIALIZED = true;
 }
 
 #ifdef MAX_TESTS

@@ -67,6 +67,8 @@ enum {
     MAX_PIECEINDEX_ROOK   = 3,
     MAX_PIECEINDEX_QUEEN  = 4,
     MAX_PIECEINDEX_KING   = 5,
+    /// The required length of an array when indexed by a #max_pieceindex_t
+    MAX_PIECEINDEX_LEN    = 6,
 };
 
 /// Get an index in the range 0..5 to represent the kind of chess piece this in as a continuous index.

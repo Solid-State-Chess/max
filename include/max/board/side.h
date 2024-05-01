@@ -18,4 +18,7 @@
 /// a side index by bitwise ANDing with 1.
 typedef uint8_t max_side_t;
 
+/// Required size of a lookup table when indexed by a #max_side_t
+#define MAX_SIDES_LEN (2)
+
 /// @}

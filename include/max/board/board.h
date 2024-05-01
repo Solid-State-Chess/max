@@ -35,6 +35,9 @@
 /// 
 /// [1] https://pure.uvt.nl/ws/files/1098572/Proefschrift_Fritz_Reul_170609.pdf
 typedef struct {
+    /// Statically initialized arrays used to iteratively compute zobrist hash keys.
+    max_zobrist_elements_t zobrist_state;
+
     /// Piece type and color data array indexed by a packed board location #max_loc_t.
     /// This array is the most commonly accessed during most operations, as it allows us to
     /// find a piece by location.
@@ -81,7 +84,8 @@ typedef struct {
 ///
 /// \param [out] board A pointer to an uninitialized board structure that will be initialized
 /// \param [in] buffer A pointer to the buffer that will be used to maintain the state stack of the board
-void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer);
+/// \param [in] seed Seed to use for the random number generator when creating zobrist elements
+void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, max_zobrist_t seed);
 
 /// Clear the given board, then add pieces in their default positions.
 /// This effectively begins a new game on the board, clearing all prior state.
