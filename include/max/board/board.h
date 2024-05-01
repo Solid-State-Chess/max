@@ -49,7 +49,7 @@ typedef struct {
     /// These indices map into either the #white or #black piece lists depending on the color and type of the piececode
     /// in #pieces located at the same square.
     /// This structure must be kept in sync with the #pieces array and the respective piece lists for each side.
-    max_plidx_t indices[MAX_0x88_LEN];
+    max_lidx_t indices[MAX_0x88_LEN];
     
     /// Piece lists for white and black tracking the positions of every piece on the board.
     /// Stored as a union between a two-element array and a structure to allow access by side name

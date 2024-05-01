@@ -32,15 +32,23 @@ MAX_INLINE_ALWAYS max_loclist_t* max_plist_get_list(max_plist_t *pieces, max_pie
         [MAX_PIECECODE_KING]   = offsetof(max_plist_t, king)
     };
 
-    return (max_loclist_t*)(((void*)pieces) + OFFSETS[piece.v * MAX_PIECECODE_TYPE_MASK]);
+    return (max_loclist_t*)(((void*)pieces) + OFFSETS[piece.v & MAX_PIECECODE_TYPE_MASK]);
 }
 
 /// Add a board location to the given locations list.
 /// No capacity checks are performed here, even with debug assertions enabled
 /// (the capacity is not known alone, we must also know the piece type first)
-MAX_INLINE_ALWAYS void max_loclist_add(max_loclist_t *pieces, max_0x88_t pos) {
+/// \return Index of the added piece in the list
+MAX_INLINE_ALWAYS max_lidx_t max_loclist_add(max_loclist_t *pieces, max_0x88_t pos) {
     pieces->loc[pieces->len] = pos;
     pieces->len += 1;
+    return pieces->len - 1;
+}
+
+/// Remove the piece at the given index from the list
+MAX_INLINE_ALWAYS void max_loclist_remove(max_loclist_t *pieces, max_lidx_t idx) {
+    pieces->len -= 1;
+    pieces->loc[idx] = pieces->loc[pieces->len];
 }
 
 /// @}

@@ -16,7 +16,7 @@
 
 /// Simple wrapper typedef over a uint8_t.
 /// This type is an index into a #max_loclist_t
-typedef uint8_t max_plidx_t;
+typedef uint8_t max_lidx_t;
 
 /// A piece list storing the locations of one piece type indexed by #max_plidx_t.
 /// This typedef has a variable size, and is thus only operated on by pointers.
@@ -24,7 +24,7 @@ typedef uint8_t max_plidx_t;
 /// for piece lists of different static sizes.
 typedef struct {
     /// Length of the locations array
-    max_plidx_t len;
+    max_lidx_t len;
     /// Array of piece locations with a variable length - this will point to an
     /// array with a capacity guaranteed to be enough to hold all pieces of a given type.
     max_0x88_t loc[];
@@ -47,32 +47,32 @@ typedef struct {
     /// @{
 
     struct {
-        max_plidx_t len;
+        max_lidx_t len;
         max_0x88_t loc[MAX_LIST_CAP_KING];
     } king;
 
     struct {
-        max_plidx_t len;
+        max_lidx_t len;
         max_0x88_t loc[MAX_LIST_CAP_QUEEN];
     } queen;
 
     struct {
-        max_plidx_t len;
+        max_lidx_t len;
         max_0x88_t loc[MAX_LIST_CAP_ROOK];
     } rook;
 
     struct {
-        max_plidx_t len;
+        max_lidx_t len;
         max_0x88_t loc[MAX_LIST_CAP_BISHOP];
     } bishop;
 
     struct {
-        max_plidx_t len;
+        max_lidx_t len;
         max_0x88_t loc[MAX_LIST_CAP_KNIGHT];
     } knight;
 
     struct {
-        max_plidx_t len;
+        max_lidx_t len;
         max_0x88_t loc[MAX_LIST_CAP_PAWN];
     } pawn;
 

@@ -27,6 +27,10 @@ MAX_INLINE_ALWAYS max_state_t* max_board_state(max_chessboard_t *board) {
 /// \note No bounds checking is performed on the piece lists except when debug assertions are enabled
 void max_board_add_piece_to_side(max_chessboard_t *board, max_plist_t *side, max_0x88_t pos, max_piececode_t piece);
 
+/// Remove the piece at the given position from the given side.
+/// Updates the board's zobrist hash, but does NOT update the capture stack (this must be done manually).
+void max_board_remove_piece_from_side(max_chessboard_t *board, max_plist_t *side, max_0x88_t pos);
+
 /// Add a piece to the given board, determining the side to add its position to by the color of the 
 /// piececode.
 /// \see max_board_add_piece_to_side()
@@ -36,6 +40,16 @@ MAX_INLINE_ALWAYS void max_board_add_piece(max_chessboard_t *board, max_0x88_t p
         max_board_side_list(board, max_piececode_side(piece)),
         pos,
         piece
+    );
+}
+
+/// Remove the piece on the given square, looking up the correct side to remove the piece from by the 
+/// color of the piece on the given square
+MAX_INLINE_ALWAYS void max_board_remove_piece(max_chessboard_t *board, max_0x88_t pos) {
+    max_board_remove_piece_from_side(
+        board,
+        max_board_side_list(board, max_piececode_side(board->pieces[pos.v])),
+        pos
     );
 }
 

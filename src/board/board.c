@@ -7,7 +7,6 @@
 #include "private/board/piecelist.h"
 #include "private/board/state.h"
 #include "private/board/zobrist.h"
-#include <ctype.h>
 
 static void max_chessboard_init_pieces(max_chessboard_t *board) {
     for(unsigned i = 0; i < MAX_0x88_LEN; ++i) {
@@ -38,9 +37,26 @@ void max_board_add_piece_to_side(max_chessboard_t *board, max_plist_t *side, max
 
     board->pieces[pos.v] = piece;
     max_loclist_t *list = max_plist_get_list(side, piece);
-    max_loclist_add(list, pos);
+    max_lidx_t idx = max_loclist_add(list, pos);
 
-    max_state_t *state = max_state_stack_peek(&board->stack);
+    board->indices[pos.v] = idx;
+
+    max_state_t *state = max_board_state(board);
+    state->position ^= max_zobrist_position_element(&board->zobrist_state, pos, piece);
+}
+
+
+void max_board_remove_piece_from_side(max_chessboard_t *board, max_plist_t *side, max_0x88_t pos) {
+    MAX_ASSERT(board->pieces[pos.v].v != MAX_PIECECODE_EMPTY);
+    max_piececode_t piece = board->pieces[pos.v];
+    board->pieces[pos.v].v = MAX_PIECECODE_EMPTY;
+
+    max_lidx_t idx = board->indices[pos.v];
+
+    max_loclist_t *list = max_plist_get_list(side, piece);
+    max_loclist_remove(list, idx);
+
+    max_state_t *state = max_board_state(board);
     state->position ^= max_zobrist_position_element(&board->zobrist_state, pos, piece);
 }
 
@@ -70,6 +86,7 @@ void max_chessboard_default_pos(max_chessboard_t *board) {
 
 #ifdef MAX_CONSOLE
 #include <stdio.h>
+#include <ctype.h>
 
 #ifdef MAX_ZOBRIST_64
 #include <inttypes.h>
@@ -103,10 +120,25 @@ void max_chessboard_print(max_chessboard_t *board) {
                 putchar(letter);
             }
         }
+
+        fputs("    ", stdout);
+        
+        switch(y) {
+            case 8: printf("STATE"); break;
+            
+            case 7:
+#ifdef MAX_ZOBRIST_64
+    printf("Zobrist Key: %" PRIX64 "\n", max_board_state(board)->position);
+#else
+    printf("Zobrist Key: %0X", max_board_state(board)->position);
+#endif
+            break;
+        }
+
         putchar('\n');
     }
 
-    fputs("   ", stdout);
+    fputs("\n   ", stdout);
 
     for(char x = 'A'; x <= 'H'; ++x) {
         putchar(x);
@@ -114,12 +146,6 @@ void max_chessboard_print(max_chessboard_t *board) {
     }
 
     putchar('\n');
-    
-#ifdef MAX_ZOBRIST_64
-    printf("Zobrist Key: %" PRIX64 "\n", max_board_state(board)->position);
-#else
-    printf("Zobrist Key: %0X\n", max_board_state(board)->position);
-#endif
 }
 
 #endif
