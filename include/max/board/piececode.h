@@ -2,6 +2,9 @@
 
 #pragma once
 
+#include "max/assert.h"
+#include "max/board/side.h"
+#include "max/def.h"
 #include <stdint.h>
 
 /// \ingroup board
@@ -23,6 +26,8 @@ typedef struct { uint8_t v; } max_piececode_t;
 /// @{
 
 enum {
+    /// Code representing an invalid (off the board for 0x88 indexing) square
+    MAX_PIECECODE_INVALID = 0x80,
     /// Code representing an empty square.
     MAX_PIECECODE_EMPTY  = 0x00,
     /// Code representing a pawn.
@@ -48,6 +53,31 @@ enum {
 
 
 /// @}
+
+/// \name Piece Color Flags
+/// @{
+
+enum {
+    /// #max_piececode_t flag representing that the given piece is white
+    MAX_PIECECODE_WHITE = 0x20,
+    /// #max_piececode_t flag representing that the given piece is black
+    MAX_PIECECODE_BLACK = 0x40,
+    /// Number of bits from the LSB that the black color flag is at (used to convert piececode -> turn bool)
+    MAX_PIECECODE_BLACK_OFFSET = 6,
+    /// Offset in bits from the LSB of the #MAX_PIECECODE_WHITE bitmask
+    MAX_PIECECODE_WHITE_OFFSET = 5,
+};
+
+/// @}
+
+/// Get a #max_side_t representing the color of the given piece.
+/// The piece should not be empty or invalid, as without debug assertions these
+/// pieces will be represented as white.
+/// \return 1 if the given piece is black, and 0 if it is white or an empty piece
+MAX_INLINE_ALWAYS max_side_t max_piececode_side(max_piececode_t piece) {
+    MAX_ASSERT(piece.v != MAX_PIECECODE_EMPTY);
+    return (piece.v >> MAX_PIECECODE_BLACK_OFFSET) & 1;
+}
 
 
 /// \name Piece Type Indexes

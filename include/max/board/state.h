@@ -8,7 +8,7 @@
 /// @{
 
 
-/// \defgroup Game State
+/// \defgroup state Game State
 /// Additional irreversible aspects of a chess game that must be maintained in order to make and unmake moves.
 /// We must store the castle rights of both sides, the en passant file if any is available,
 /// the current state of single or double check for the side to play, and a hash of the board's position

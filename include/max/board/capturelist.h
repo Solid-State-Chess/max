@@ -7,6 +7,9 @@
 /// \ingroup board
 /// @{
 
+/// \ingroup state
+/// @{
+
 /// Number of pieces that will ever be on a chessboard
 #define MAX_BOARD_PIECES_COUNT (32)
 
@@ -22,5 +25,6 @@ typedef struct {
     uint8_t len;
 } max_captures_t;
 
+/// @}
 
 /// @}

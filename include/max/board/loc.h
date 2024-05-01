@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "max/assert.h"
 #include "max/def.h"
 
 /// \ingroup board
@@ -139,7 +140,15 @@ typedef struct { uint8_t v; } max_6bit_t;
 /// \param rank The rank index of the created location, must be between 0 and 7
 /// \param file The file index of the created location, must be between 0 and 7
 MAX_INLINE_ALWAYS max_6bit_t max_6bit_new(uint8_t rank, uint8_t file) {
+    MAX_ASSERT(rank < 8 && file < 8);
     return (max_6bit_t){ .v = (rank << MAX_6BIT_RANK_POS) | file };
+}
+
+/// Create a new 6 bit position from the given raw value in the range 0 to 63.
+/// The position must not be invalid (use more than 6 bits)
+MAX_INLINE_ALWAYS max_6bit_t max_6bit_raw(uint8_t v) {
+    MAX_ASSERT(v < 64 && "Attempt to create a 6 bit LSF index with invalid value");
+    return (max_6bit_t){ .v = v };
 }
 
 /// Get the rank index between 0 and 7 of the given 6 bit board index.
@@ -153,6 +162,7 @@ MAX_INLINE_ALWAYS uint8_t max_6bit_file(max_6bit_t pos) { return pos.v & MAX_6BI
 /// If the given position is not valid, the returned 6 bit index will also be invalid.
 /// \see max_6bit_to_0x88()
 MAX_INLINE_ALWAYS max_6bit_t max_0x88_to_6bit(max_0x88_t pos) {
+    MAX_ASSERT(max_0x88_valid(pos));
     return (max_6bit_t){ .v = (pos.v + (pos.v & MAX_6BIT_FILE_MASK)) >> 1 };
 }
 

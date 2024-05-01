@@ -85,7 +85,7 @@ typedef struct {
 /// \param [out] board A pointer to an uninitialized board structure that will be initialized
 /// \param [in] buffer A pointer to the buffer that will be used to maintain the state stack of the board
 /// \param [in] seed Seed to use for the random number generator when creating zobrist elements
-void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, max_zobrist_t seed);
+void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, uint64_t seed);
 
 /// Clear the given board, then add pieces in their default positions.
 /// This effectively begins a new game on the board, clearing all prior state.

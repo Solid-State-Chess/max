@@ -1,6 +1,6 @@
 #include "max.h"
 #include "max/board/zobrist.h"
-#include "private/max_assert.h"
+#include "max/assert.h"
 #include "private/board/loc.h"
 #include "private/max.h"
 #include "private/test.h"
