@@ -7,7 +7,8 @@ project(
     LANGUAGES C
 )
 
-option(MAX_PACKED_MOVE "Enable 2 byte move representation instead of 3 bytes" OFF)
+option(MAX_PACKED_MOVELIST "Enable 2 byte movelist entry representation instead of 3 bytes" OFF)
+option(MAX_ZOBRIST_64      "Enable 64-bit zobrist over 32-bit keys" OFF)
 option(MAX_TESTS   "Enable max-tests compilation" ON)
 option(MAX_DOC     "Enable Doxygen documentation build" OFF)
 option(MAX_ASSERTS "Enable internal self-check assertions for debugging" OFF)
@@ -40,10 +41,11 @@ target_include_directories(max PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/include"
 target_compile_definitions(
     max
     PUBLIC
-    $<IF:$<STREQUAL:${MAX_TESTS},ON>,MAX_TESTS,>
-    $<IF:$<STREQUAL:${MAX_ASSERTS},ON>,MAX_ASSERTS,>
-    $<IF:$<STREQUAL:${MAX_CONSOLE},ON>,MAX_CONSOLE,>
-    $<IF:$<STREQUAL:${MAX_PACKED_MOVE},ON>,MAX_PACKED_MOVE,>
+    $<$<BOOL:${MAX_TESTS}>:MAX_TESTS>
+    $<$<BOOL:${MAX_ASSERTS}>:MAX_ASSERTS>
+    $<$<BOOL:${MAX_CONSOLE}>:MAX_CONSOLE>
+    $<$<BOOL:${MAX_PACKED_MOVE}>:MAX_PACKED_MOVE>
+    $<$<BOOL:${MAX_ZOBRIST_64}>:MAX_ZOBRIST_64>
 )
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)

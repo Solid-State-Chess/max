@@ -80,12 +80,12 @@ typedef uint16_t max_pmove_t;
 
 /// Get the 0x88 encoded source square from the given packed move.
 MAX_INLINE_ALWAYS max_0x88_t max_pmove_from(max_pmove_t move) {
-    return max_6bit_to_0x88((uint8_t)(move & MAX_PMOVE_FROM_MASK));
+    return max_6bit_to_0x88((max_6bit_t){ .v = move & MAX_PMOVE_FROM_MASK });
 }
 
 /// Get the 0x88 encoded destination square from the given packed move.
 MAX_INLINE_ALWAYS max_0x88_t max_pmove_to(max_pmove_t move) {
-    return max_6bit_to_0x88((uint8_t)((move & MAX_PMOVE_TO_MASK) >> MAX_PMOVE_TO_POS));
+    return max_6bit_to_0x88((max_6bit_t){ .v = (move & MAX_PMOVE_TO_MASK) >> MAX_PMOVE_TO_POS });
 }
 
 /// Get the four bit move tag from the given packed move.
@@ -119,18 +119,6 @@ typedef struct {
 
 /// @}
 
-
-/// Compile-time conditional typedef between a #max_pmove_t
-/// or a #max_smove_t based on the compile time MAX_PACKED_MOVE flag.
-/// @{
-///
-#ifdef MAX_PACKED_MOVE
-typedef max_pmove_t max_move_t;
-#else
-typedef max_smove_t max_move_t;
-#endif
-
-/// @}
 
 /// @}
 

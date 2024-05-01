@@ -11,7 +11,19 @@
 /// castle rights.
 /// These keys are used to efficiently compute draws by threefold repetition, and in the chess engine, we use this
 /// hash key to index a transposition table array - see the engine transposition table section for more on this topic.
+/// @{
+
+#ifdef MAX_ZOBRIST_64
+
+typedef uint64_t max_zobrist_t;
+
+#else
+
 typedef uint32_t max_zobrist_t;
+
+#endif
+
+/// @}
 
 
 /// @}
