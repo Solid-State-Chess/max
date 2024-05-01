@@ -32,13 +32,13 @@ void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, uint64_t s
     board->ply = 0;
 }
 
-void max_board_add_piece_to_side(max_chessboard_t *board, max_plist_t *side, max_0x88_t pos, max_piececode_t piece) {
+void max_board_add_piece_to_side(max_chessboard_t *board, max_pieces_t *side, max_0x88_t pos, max_piececode_t piece) {
     MAX_ASSERT(board->pieces[pos.v].v == MAX_PIECECODE_EMPTY);
 
     board->pieces[pos.v] = piece;
+
     max_loclist_t *list = max_plist_get_list(side, piece);
     max_lidx_t idx = max_loclist_add(list, pos);
-
     board->indices[pos.v] = idx;
 
     max_state_t *state = max_board_state(board);
@@ -46,13 +46,13 @@ void max_board_add_piece_to_side(max_chessboard_t *board, max_plist_t *side, max
 }
 
 
-void max_board_remove_piece_from_side(max_chessboard_t *board, max_plist_t *side, max_0x88_t pos) {
+void max_board_remove_piece_from_side(max_chessboard_t *board, max_pieces_t *side, max_0x88_t pos) {
     MAX_ASSERT(board->pieces[pos.v].v != MAX_PIECECODE_EMPTY);
+
     max_piececode_t piece = board->pieces[pos.v];
     board->pieces[pos.v].v = MAX_PIECECODE_EMPTY;
 
     max_lidx_t idx = board->indices[pos.v];
-
     max_loclist_t *list = max_plist_get_list(side, piece);
     max_loclist_remove(list, idx);
 

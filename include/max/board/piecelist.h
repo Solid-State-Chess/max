@@ -77,7 +77,7 @@ typedef struct {
     } pawn;
 
     /// @}
-} max_plist_t;
+} max_pieces_t;
 
 
 /// @}

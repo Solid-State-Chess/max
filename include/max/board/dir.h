@@ -37,6 +37,7 @@ MAX_INLINE_ALWAYS max_0x88_t max_0x88_move(max_0x88_t loc, max_0x88_dir_t dir) {
 /// \return true if there was a straight line connecting the two squares
 bool max_0x88_line(max_0x88_t from, max_0x88_t to, max_0x88_dir_t *dir);
 
+
 /// @}
 
 /// @}

@@ -56,11 +56,11 @@ typedef struct {
     /// and efficient indexing by a #max_side_t
     union {
         struct {
-            max_plist_t white;
-            max_plist_t black;
+            max_pieces_t white;
+            max_pieces_t black;
         } side;
 
-        max_plist_t lists[2];
+        max_pieces_t lists[2];
     };
     
     /// A stack of all captures made over the course of the game, enabling move unmaking for capture moves.

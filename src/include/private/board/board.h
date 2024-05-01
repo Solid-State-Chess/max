@@ -12,7 +12,7 @@
 /// @{
 
 /// Get the piece lists for the given side
-MAX_INLINE_ALWAYS max_plist_t* max_board_side_list(max_chessboard_t *board, max_side_t side) {
+MAX_INLINE_ALWAYS max_pieces_t* max_board_side_list(max_chessboard_t *board, max_side_t side) {
     return &board->lists[side];
 }
 
@@ -25,11 +25,11 @@ MAX_INLINE_ALWAYS max_state_t* max_board_state(max_chessboard_t *board) {
 /// Updates the current zobrist hash, adds a piece to it's corresponding side's piece list,
 /// updates the index and piece code boards as required.
 /// \note No bounds checking is performed on the piece lists except when debug assertions are enabled
-void max_board_add_piece_to_side(max_chessboard_t *board, max_plist_t *side, max_0x88_t pos, max_piececode_t piece);
+void max_board_add_piece_to_side(max_chessboard_t *board, max_pieces_t *side, max_0x88_t pos, max_piececode_t piece);
 
 /// Remove the piece at the given position from the given side.
 /// Updates the board's zobrist hash, but does NOT update the capture stack (this must be done manually).
-void max_board_remove_piece_from_side(max_chessboard_t *board, max_plist_t *side, max_0x88_t pos);
+void max_board_remove_piece_from_side(max_chessboard_t *board, max_pieces_t *side, max_0x88_t pos);
 
 /// Add a piece to the given board, determining the side to add its position to by the color of the 
 /// piececode.
