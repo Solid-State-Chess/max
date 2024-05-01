@@ -10,7 +10,7 @@
 /// Initialize all static zobrist element arrays using the provided RNG seed
 /// \param [out] elems Zobrist elements table to initialize with random values
 /// \param [in] seed The seed to use for the random number generator
-void max_zobrist_elements_init(max_zobrist_elements_t *elems, max_zobrist_t seed);
+void max_zobrist_elements_init(max_zobrist_elements_t *elems, uint64_t seed);
 
 /// Get the zobrist hash element that identifies a piece on the given square
 /// \param [in] elems Reference to statically initialized zobrist hash elements

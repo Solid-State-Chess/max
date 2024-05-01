@@ -8,7 +8,12 @@
 #ifdef MAX_TESTS
 
 void max_move_unit_tests(void) {
-    max_pmove_t packed = max_pmove_new(MAX_E2, MAX_H8, MAX_MOVETAG_CAPTURE | MAX_MOVETAG_PQUEEN);
+    max_pmove_t packed = max_pmove_create_from(
+        (max_smove_t) {
+            .from = MAX_E2,
+            .to = MAX_H8, 
+            .tag = MAX_MOVETAG_CAPTURE | MAX_MOVETAG_PQUEEN
+    });
     
     max_0x88_t target = max_pmove_from(packed);
     ASSERT(target.v == MAX_E2.v, "bad packed move destination square: %c%c", MAX_0x88_FORMAT(target));
