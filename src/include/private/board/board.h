@@ -11,12 +11,12 @@
 /// \name Private Functions
 /// @{
 
-/// Get the piece lists for the given side
+/// Get the pieces structure for the given side.
 MAX_INLINE_ALWAYS max_pieces_t* max_board_side_list(max_chessboard_t *board, max_side_t side) {
     return &board->lists[side];
 }
 
-/// Get the game state for the current ply
+/// Peek the top of the state stack for the game state on the current ply.
 MAX_INLINE_ALWAYS max_state_t* max_board_state(max_chessboard_t *board) {
     return max_state_stack_peek(&board->stack);
 }

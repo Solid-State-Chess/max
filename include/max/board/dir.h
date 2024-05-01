@@ -20,6 +20,11 @@
 typedef struct { int8_t v; } max_0x88_dir_t;
 
 
+enum {
+    /// Invalid direction that does not increment a position at all
+    MAX_0x88_DIR_INVALID = 0,
+};
+
 /// Shift the given 0x88 board position as by the given amount.
 /// This shift may result in an invalid board position, which must be checked by the user.
 /// \param loc [in] The location to shift by the amount specified in dir

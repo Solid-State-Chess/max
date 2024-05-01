@@ -32,6 +32,22 @@ typedef struct {
     max_0x88_dir_t ray;
 } max_check_t;
 
+/// Return true if the given check structure shows the absence of detected check
+MAX_INLINE_ALWAYS bool max_check_is_empty(max_check_t check) {
+    return check.origin.v == MAX_0x88_INVALID_MASK;
+}
+
+/// Return true if the given check structure represents valid check delivered by 
+/// either a sliding piece or a jumping piece.
+MAX_INLINE_ALWAYS bool max_check_has_value(max_check_t check) {
+    return !max_check_is_empty(check);
+}
+
+/// Return true if check is delivered from a sliding attacker.
+MAX_INLINE_ALWAYS bool max_check_is_sliding(max_check_t check) {
+    return check.ray.v == MAX_0x88_DIR_INVALID;
+}
+
 /// \name Packed State
 /// Castle rights and en passant availability are packed into one byte for memory saving
 /// @{
@@ -62,16 +78,16 @@ MAX_INLINE_ALWAYS bool max_packed_state_has_ep(max_packed_state_t state) {
     return (state & MAX_PSTATE_EPFILE_INVALID) == 0;
 }
 
-/// Check if the given state byte shows kingside castle rights for the given side
-MAX_INLINE_ALWAYS bool max_packed_state_kcastle(max_packed_state_t state, max_side_t side) {
+/// Get a bitmask to check for kingside castle rights on the given side
+MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_kcastle(max_side_t side) {
     uint8_t shift = MAX_PSTATE_WCASTLE_POS + (side << 1);
-    return (state & (MAX_PSTATE_KINGSIDE_CASTLE << shift)) != 0;
+    return MAX_PSTATE_KINGSIDE_CASTLE << shift;
 }
 
-/// Check if the given packed state shows queenside castle rights for the given side
-MAX_INLINE_ALWAYS bool max_packed_state_qcastle(max_packed_state_t state, max_side_t side) {
+/// Get a bitmask to check for queenside castle rights for the given side.
+MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_qcastle(max_side_t side) {
     uint8_t shift = MAX_PSTATE_WCASTLE_POS + (side << 1);
-    return (state & (MAX_PSTATE_QUEENSIDE_CASTLE << shift)) != 0;
+    return MAX_PSTATE_QUEENSIDE_CASTLE << shift;
 }
 
 /// @}
@@ -95,6 +111,11 @@ typedef struct {
 } max_state_t;
 
 #pragma pack(pop)
+
+/// Get the number of detected checks against the side to play a move in the given state structure.
+MAX_INLINE_ALWAYS uint8_t max_state_checks(max_state_t *state) {
+    return max_check_has_value(state->check[0]) + max_check_has_value(state->check[1]);
+}
 
 /// A stack of the chess game's state, indexed by game ply.
 /// This is the only structure for the #max_chessboard_t that has an indeterminate size

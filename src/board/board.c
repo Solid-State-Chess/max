@@ -2,6 +2,7 @@
 #include "max/board/loc.h"
 #include "max/board/piececode.h"
 #include "max/board/squares.h"
+#include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
 #include "private/board/piecelist.h"
@@ -101,6 +102,14 @@ static char MAX_PIECETYPE_LETTER[MAX_PIECEINDEX_LEN] = {
     [MAX_PIECEINDEX_KING]   = 'k'
 };
 
+/// Print a single line to represent the type and origin of check
+static void print_check(max_check_t check) {
+    if(max_check_is_sliding(check)) {
+        fputs("sliding ", stdout);
+    }
+    printf("check delivered from %c%c", MAX_0x88_FORMAT(check.origin));
+}
+
 void max_chessboard_print(max_chessboard_t *board) {
     for(unsigned y = 8; y > 0; --y) {
         printf("%d ", y);
@@ -133,6 +142,17 @@ void max_chessboard_print(max_chessboard_t *board) {
     printf("Zobrist Key: %0X", max_board_state(board)->position);
 #endif
             break;
+
+            case 6: {
+                max_state_t *state = max_board_state(board);
+                uint8_t checks = max_state_checks(state);
+                if(checks > 0) {
+                    print_check(state->check[0]);
+                    if(checks > 1) {
+                        print_check(state->check[1]);
+                    }
+                }
+            } break;
         }
 
         putchar('\n');

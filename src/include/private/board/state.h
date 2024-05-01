@@ -1,5 +1,7 @@
 #pragma once
 
+#include "max/board/dir.h"
+#include "max/board/loc.h"
 #include "max/board/state.h"
 
 
@@ -9,11 +11,24 @@
 /// \name Private Functions
 /// @{
 
+/// Create a new check structure that represents no detected check from a square.
+MAX_INLINE_ALWAYS max_check_t max_check_empty(void) {
+    return (max_check_t){
+        .origin = MAX_0x88_INVALID_MASK,
+        .ray = MAX_0x88_DIR_INVALID,
+    };
+}
+
 /// Get a default state plate representing both sides having castle rights,
 /// no en passant possible, and neither side in check
 MAX_INLINE_ALWAYS max_state_t max_state_default(void) {
     return (max_state_t){
         .position = 0,
+        .state = 0xFF,
+        .check = {
+            max_check_empty(),
+            max_check_empty()
+        }
     };
 }
 
