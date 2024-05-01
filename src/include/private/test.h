@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef MAX_TESTS
+#include <stdio.h>
 #include <stdint.h>
 
 extern uint32_t _max_failed_tests;
@@ -24,3 +26,5 @@ extern uint32_t _max_tests;
     uint32_t tests = _max_tests - before;     \
     printf("[" name "]  - [%d / %d]\n", tests - (_max_failed_tests - before_fail), tests); \
 } while(0)
+
+#endif

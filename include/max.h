@@ -18,7 +18,9 @@
 /// In exchange, a few more cycles are required to play each move as moves are unpacked to their 0x88 square representation.
 /// 
 
-
+/// \ingroup board
+/// Initialize all static arrays used by the engine and board
+void max_init(void);
 
 #ifdef MAX_TESTS
 

@@ -6,7 +6,6 @@
 
 
 #ifdef MAX_TESTS
-#include <stdio.h>
 
 void max_move_unit_tests(void) {
     max_pmove_t packed = max_pmove_new(MAX_E2, MAX_H8, MAX_MOVETAG_CAPTURE | MAX_MOVETAG_PQUEEN);

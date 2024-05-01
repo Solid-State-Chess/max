@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "max/board/capturelist.h"
+#include "max/board/state.h"
 #include "max/board/loc.h"
 #include "max/board/piececode.h"
 #include "max/board/piecelist.h"
@@ -62,10 +63,28 @@ typedef struct {
     /// A stack of all captures made over the course of the game, enabling move unmaking for capture moves.
     max_captures_t captures;
     
+    /// The variable-size stack of game states used to make and unmake moves - 
+    /// *and* to determine draws by threefold repetition.
+    /// It is guaranteed that the stack always contains at least one element in order to represent the
+    /// game state on the current ply, and in addition the board will always attempt to keep
+    /// a least three valid state entries in the stack in order to determine draws by threefold repetition.
+    max_state_stack_t stack;
+    
     /// Counter of the number of plies (halfmoves) that have been played so far.
     /// This counter is also used to derive the current #max_side_t index by bitwise ANDing
     /// with 1 (e.g. an odd ply means black is to move on that ply)
     uint16_t ply;
 } max_chessboard_t;
+
+/// Create a new chessboard with no pieces on the board and a default state
+/// (both sides able to castle, en passant is not available).
+///
+/// \param [out] board A pointer to an uninitialized board structure that will be initialized
+/// \param [in] buffer A pointer to the buffer that will be used to maintain the state stack of the board
+void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer);
+
+/// Clear the given board, then add pieces in their default positions.
+/// This effectively begins a new game on the board, clearing all prior state.
+void max_chessboard_default_pos(max_chessboard_t *board);
 
 /// @}

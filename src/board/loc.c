@@ -4,7 +4,6 @@
 
 
 #ifdef MAX_TESTS
-#include <stdio.h>
 
 void max_loc_unit_tests(void) {
     max_0x88_t p1 = max_0x88_new(7, 1);
