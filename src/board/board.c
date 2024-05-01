@@ -1,7 +1,6 @@
 #include "max/board/board.h"
 #include "max/board/loc.h"
 #include "max/board/piececode.h"
-#include "max/board/side.h"
 #include "max/board/squares.h"
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
@@ -51,12 +50,16 @@ void max_chessboard_default_pos(max_chessboard_t *board) {
         max_board_add_piece(board, pos, max_piececode_new(MAX_PIECECODE_WHITE, MAX_PIECECODE_PAWN));
         max_board_add_piece(board, max_0x88_mirror_y(pos), max_piececode_new(MAX_PIECECODE_BLACK, MAX_PIECECODE_PAWN));
     }
+
 }
 
 
 #ifdef MAX_CONSOLE
 #include <stdio.h>
+
+#ifdef MAX_ZOBRIST_64
 #include <inttypes.h>
+#endif
 
 static char MAX_PIECETYPE_LETTER[MAX_PIECEINDEX_LEN] = {
     [MAX_PIECEINDEX_PAWN]   = 'p',
