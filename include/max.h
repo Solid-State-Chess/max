@@ -21,6 +21,7 @@
 
 #include "max/board/zobrist.h"
 
+void max_init(void);
 
 #ifdef MAX_TESTS
 

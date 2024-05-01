@@ -23,7 +23,22 @@ typedef struct { int8_t v; } max_0x88_dir_t;
 enum {
     /// Invalid direction that does not increment a position at all
     MAX_0x88_DIR_INVALID = 0,
+
+    MAX_0x88_DIR_UP    =  0x10,
+    MAX_0x88_DIR_DOWN  = -0x10,
+    MAX_0x88_DIR_RIGHT =  0x01,
+    MAX_0x88_DIR_LEFT  = -0x01,
+
+    MAX_0x88_DIR_UR    = MAX_0x88_DIR_UP + MAX_0x88_DIR_RIGHT,
+    MAX_0x88_DIR_UL    = MAX_0x88_DIR_UP + MAX_0x88_DIR_LEFT,
+    MAX_0x88_DIR_DR    = MAX_0x88_DIR_DOWN + MAX_0x88_DIR_RIGHT,
+    MAX_0x88_DIR_DL    = MAX_0x88_DIR_DOWN + MAX_0x88_DIR_LEFT,
 };
+
+/// Create a new #max_0x88_dir_t structure from the given signed increment.
+MAX_INLINE_ALWAYS max_0x88_dir_t max_0x88_dir_new(int8_t inc) {
+    return (max_0x88_dir_t){ .v = inc };
+}
 
 /// Shift the given 0x88 board position as by the given amount.
 /// This shift may result in an invalid board position, which must be checked by the user.

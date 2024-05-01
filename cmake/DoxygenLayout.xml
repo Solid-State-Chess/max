@@ -191,14 +191,14 @@
     <memberdecl>
       <nestedgroups visible="yes" title=""/>
       <membergroups visible="yes"/>
+      <typedefs title=""/>
+      <classes visible="yes" title=""/>
       <modules visible="yes" title=""/>
       <dirs visible="yes" title=""/>
       <files visible="yes" title=""/>
       <namespaces visible="yes" title=""/>
       <concepts visible="yes" title=""/>
-      <classes visible="yes" title=""/>
       <defines title=""/>
-      <typedefs title=""/>
       <sequences title=""/>
       <dictionaries title=""/>
       <enums title=""/>

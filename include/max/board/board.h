@@ -87,6 +87,9 @@ typedef struct {
 /// \param [in] seed Seed to use for the random number generator when creating zobrist elements
 void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, uint64_t seed);
 
+/// Reset the given chessboard, removing any pieces and resetting the capture and state stacks.
+void max_chessboard_reset(max_chessboard_t *board);
+
 /// Clear the given board, then add pieces in their default positions.
 /// This effectively begins a new game on the board, clearing all prior state.
 void max_chessboard_default_pos(max_chessboard_t *board);

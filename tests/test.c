@@ -4,6 +4,8 @@
 
 int main(int argc, char *argv[]) {
     static max_state_t buf[64] = {0};
+    max_init();
+
     max_unit_tests();
 
     max_chessboard_t board;
