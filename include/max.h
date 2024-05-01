@@ -18,9 +18,15 @@
 /// In exchange, a few more cycles are required to play each move as moves are unpacked to their 0x88 square representation.
 /// 
 
+
+#include "max/board/zobrist.h"
+
 /// \ingroup board
-/// Initialize all static arrays used by the engine and board
-void max_init(void);
+/// Initialize all static arrays used by the engine and chessboard functions.
+/// This function MUST be called before any chessboard or engine is created, 
+/// and debug assertions will verify this when enabled.
+/// \param seed Seed value used by the random number generator when creating zobrist hash elements
+void max_init(max_zobrist_t seed);
 
 #ifdef MAX_TESTS
 
