@@ -56,6 +56,7 @@ void max_chessboard_default_pos(max_chessboard_t *board) {
 
 #ifdef MAX_CONSOLE
 #include <stdio.h>
+#include <inttypes.h>
 
 static char MAX_PIECETYPE_LETTER[MAX_PIECEINDEX_LEN] = {
     [MAX_PIECEINDEX_PAWN]   = 'p',
@@ -96,6 +97,12 @@ void max_chessboard_print(max_chessboard_t *board) {
     }
 
     putchar('\n');
+    
+#ifdef MAX_ZOBRIST_64
+    printf("Zobrist Key: %" PRIX64 "\n", max_board_state(board)->position);
+#else
+    printf("Zobrist Key: %0X\n", max_board_state(board)->position);
+#endif
 }
 
 #endif
