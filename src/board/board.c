@@ -44,13 +44,27 @@ void max_board_add_piece_to_side(max_chessboard_t *board, max_plist_t *side, max
     state->position ^= max_zobrist_position_element(&board->zobrist_state, pos, piece);
 }
 
+static void max_board_add_mirrored(max_chessboard_t *board, max_0x88_t pos, uint8_t piecetype) {
+    max_0x88_t mirrored = max_0x88_mirror_y(pos);
+    max_board_add_piece_to_side(board, &board->side.white, pos, max_piececode_new(MAX_PIECECODE_WHITE, piecetype));
+    max_board_add_piece_to_side(board, &board->side.black, mirrored, max_piececode_new(MAX_PIECECODE_BLACK, piecetype));
+}
+
 void max_chessboard_default_pos(max_chessboard_t *board) {
     for(unsigned i = MAX_RANK_2; i <= MAX_H2.v; ++i) {
         max_0x88_t pos = max_0x88_raw(i);
-        max_board_add_piece(board, pos, max_piececode_new(MAX_PIECECODE_WHITE, MAX_PIECECODE_PAWN));
-        max_board_add_piece(board, max_0x88_mirror_y(pos), max_piececode_new(MAX_PIECECODE_BLACK, MAX_PIECECODE_PAWN));
+        max_board_add_mirrored(board, pos, MAX_PIECECODE_PAWN);
     }
+    
+    max_board_add_mirrored(board, MAX_A1, MAX_PIECECODE_ROOK);
+    max_board_add_mirrored(board, MAX_H1, MAX_PIECECODE_ROOK);
+    max_board_add_mirrored(board, MAX_B1, MAX_PIECECODE_KNIGHT);
+    max_board_add_mirrored(board, MAX_G1, MAX_PIECECODE_KNIGHT);
+    max_board_add_mirrored(board, MAX_C1, MAX_PIECECODE_BISHOP);
+    max_board_add_mirrored(board, MAX_F1, MAX_PIECECODE_BISHOP);
 
+    max_board_add_mirrored(board, MAX_D1, MAX_PIECECODE_QUEEN);
+    max_board_add_mirrored(board, MAX_E1, MAX_PIECECODE_KING);
 }
 
 
