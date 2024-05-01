@@ -75,4 +75,26 @@
 #define MAX_H7 max_0x88_raw(0x67)
 #define MAX_H8 max_0x88_raw(0x77)
 
+enum {
+    MAX_FILE_A = 0x00,
+    MAX_FILE_B = 0x01,
+    MAX_FILE_C = 0x02,
+    MAX_FILE_D = 0x03,
+    MAX_FILE_E = 0x04,
+    MAX_FILE_F = 0x05,
+    MAX_FILE_G = 0x06,
+    MAX_FILE_H = 0x07
+};
+
+enum {
+    MAX_RANK_1 = 0x00,
+    MAX_RANK_2 = 0x10,
+    MAX_RANK_3 = 0x20,
+    MAX_RANK_4 = 0x30,
+    MAX_RANK_5 = 0x40,
+    MAX_RANK_6 = 0x50,
+    MAX_RANK_7 = 0x60,
+    MAX_RANK_8 = 0x70
+};
+
 #undef max_0x88_raw

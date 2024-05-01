@@ -91,4 +91,11 @@ void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, uint64_t s
 /// This effectively begins a new game on the board, clearing all prior state.
 void max_chessboard_default_pos(max_chessboard_t *board);
 
+#ifdef MAX_CONSOLE
+
+/// Draw a debug representation of the given chessboard to stdout
+void max_chessboard_print(max_chessboard_t *board);
+
+#endif
+
 /// @}

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "max/board/zobrist.h"
+#include "max/def.h"
 
 /// \ingroup board
 /// @{
@@ -42,6 +43,11 @@ typedef struct {
     /// the plates array is guaranteed to never be empty.
     uint8_t head;
 } max_state_stack_t;
+
+/// Get a pointer to the head of the stack - this is the current state of the game
+MAX_INLINE_ALWAYS max_state_t* max_state_stack_peek(max_state_stack_t *stack) {
+    return &stack->plates[stack->head];
+}
 
 /// @}
 

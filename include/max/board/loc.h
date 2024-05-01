@@ -61,6 +61,11 @@ MAX_INLINE_ALWAYS max_0x88_t max_0x88_raw(uint8_t v) {
     return (max_0x88_t){ .v = v };
 }
 
+/// Mirror the given location's y coordinate across the board
+MAX_INLINE_ALWAYS max_0x88_t max_0x88_mirror_y(max_0x88_t pos) {
+    return max_0x88_raw(pos.v ^ 0x70);
+}
+
 /// Get the rank in the range [0..7] of the given 0x88 encoded position.
 /// Note that for invalid positions, this may return out of bounds ranks.
 MAX_INLINE_ALWAYS uint8_t max_0x88_rank(max_0x88_t pos) { return pos.v >> MAX_0x88_RANK_POS; }
@@ -71,7 +76,7 @@ MAX_INLINE_ALWAYS uint8_t max_0x88_file(max_0x88_t pos) { return pos.v & MAX_0x8
 
 /// Check if the 0x88 index represents a valid square on the chessboard
 /// \return true if the position does not match the #MAX_0x88_INVALID_MASK bitmask
-MAX_INLINE_ALWAYS bool max_0x88_valid(max_0x88_t pos) { return pos.v & MAX_0x88_INVALID_MASK; }
+MAX_INLINE_ALWAYS bool max_0x88_valid(max_0x88_t pos) { return (pos.v & MAX_0x88_INVALID_MASK) == 0; }
 
 #ifdef MAX_CONSOLE
 

@@ -70,6 +70,11 @@ enum {
 
 /// @}
 
+/// Helper function to create a piececode from a side and type tag
+MAX_INLINE_ALWAYS max_piececode_t max_piececode_new(uint8_t side, uint8_t type) {
+    return (max_piececode_t){.v = side | type };
+}
+
 /// Get a #max_side_t representing the color of the given piece.
 /// The piece should not be empty or invalid, as without debug assertions these
 /// pieces will be represented as white.

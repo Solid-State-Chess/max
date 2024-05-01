@@ -27,6 +27,7 @@ MAX_INLINE_ALWAYS void max_state_stack_new(max_state_stack_t *stack, max_state_t
     stack->head = 0;
 }
 
+
 /// @}
 
 /// @}
