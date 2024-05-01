@@ -17,7 +17,7 @@
 /// bishops and rook tags share a bit with the queen tag, allowing
 /// efficient is-slider check with a single bitwise operation.
 /// @{
-typedef uint8_t max_piececode_t;
+typedef struct { uint8_t v; } max_piececode_t;
 
 enum {
     /// Code representing an empty square.

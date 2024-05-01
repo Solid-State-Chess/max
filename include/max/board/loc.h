@@ -53,6 +53,13 @@ MAX_INLINE_ALWAYS max_0x88_t max_0x88_new(uint8_t rank, uint8_t file) {
     return (max_0x88_t){ .v = (rank << MAX_0x88_RANK_POS) | file };
 }
 
+/// Create a new 0x88 board position wrapper struct from an 8 bit value.
+/// Note that no validity checking is performed in this method, an invalid
+/// value will result in an invalid board position.
+MAX_INLINE_ALWAYS max_0x88_t max_0x88_raw(uint8_t v) {
+    return (max_0x88_t){ .v = v };
+}
+
 /// Get the rank in the range [0..7] of the given 0x88 encoded position.
 /// Note that for invalid positions, this may return out of bounds ranks.
 MAX_INLINE_ALWAYS uint8_t max_0x88_rank(max_0x88_t pos) { return pos.v >> MAX_0x88_RANK_POS; }
@@ -69,7 +76,7 @@ MAX_INLINE_ALWAYS bool max_0x88_valid(max_0x88_t pos) { return pos.v & MAX_0x88_
 
 /// Utility macro to create two format arguments when using a printf "%c%c" string.
 /// Formats board locations in algebraic a3, e4, etc. notation
-#define MAX_0x88_FORMAT(loc) (max_0x88_file((loc).v) + 'a'), (max_0x88_rank((loc).v) + '1')
+#define MAX_0x88_FORMAT(loc) (max_0x88_file(loc) + 'a'), (max_0x88_rank(loc) + '1')
 
 #endif
 
@@ -85,8 +92,24 @@ MAX_INLINE_ALWAYS bool max_0x88_valid(max_0x88_t pos) { return pos.v & MAX_0x88_
 /// on the same diagonal or cardinal ray.
 /// @{
 
-/// 
-typedef uint8_t max_0x88_diff_t;
+/// An index between 0 and 238 uniquely identifying the difference between two valid
+/// 0x88 board locations.
+/// Such a key can be used to index a lookup table for direction between squares.
+typedef struct { uint8_t v; } max_0x88_diff_t;
+
+/// Required length of an array when indexed by a #max_0x88_diff_t.
+#define MAX_0x88_DIFF_LEN (240)
+
+/// The center of a #MAX_0x88_DIFF_LEN sized array - this is the index returned when two squares
+/// passed to max_0x88_diff() are the same
+#define MAX_0x88_DIFF_CENTER (0x77)
+
+/// Get a #max_0x88_diff_t index for the difference between the two valid 0x88 board positions
+/// \param from The square that the ray connecting the two locations points away from, must be valid
+/// \param to The square that the ray points towards, also must be valid
+MAX_INLINE_ALWAYS max_0x88_diff_t max_0x88_diff(max_0x88_t from, max_0x88_t to) {
+    return (max_0x88_diff_t){ .v = (0x77 + to.v) - from.v };
+}
 
 /// @}
 
