@@ -149,6 +149,7 @@ void max_chessboard_print(max_chessboard_t *board) {
                 if(checks > 0) {
                     print_check(state->check[0]);
                     if(checks > 1) {
+                        fputs(" and ", stdout);
                         print_check(state->check[1]);
                     }
                 }

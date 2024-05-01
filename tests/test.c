@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
     max_unit_tests();
 
     max_chessboard_t board;
-    max_chessboard_new(&board, buf, 0xdeadbeef);
+    max_chessboard_new(&board, buf, 0xfa3198db566d5520);
     max_chessboard_default_pos(&board);
 
     max_chessboard_print(&board);
