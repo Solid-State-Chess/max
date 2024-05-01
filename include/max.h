@@ -21,12 +21,6 @@
 
 #include "max/board/zobrist.h"
 
-/// \ingroup board
-/// Initialize all static arrays used by the engine and chessboard functions.
-/// This function MUST be called before any chessboard or engine is created, 
-/// and debug assertions will verify this when enabled.
-/// \param seed Seed value used by the random number generator when creating zobrist hash elements
-void max_init(max_zobrist_t seed);
 
 #ifdef MAX_TESTS
 

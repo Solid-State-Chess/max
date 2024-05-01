@@ -32,10 +32,19 @@ typedef uint32_t max_zobrist_t;
 
 /// @}
 
-/// Static arrays used to iteratively compute zobrist hash keys
+/// Static arrays used to incrementally compute zobrist hash keys.
+/// These contribute the largest memory footprint to the board by itself,
+/// but allow for huge performance gains in engine processing and threefold repetition.
 typedef struct {
+    /// An array indexed by the side that a piece is on, the piece type, and the position of the piece.
+    /// Zobrist hashes are internally built by XORing the current hash with this whenever a piece is added to or
+    /// removed from the board
     max_zobrist_t position[MAX_SIDES_LEN][MAX_PIECEINDEX_LEN][MAX_6BIT_LEN];
+    /// Castle rights array representing the ABSENCE of castle rights for white and black's
+    /// king and queenside rooks.
     max_zobrist_t castlerights[4];
+    /// Elements added to the final hash if en passant is possible on a file, otherwise no extra
+    /// element is added
     max_zobrist_t en_passant_file[8];
 } max_zobrist_elements_t;
 
