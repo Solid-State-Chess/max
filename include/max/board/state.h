@@ -62,7 +62,7 @@ typedef uint8_t max_packed_state_t;
 
 enum {
     /// Specific value of the en passant file bits representing en passant is not available
-    MAX_PSTATE_EPFILE_INVALID = 0x0F,
+    MAX_PSTATE_EPFILE_INVALID = 0x08,
     /// Bitmask for the lower four bits of a packed state representing the en passant file
     MAX_PSTATE_EPFILE_MASK    = 0x0F,
     /// Kingside castle bit, must be shifted in order to represent white or black's castle rights
@@ -83,7 +83,7 @@ MAX_INLINE_ALWAYS bool max_packed_state_has_ep(max_packed_state_t state) {
 /// Get a file number between 0 and 7 if the given packed state has en passant on a file,
 /// or an invalid file number if the state has no en passant possible.
 MAX_INLINE_ALWAYS uint8_t max_packed_state_epfile(max_packed_state_t state) {
-    return state & MAX_PSTATE_EPFILE_INVALID;
+    return state & MAX_PSTATE_EPFILE_MASK;
 }
 
 /// Get a bitmask to check for kingside castle rights on the given side
