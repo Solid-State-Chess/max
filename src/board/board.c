@@ -72,7 +72,7 @@ static void max_board_add_mirrored(max_board_t *board, max_0x88_t pos, uint8_t p
 }
 
 void max_board_default_pos(max_board_t *board) {
-    for(unsigned i = MAX_RANK_2; i <= MAX_H2.v; ++i) {
+    for(unsigned i = MAX_A2.v; i <= MAX_H2.v; ++i) {
         max_0x88_t pos = max_0x88_raw(i);
         max_board_add_mirrored(board, pos, MAX_PIECECODE_PAWN);
     }

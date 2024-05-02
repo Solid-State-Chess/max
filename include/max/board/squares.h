@@ -75,26 +75,35 @@
 #define MAX_H7 max_0x88_raw(0x67)
 #define MAX_H8 max_0x88_raw(0x77)
 
-enum {
-    MAX_FILE_A = 0x00,
-    MAX_FILE_B = 0x01,
-    MAX_FILE_C = 0x02,
-    MAX_FILE_D = 0x03,
-    MAX_FILE_E = 0x04,
-    MAX_FILE_F = 0x05,
-    MAX_FILE_G = 0x06,
-    MAX_FILE_H = 0x07
-};
+#define MAX_FILE_MASK_A 0x00
+#define MAX_FILE_MASK_B 0x01
+#define MAX_FILE_MASK_C 0x02
+#define MAX_FILE_MASK_D 0x03
+#define MAX_FILE_MASK_E 0x04
+#define MAX_FILE_MASK_F 0x05
+#define MAX_FILE_MASK_G 0x06
+#define MAX_FILE_MASK_H 0x07
+
+
+#define MAX_RANK_MASK_1 0x00
+#define MAX_RANK_MASK_2 0x10
+#define MAX_RANK_MASK_3 0x20
+#define MAX_RANK_MASK_4 0x30
+#define MAX_RANK_MASK_5 0x40
+#define MAX_RANK_MASK_6 0x50
+#define MAX_RANK_MASK_7 0x60
+#define MAX_RANK_MASK_8 0x70
 
 enum {
-    MAX_RANK_1 = 0x00,
-    MAX_RANK_2 = 0x10,
-    MAX_RANK_3 = 0x20,
-    MAX_RANK_4 = 0x30,
-    MAX_RANK_5 = 0x40,
-    MAX_RANK_6 = 0x50,
-    MAX_RANK_7 = 0x60,
-    MAX_RANK_8 = 0x70
+    MAX_RANK_1 = 0,
+    MAX_RANK_2 = 1,
+    MAX_RANK_3 = 2,
+    MAX_RANK_4 = 3,
+    MAX_RANK_5 = 4,
+    MAX_RANK_6 = 5,
+    MAX_RANK_7 = 6,
+    MAX_RANK_8 = 7,
+    MAX_RANK_INVALID = 8
 };
 
 #undef max_0x88_raw

@@ -23,7 +23,13 @@ max_0x88_dir_t MAX_PAWN_ATTACK_SIDES[MAX_PAWN_ATTACK_SIDE_LEN];
 /// Directions that a pawn from a given side will advance towards
 max_0x88_dir_t MAX_PAWN_ADVANCE_DIR[MAX_SIDES_LEN];
 
+/// Promotion rank indices for pawns of the given side.
+uint8_t MAX_PAWN_PROMOTE_RANK[MAX_SIDES_LEN];
 
+/// En passant rank numbers for each side.
+/// This is the rank that a pawn must be located on in order to capture by en
+/// passant if an enemy pawn has just moved adjacently.
+uint8_t MAX_PAWN_EP_RANK[MAX_SIDES_LEN];
 
 /// Generate pseudo-legal moves for all pawns of the given side
 /// \param board The board to generate moves on

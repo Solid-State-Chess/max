@@ -87,7 +87,6 @@ MAX_INLINE_ALWAYS bool max_0x88_valid(max_0x88_t pos) { return (pos.v & MAX_0x88
 #endif
 
 
-
 /// @}
 
 
