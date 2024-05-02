@@ -12,6 +12,7 @@ option(MAX_ZOBRIST_64      "Enable 64-bit zobrist over 32-bit keys" OFF)
 option(MAX_TESTS   "Enable max-tests compilation" ON)
 option(MAX_DOC     "Enable Doxygen documentation build" OFF)
 option(MAX_ASSERTS "Enable internal self-check assertions for debugging" OFF)
+option(MAX_ASSERTS_SANITY "Enable extensive internal sanity checks for movegen and move make / unmake debugging" OFF)
 option(MAX_CONSOLE "Enable console formatting functions, mostly for debugging boards" OFF)
 
 if(MAX_TESTS)
@@ -43,6 +44,7 @@ target_compile_definitions(
     PUBLIC
     $<$<BOOL:${MAX_TESTS}>:MAX_TESTS>
     $<$<BOOL:${MAX_ASSERTS}>:MAX_ASSERTS>
+    $<$<BOOL:${MAX_ASSERTS_SANITY}>:MAX_ASSERTS_SANITY>
     $<$<BOOL:${MAX_CONSOLE}>:MAX_CONSOLE>
     $<$<BOOL:${MAX_PACKED_MOVE}>:MAX_PACKED_MOVE>
     $<$<BOOL:${MAX_ZOBRIST_64}>:MAX_ZOBRIST_64>

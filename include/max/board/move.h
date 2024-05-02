@@ -47,7 +47,7 @@ enum {
 
 /// Check if the given move tag represents a promotion to any piece type.
 MAX_INLINE_ALWAYS bool max_movetag_is_promote(max_movetag_t tag) {
-    return tag != MAX_MOVETAG_NONE && tag <= MAX_MOVETAG_PQUEEN;
+    return tag > MAX_MOVETAG_ENPASSANT && tag <= MAX_MOVETAG_PQUEEN;
 }
 
 /// @}

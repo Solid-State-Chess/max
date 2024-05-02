@@ -44,6 +44,9 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             //Shift the destination 'down' relative to the side that is moving to get the captured pawn's position
             max_0x88_t captured_pos = max_0x88_move(move.to, -MAX_PAWN_ADVANCE_DIR[side]);
             max_piececode_t captured = max_board_remove_piece_from_side(board, enemy, captured_pos);
+
+            MAX_ASSERT(captured.v != MAX_PIECECODE_EMPTY);
+
             max_captures_add(&board->captures, captured);
         } break;
     }

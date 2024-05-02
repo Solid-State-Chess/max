@@ -1,4 +1,3 @@
-#define MAX_CONSOLE
 #include "gui.h"
 #include "max/board/board.h"
 #include "max/board/movegen.h"

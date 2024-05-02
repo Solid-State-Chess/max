@@ -8,6 +8,7 @@
 #include "private/board/piecelist.h"
 #include "private/board/state.h"
 #include "private/board/zobrist.h"
+#include "private/max.h"
 
 static void max_chessboard_init_pieces(max_board_t *board) {
     for(unsigned i = 0; i < MAX_0x88_LEN; ++i) {
@@ -21,6 +22,7 @@ static void max_chessboard_init_pieces(max_board_t *board) {
 
 
 void max_board_new(max_board_t *board, max_state_t *buffer, uint64_t seed) {
+    MAX_ASSERT(MAX_INITIALIZED && "Board static lookup tables have not yet been initialized with max_init()");
     max_zobrist_elements_init(&board->zobrist_state, seed);
     board->stack.plates = buffer;
     max_board_reset(board);
