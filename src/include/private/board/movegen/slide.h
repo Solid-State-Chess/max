@@ -16,10 +16,10 @@
 /// Generate a sliding attackers moves from the given source square along the provided ray.
 /// \param board The board to generate moves on
 /// \param list List to add quiet and attack sliding moves to
-/// \param friendly A bitmask that will match friendly pieces of the piece on the source square
+/// \param enemy A bitmask that will match enemy pieces of the piece on the source square
 /// \param source The origin square of the sliding attacker
 /// \param ray Increment to apply to each square along the line
-void max_board_movegen_slide(max_board_t *board, max_movelist_t *list, max_piecemask_t friendly, max_0x88_t source, max_0x88_dir_t ray);
+void max_board_movegen_slide(max_board_t *board, max_movelist_t *list, max_piecemask_t enemy, max_0x88_t source, max_0x88_dir_t ray);
 
 /// @}
 

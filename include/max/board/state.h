@@ -45,7 +45,7 @@ MAX_INLINE_ALWAYS bool max_check_has_value(max_check_t check) {
 
 /// Return true if check is delivered from a sliding attacker.
 MAX_INLINE_ALWAYS bool max_check_is_sliding(max_check_t check) {
-    return check.ray.v == MAX_0x88_DIR_INVALID;
+    return check.ray == MAX_0x88_DIR_INVALID;
 }
 
 /// \name Packed State

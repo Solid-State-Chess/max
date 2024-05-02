@@ -9,13 +9,13 @@
 #include "private/board/movegen/slide.h"
 
 
-bool max_board_movegen_attack(max_board_t *board, max_movelist_t *list, max_piecemask_t friendly, max_0x88_t from, max_0x88_t to) {
+bool max_board_movegen_attack(max_board_t *board, max_movelist_t *list, max_piecemask_t enemy, max_0x88_t from, max_0x88_t to) {
     if(max_0x88_valid(to)) {
         max_piececode_t piece = board->pieces[to.v];
         if(piece.v == MAX_PIECECODE_EMPTY) {
             max_movelist_add(list, max_smove_normal(from, to));
             return true;
-        } else if(!max_piececode_match(piece, friendly)) {
+        } else if(max_piececode_match(piece, enemy)) {
             max_movelist_add(list, max_smove_capture(from, to));
         }
     }
