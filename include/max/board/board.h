@@ -100,6 +100,11 @@ MAX_INLINE_ALWAYS max_side_t max_board_side(max_board_t *board) {
     return board->ply & 1;
 }
 
+/// Get a side flag for the enemy to the current side to play on the board's ply
+MAX_INLINE_ALWAYS max_side_t max_board_enemy_side(max_board_t *board) {
+    return max_board_side(board) ^ 1;
+}
+
 #ifdef MAX_CONSOLE
 
 /// Draw a debug representation of the given chessboard to stdout

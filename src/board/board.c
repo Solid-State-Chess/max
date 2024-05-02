@@ -40,29 +40,57 @@ void max_board_reset(max_board_t *board) {
 
 void max_board_add_piece_to_side(max_board_t *board, max_pieces_t *side, max_0x88_t pos, max_piececode_t piece) {
     MAX_ASSERT(board->pieces[pos.v].v == MAX_PIECECODE_EMPTY);
-
+    
+    //Update board pieces array to show added piece
     board->pieces[pos.v] = piece;
-
+    
+    //Update position lists of the given side to show added piece
     max_loclist_t *list = max_plist_get_list(side, piece);
     max_lidx_t idx = max_loclist_add(list, pos);
     board->indices[pos.v] = idx;
-
+    
+    //Update the zobrist key of the current position with XOR
     max_state_t *state = max_board_state(board);
     state->position ^= max_zobrist_position_element(&board->zobrist_state, pos, piece);
 }
 
-void max_board_remove_piece_from_side(max_board_t *board, max_pieces_t *side, max_0x88_t pos) {
-    MAX_ASSERT(board->pieces[pos.v].v != MAX_PIECECODE_EMPTY);
+void max_board_move_piece_from_side(max_board_t *board, max_pieces_t *side, max_0x88_t from, max_0x88_t to) {
+    MAX_ASSERT(board->pieces[from.v].v != MAX_PIECECODE_EMPTY);
+    MAX_ASSERT(board->pieces[to.v].v == MAX_PIECECODE_EMPTY);
+    max_piececode_t piece = board->pieces[from.v];
+    
+    //Update position lists for the given side to reflect new position of the moved piece
+    max_lidx_t idx = board->indices[from.v];
+    max_loclist_t *list = max_plist_get_list(side, piece);
+    list->loc[idx] = to;
+    board->indices[to.v] = idx;
+    
+    //Modify the piececode table and the zobrist key of the current position to reflect the moved piece
+    max_state_t *state = max_board_state(board);
+    
+    board->pieces[from.v].v = MAX_PIECECODE_EMPTY;
+    state->position ^= max_zobrist_position_element(&board->zobrist_state, from, piece);
+    
+    board->pieces[to.v] = piece;
+    state->position ^= max_zobrist_position_element(&board->zobrist_state, to, piece);
+}
 
+max_piececode_t max_board_remove_piece_from_side(max_board_t *board, max_pieces_t *side, max_0x88_t pos) {
+    MAX_ASSERT(board->pieces[pos.v].v != MAX_PIECECODE_EMPTY);
+    
+    //Clear the piece from the piececode table
     max_piececode_t piece = board->pieces[pos.v];
     board->pieces[pos.v].v = MAX_PIECECODE_EMPTY;
-
+    
+    //Remove the piece from the side's position list
     max_lidx_t idx = board->indices[pos.v];
     max_loclist_t *list = max_plist_get_list(side, piece);
     max_loclist_remove(list, idx);
-
+    
+    //Update the zobrist hash to reflect the removed piece from the square
     max_state_t *state = max_board_state(board);
     state->position ^= max_zobrist_position_element(&board->zobrist_state, pos, piece);
+    return piece;
 }
 
 static void max_board_add_mirrored(max_board_t *board, max_0x88_t pos, uint8_t piecetype) {
@@ -141,7 +169,7 @@ void max_board_print(max_board_t *board) {
             
             case 7:
 #ifdef MAX_ZOBRIST_64
-    printf("Zobrist Key: %" PRIX64 "\n", max_board_state(board)->position);
+    printf("Zobrist Key: %" PRIX64, max_board_state(board)->position);
 #else
     printf("Zobrist Key: %0X", max_board_state(board)->position);
 #endif
@@ -156,6 +184,13 @@ void max_board_print(max_board_t *board) {
                         fputs(" and ", stdout);
                         print_check(state->check[1]);
                     }
+                }
+            } break;
+
+            case 5: {
+                max_state_t *state = max_board_state(board);
+                if(max_packed_state_has_ep(state->packed)) {
+                    printf("En passant capture possible on the %c file", max_packed_state_epfile(state->packed) + 'A');
                 }
             } break;
         }

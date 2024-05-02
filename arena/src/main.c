@@ -6,7 +6,7 @@
 #undef main
 
 int main(int _argc, char *_argv[]) {
-    max_init_statics();
+    max_init();
 
     int ec;
     gui_state_t *gui = malloc(sizeof(*gui)); 

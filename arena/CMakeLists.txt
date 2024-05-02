@@ -8,6 +8,13 @@ project(
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+
+set(MAX_CONSOLE ON)
+set(MAX_TESTS OFF)
+set(MAX_DOC OFF)
+set(MAX_PACKED_MOVELIST OFF)
+set(MAX_ZOBRIST_64 ON)
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../" "max")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/sdl2-cmake-modules")

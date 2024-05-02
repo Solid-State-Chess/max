@@ -37,11 +37,18 @@ enum {
     MAX_MOVETAG_PQUEEN    = 0x05,
     /// Indicates a pawn double move from the homerow that enables en passant capture
     MAX_MOVETAG_DOUBLE    = 0x06,
+    /// Indicates a castle move, kingside or queenside is determined by the destination square
+    MAX_MOVETAG_CASTLE    = 0x07,
     /// A flag set in the fourth bit to indicate that a capture was made.
     /// This flag can ONLY be combined with the promotion flags to indicate that
     /// a pawn both captured a piece and promoted itself.
     MAX_MOVETAG_CAPTURE   = 0x08,
 };
+
+/// Check if the given move tag represents a promotion to any piece type.
+MAX_INLINE_ALWAYS bool max_movetag_is_promote(max_movetag_t tag) {
+    return tag != MAX_MOVETAG_NONE && tag <= MAX_MOVETAG_PQUEEN;
+}
 
 /// @}
 

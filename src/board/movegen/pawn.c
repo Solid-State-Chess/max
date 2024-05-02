@@ -63,13 +63,14 @@ void max_board_movegen_pawns(max_board_t *board, max_movelist_t *list, max_piece
     uint8_t const homerank = MAX_PAWN_HOMERANK[side];
 
     max_state_t *state = max_board_state(board);
-    bool has_ep = max_packed_state_has_ep(state->state);
+    bool has_ep = max_packed_state_has_ep(state->packed);
     
 
     for(unsigned i = 0; i < pieces->pawn.len; ++i) {
         max_0x88_t from = pieces->pawn.loc[i];
         max_0x88_t advanced_from = max_0x88_move(from, advance);
         
+        //Perform promotion movegen if the pawn has reached the rank just before promotion
         if(max_0x88_rank(advanced_from) == promote_rank) {
             if(board->pieces[advanced_from.v].v == MAX_PIECECODE_EMPTY) {
                 max_board_movegen_pawn_promotions(list, from, advanced_from, MAX_MOVETAG_NONE);
@@ -89,10 +90,10 @@ void max_board_movegen_pawns(max_board_t *board, max_movelist_t *list, max_piece
         }
         
         if(has_ep && max_0x88_rank(from) == en_passant_rank) {
-            uint8_t filediff = (7 + max_0x88_file(from)) - max_packed_state_epfile(state->state);
+            uint8_t filediff = (7 + max_0x88_file(from)) - max_packed_state_epfile(state->packed);
             if(filediff == 6 || filediff == 8) {
 
-                max_0x88_t epsquare = max_0x88_new(en_passant_rank, max_packed_state_epfile(state->state));
+                max_0x88_t epsquare = max_0x88_new(en_passant_rank, max_packed_state_epfile(state->packed));
                 epsquare = max_0x88_move(epsquare, advance);
                 max_movelist_add(list, max_smove_new(from, epsquare, MAX_MOVETAG_ENPASSANT));
             }

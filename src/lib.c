@@ -12,7 +12,9 @@ bool MAX_INITIALIZED = false;
 
 void max_init(void) {
     MAX_ASSERT(!MAX_INITIALIZED && "max_init() called twice");
+#ifdef MAX_ASSERTS
     MAX_INITIALIZED = true;
+#endif
     max_0x88_init_static();
 }
 

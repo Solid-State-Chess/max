@@ -115,7 +115,7 @@ typedef struct {
     /// will be filled if the king is in double check.
     max_check_t check[2];
     /// Packed data for black and white castle rights and availability of en passant.
-    max_packed_state_t state; 
+    max_packed_state_t packed; 
 } max_state_t;
 
 #pragma pack(pop)
@@ -141,6 +141,9 @@ MAX_INLINE_ALWAYS uint8_t max_state_checks(max_state_t *state) {
 typedef struct {
     /// Pointer to a buffer of game states, indexed by the #head index.
     max_state_t *plates;
+    /// Pointer to the current stack head, used to access the current game state without
+    /// computing pointer offsets using the head index.
+    max_state_t *head_ptr;
     /// Index of the last valid element in the #plates buffer - this index must always be valid as
     /// the plates array is guaranteed to never be empty.
     uint8_t head;
@@ -148,7 +151,7 @@ typedef struct {
 
 /// Get a pointer to the head of the stack - this is the current state of the game
 MAX_INLINE_ALWAYS max_state_t* max_state_stack_peek(max_state_stack_t *stack) {
-    return &stack->plates[stack->head];
+    return stack->head_ptr;
 }
 
 /// @}

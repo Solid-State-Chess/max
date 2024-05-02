@@ -7,7 +7,7 @@
 
 #define NODEFMT(nodes) ((nodes) / 1000000), (((nodes) - (((nodes) / 1000000) * 1000000)) / 10000)
 
-int gui_engine_thread(void *_data) {
+/*int gui_engine_thread(void *_data) {
     gui_shared_t *data = (gui_shared_t*)_data;
     max_searchresult_t search;
 
@@ -53,4 +53,4 @@ int gui_engine_thread(void *_data) {
     }
 
     return 0;
-}
+}*/

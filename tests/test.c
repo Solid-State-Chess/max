@@ -2,7 +2,6 @@
 #include "max/board/board.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
-#include <stdio.h>
 
 
 int main(int argc, char *argv[]) {
@@ -22,10 +21,6 @@ int main(int argc, char *argv[]) {
     max_movelist_new(&moves, movebuf, 1024);
     max_board_movegen(&board, &moves);
 
-    printf("Has %u moves\n", moves.len);
-    for(unsigned i = 0; i < moves.len; ++i) {
-        printf("%c%c%c%c\n", MAX_0x88_FORMAT(moves.buf[i].from), MAX_0x88_FORMAT(moves.buf[i].to));
-    }
 
     return 0;
 }

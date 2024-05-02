@@ -1,27 +1,32 @@
 #pragma once
-#include "max/engine/engine.h"
+#include "max/board/board.h"
+#include "max/board/loc.h"
+#include "max/board/move.h"
+#include "max/board/state.h"
 #include <SDL2/SDL.h>
 
 typedef struct {
     /// White and black textures
     SDL_Texture *square[2];
     /// Lookup table for piece codes 
-    SDL_Texture *white[32];
+    SDL_Texture *white[16];
     /// Lookup table for black piece codes
-    SDL_Texture *black[32];
+    SDL_Texture *black[16];
 } gui_textures_t;
 
 /// State for the currently grabbed piece
 typedef struct {
     /// If NULL, then there is no piece being grabbed
     SDL_Texture *grabbed;
-    max_bpos_t from;
+    max_0x88_t from;
 } gui_grabbed_t;
+
 
 /// State shared between engine thread and the gui thread
 typedef struct {
+    max_state_t buffer[1024];
     /// Engine state including the game board
-    max_engine_t engine;
+    max_board_t engine;
     /// A list of all valid moves for the player, filled by the engine thread
     max_movelist_t moves;
     /// Lock preventing simultaneous acccess to the board
@@ -37,9 +42,9 @@ typedef struct {
     /// If the player is currently selecting a piece to promote to
     bool selecting;
     /// Square to promote at
-    max_bpos_t promote_sq;
+    max_0x88_t promote_sq;
     /// Template to fill with promotion piece
-    max_move_attr_t selected;
+    max_movetag_t selected;
 } gui_promote_t;
 
 typedef struct {

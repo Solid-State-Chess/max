@@ -1,9 +1,6 @@
 #include "gui.h"
 #include "max/board/board.h"
-#include "max/engine/engine.h"
 #include "max/board/move.h"
-#include "max/board/piece.h"
-#include "max/board/square.h"
 #include "max/board/movegen.h"
 #include <SDL.h>
 #include <SDL_events.h>
@@ -43,18 +40,19 @@ int gui_state_new(gui_state_t *state) {
     gui_textures_load(state->render, &state->textures);
     
     state->shared = malloc(sizeof(*state->shared));
-
-    max_engine_new(&state->shared->engine); 
-    state->shared->moves = max_movelist_new(malloc(sizeof(max_move_t) * 2056));
+    
+    max_board_new(&state->shared->engine, state->shared->buffer, 0xfa3198db566d5520);
+    max_board_default_pos(&state->shared->engine);
+    max_movelist_new(&state->shared->moves, malloc(sizeof(max_smove_t) * 2056), 2056);
 
     state->shared->quit = false;
     state->shared->lock = SDL_CreateSemaphore(0);
 
-    state->thread = SDL_CreateThread(gui_engine_thread, "Engine Thread", (void*)state->shared);
+    /*state->thread = SDL_CreateThread(gui_engine_thread, "Engine Thread", (void*)state->shared);
     if(state->thread == NULL) {
         printf("Failed to create engine thread: %s\n", SDL_GetError());
         return -1;
-    }
+    }*/
 
     state->grabbed.grabbed = NULL;
 
@@ -64,7 +62,7 @@ int gui_state_new(gui_state_t *state) {
     return 0;
 }
 
-static max_bpos_t screen_to_board(gui_state_t *state, int x, int y) {
+static max_0x88_t screen_to_board(gui_state_t *state, int x, int y) {
     int w;
     int h;
     SDL_GetWindowSize(state->window, &w, &h);
@@ -72,15 +70,15 @@ static max_bpos_t screen_to_board(gui_state_t *state, int x, int y) {
     int x_step = w / 8;
     int y_step = h / 8;
 
-    return max_bpos_new(x / x_step, 7 - (y / y_step));
+    return max_0x88_new(7 - (y / y_step), x / x_step);
 }
 
 static SDL_Texture* gui_texture_for_piece(gui_state_t *state, max_piececode_t piece) {
     SDL_Texture *tx = NULL;
-    if(piece & MAX_PIECECODE_WHITE) {
-        tx = state->textures.white[piece & MAX_PIECECODE_TYPE_MASK];
+    if(piece.v & MAX_PIECECODE_WHITE) {
+        tx = state->textures.white[piece.v & MAX_PIECECODE_TYPE_MASK];
     } else {
-        tx = state->textures.black[piece & MAX_PIECECODE_TYPE_MASK];
+        tx = state->textures.black[piece.v & MAX_PIECECODE_TYPE_MASK];
     }
     return tx;
 }
@@ -96,7 +94,7 @@ static void gui_state_render(gui_state_t *state) {
             dest.x = x * state->squarex;
             dest.y = (7 - y) * state->squarey;
 
-            max_bpos_t pos = max_bpos_new(x, y);
+            max_0x88_t pos = max_0x88_new(y, x);
             SDL_Texture *bg = NULL;
             if((x + y) & 1) {
                 bg = state->textures.square[0];
@@ -105,11 +103,11 @@ static void gui_state_render(gui_state_t *state) {
             }
             SDL_RenderCopy(state->render, bg, NULL, &dest);
 
-            max_piececode_t piece = state->shared->engine.board.pieces[pos];
+            max_piececode_t piece = state->shared->engine.pieces[pos.v];
             if(
-                (state->grabbed.grabbed == NULL ||pos != state->grabbed.from) &&
-                piece != MAX_PIECECODE_EMPTY &&
-                (!state->promote.selecting || (max_bpos_file(state->promote.promote_sq) != x || y > 4))
+                (state->grabbed.grabbed == NULL ||pos.v != state->grabbed.from.v) &&
+                piece.v != MAX_PIECECODE_EMPTY &&
+                (!state->promote.selecting || (max_0x88_file(state->promote.promote_sq) != x || y > 4))
             ) {
                 SDL_RenderCopy(state->render, gui_texture_for_piece(state, piece), NULL, &dest);
             }
@@ -125,9 +123,9 @@ static void gui_state_render(gui_state_t *state) {
         };
 
         for(unsigned i = 0; i < 4; ++i) {
-            dest.x = max_bpos_file(state->promote.promote_sq) * state->squarex;
+            dest.x = max_0x88_file(state->promote.promote_sq) * state->squarex;
             dest.y = (7 - i) * state->squarey;
-            SDL_RenderCopy(state->render, gui_texture_for_piece(state, promotes[i] | MAX_PIECECODE_BLACK), NULL, &dest);
+            SDL_RenderCopy(state->render, gui_texture_for_piece(state, max_piececode_new(MAX_PIECECODE_BLACK, promotes[i].v)), NULL, &dest);
         }
     }
 }
@@ -148,11 +146,15 @@ int gui_state_run(gui_state_t *state) {
     state->squarey= h / 8;
 
     volatile bool enginedone = false;
-    SDL_SemPost(state->shared->lock);
+    //SDL_SemPost(state->shared->lock);
 
     for(;;) {
     outer:
-        enginedone = state->shared->done;
+        if(!enginedone) {
+            max_board_movegen(&state->shared->engine, &state->shared->moves);
+            enginedone = true;
+        }
+        //enginedone = state->shared->done;
         
         SDL_Event event;
         SDL_RenderClear(state->render);
@@ -175,22 +177,22 @@ int gui_state_run(gui_state_t *state) {
                 case SDL_QUIT: return 0;
                 case SDL_MOUSEBUTTONUP: {
                     if(state->grabbed.grabbed != NULL || state->promote.selecting) {
-                        max_bpos_t to = screen_to_board(state, event.button.x, event.button.y);
+                        max_0x88_t to = screen_to_board(state, event.button.x, event.button.y);
                         if(state->promote.selecting) {
-                            uint8_t selection = max_bpos_rank(to);
+                            uint8_t selection = max_0x88_rank(to);
                             switch(selection) {
-                                case 0: state->promote.selected = MAX_MOVE_PROMOTE_QUEEN; break;
-                                case 1: state->promote.selected = MAX_MOVE_PROMOTE_ROOK; break;
-                                case 2: state->promote.selected = MAX_MOVE_PROMOTE_BISHOP; break;
-                                case 3: state->promote.selected = MAX_MOVE_PROMOTE_KNIGHT; break;
+                                case 0: state->promote.selected = MAX_MOVETAG_PQUEEN; break;
+                                case 1: state->promote.selected = MAX_MOVETAG_PROOK; break;
+                                case 2: state->promote.selected = MAX_MOVETAG_PBISHOP; break;
+                                case 3: state->promote.selected = MAX_MOVETAG_PKNIGHT; break;
                                 default: continue;
                             }
 
                             to = state->promote.promote_sq;
                         }
 
-                        if(max_bpos_valid(to)) {
-                            if(to == state->grabbed.from) {
+                        if(max_0x88_valid(to)) {
+                            if(to.v == state->grabbed.from.v) {
                                 gui_state_drop_grabbed(state);
                                 continue;
                             }
@@ -198,38 +200,39 @@ int gui_state_run(gui_state_t *state) {
                             if(enginedone) {
                                 max_movelist_t moves = state->shared->moves;
                                 for(unsigned i = 0; i < moves.len; ++i) {
-                                    max_move_t move = moves.moves[i];
-                                    if(move.from == state->grabbed.from && move.to == to) {
-                                        if(max_move_attr_is_promote(move.attr)) {
+                                    max_smove_t move = moves.buf[i];
+                                    if(move.from.v == state->grabbed.from.v && move.to.v == to.v) {
+                                        if(max_movetag_is_promote(move.tag)) {
                                             if(!state->promote.selecting) {
                                                 state->promote.selecting = true;
                                                 state->promote.selected = 0;
                                                 state->promote.promote_sq = move.to;
                                                 goto outer;
                                             } else if(state->promote.selected != 0) {
-                                                move.attr = (move.attr & MAX_MOVE_CAPTURE) | state->promote.selected;
+                                                move.tag = (move.tag & MAX_MOVETAG_CAPTURE) | state->promote.selected;
                                                 state->promote.selecting = false;
                                             } else {
                                                 goto outer;
                                             }
                                         }
 
-                                        max_board_make_move(&state->shared->engine.board, move);
+                                        max_board_make_move(&state->shared->engine, move);
                                         gui_state_drop_grabbed(state);
                                         enginedone = false;
-                                        SDL_SemPost(state->shared->lock);
+                                        max_board_print(&state->shared->engine);
+                                        //SDL_SemPost(state->shared->lock);
                                         break;
                                     }
                                 }
                             }
                         }
                     } else {
-                        max_bpos_t pos = screen_to_board(state, event.button.x, event.button.y);
+                        max_0x88_t pos = screen_to_board(state, event.button.x, event.button.y);
 
                         if(enginedone) {
-                            if(max_bpos_valid(pos)) {
-                                max_piececode_t piece = state->shared->engine.board.pieces[pos];
-                                if(piece != MAX_PIECECODE_EMPTY) {
+                            if(max_0x88_valid(pos)) {
+                                max_piececode_t piece = state->shared->engine.pieces[pos.v];
+                                if(piece.v != MAX_PIECECODE_EMPTY) {
                                     state->grabbed.from = pos;
                                     state->grabbed.grabbed = gui_texture_for_piece(state, piece);
                                     SDL_ShowCursor(SDL_DISABLE);
@@ -253,7 +256,7 @@ void gui_state_destroy(gui_state_t *state) {
     int status;
     SDL_WaitThread(state->thread, &status);
 
-    free(state->shared->moves.moves);
+    free(state->shared->moves.buf);
 
     if(state->render != NULL) {
         SDL_DestroyRenderer(state->render);
