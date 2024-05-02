@@ -18,9 +18,8 @@
 /// In exchange, a few more cycles are required to play each move as moves are unpacked to their 0x88 square representation.
 /// 
 
-
-#include "max/board/zobrist.h"
-
+/// Initialize all static lookup tables used by the engine.
+/// This function must be called before any boards are created (checked when MAX_ASSERTS is on)
 void max_init(void);
 
 #ifdef MAX_TESTS

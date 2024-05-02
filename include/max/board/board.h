@@ -12,6 +12,7 @@
 #include "max/board/loc.h"
 #include "max/board/piececode.h"
 #include "max/board/piecelist.h"
+#include "max/def.h"
 
 /// \defgroup board Chessboard
 /// Representation of the full state of an actual chess game. 
@@ -77,7 +78,7 @@ typedef struct {
     /// This counter is also used to derive the current #max_side_t index by bitwise ANDing
     /// with 1 (e.g. an odd ply means black is to move on that ply)
     uint16_t ply;
-} max_chessboard_t;
+} max_board_t;
 
 /// Create a new chessboard with no pieces on the board and a default state
 /// (both sides able to castle, en passant is not available).
@@ -85,19 +86,24 @@ typedef struct {
 /// \param [out] board A pointer to an uninitialized board structure that will be initialized
 /// \param [in] buffer A pointer to the buffer that will be used to maintain the state stack of the board
 /// \param [in] seed Seed to use for the random number generator when creating zobrist elements
-void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, uint64_t seed);
+void max_board_new(max_board_t *board, max_state_t *buffer, uint64_t seed);
 
 /// Reset the given chessboard, removing any pieces and resetting the capture and state stacks.
-void max_chessboard_reset(max_chessboard_t *board);
+void max_board_reset(max_board_t *board);
 
 /// Clear the given board, then add pieces in their default positions.
 /// This effectively begins a new game on the board, clearing all prior state.
-void max_chessboard_default_pos(max_chessboard_t *board);
+void max_board_default_pos(max_board_t *board);
+
+/// Get a side flag for the current side to play on the board's ply
+MAX_INLINE_ALWAYS max_side_t max_board_side(max_board_t *board) {
+    return board->ply & 1;
+}
 
 #ifdef MAX_CONSOLE
 
 /// Draw a debug representation of the given chessboard to stdout
-void max_chessboard_print(max_chessboard_t *board);
+void max_board_print(max_board_t *board);
 
 #endif
 

@@ -5,6 +5,7 @@
 #include "max/assert.h"
 #include "max/board/side.h"
 #include "max/def.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 /// \ingroup board
@@ -66,6 +67,8 @@ enum {
     MAX_PIECECODE_BLACK_OFFSET = 6,
     /// Offset in bits from the LSB of the #MAX_PIECECODE_WHITE bitmask
     MAX_PIECECODE_WHITE_OFFSET = 5,
+    /// Bitmask for the two color bits of a #max_piececode_t
+    MAX_PIECECODE_COLOR_MASK = 0x60,
 };
 
 /// @}
@@ -84,6 +87,34 @@ MAX_INLINE_ALWAYS max_side_t max_piececode_side(max_piececode_t piece) {
     return (piece.v >> MAX_PIECECODE_BLACK_OFFSET) & 1;
 }
 
+
+/// \name Piece Bitmasks
+/// @{
+
+/// Wrapper struct for a bitmask that can mask a #max_piececode_t.
+/// The type is separate from the piece code type to reduce the likelihood of
+/// errors when combining piece codes
+typedef struct { uint8_t msk; } max_piecemask_t;
+
+/// Check if the given piece matches the bitmask
+/// \param Piece the piece bitfield to mask with a bitwise AND
+/// \param mask Bitmask to apply to the given piece
+MAX_INLINE_ALWAYS bool max_piececode_match(max_piececode_t piece, max_piecemask_t mask) {
+    return (piece.v & mask.msk) != 0;
+}
+
+/// Get a bitmask that matches piece codes of the same color as the given piece.
+/// \param piece The piece to extract the color bits from, must not be an invalid or empty piece code
+MAX_INLINE_ALWAYS max_piecemask_t max_piececode_color_mask(max_piececode_t piece) {
+    return (max_piecemask_t){ .msk = piece.v & MAX_PIECECODE_COLOR_MASK };
+}
+
+/// Get a piece bitmask tha tmatches pieces of the given side
+MAX_INLINE_ALWAYS max_piecemask_t max_side_color_mask(max_side_t side) {
+    return (max_piecemask_t){ .msk = MAX_PIECECODE_WHITE << side };
+}
+
+/// @}
 
 /// \name Piece Type Indexes
 /// While the piece type flags in #max_piececode_t are selected for efficient bitwise checks,

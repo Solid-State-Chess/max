@@ -2,7 +2,7 @@
 #include "max/board/piececode.h"
 #include <stdint.h>
 
-// xorshift256** general purpose random number generator
+// xorshiro256** general purpose random number generator
 struct max_zobrist_xoshiro256 {
     uint64_t v[4];
 };

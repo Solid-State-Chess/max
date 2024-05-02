@@ -9,7 +9,7 @@
 #include "private/board/state.h"
 #include "private/board/zobrist.h"
 
-static void max_chessboard_init_pieces(max_chessboard_t *board) {
+static void max_chessboard_init_pieces(max_board_t *board) {
     for(unsigned i = 0; i < MAX_0x88_LEN; ++i) {
         board->pieces[i].v = MAX_PIECECODE_INVALID;
     }
@@ -20,13 +20,13 @@ static void max_chessboard_init_pieces(max_chessboard_t *board) {
 }
 
 
-void max_chessboard_new(max_chessboard_t *board, max_state_t *buffer, uint64_t seed) {
+void max_board_new(max_board_t *board, max_state_t *buffer, uint64_t seed) {
     max_zobrist_elements_init(&board->zobrist_state, seed);
     board->stack.plates = buffer;
-    max_chessboard_reset(board);
+    max_board_reset(board);
 }
 
-void max_chessboard_reset(max_chessboard_t *board) {
+void max_board_reset(max_board_t *board) {
     max_chessboard_init_pieces(board);
 
     max_plist_new(&board->side.white);
@@ -38,7 +38,7 @@ void max_chessboard_reset(max_chessboard_t *board) {
     board->ply = 0;
 }
 
-void max_board_add_piece_to_side(max_chessboard_t *board, max_pieces_t *side, max_0x88_t pos, max_piececode_t piece) {
+void max_board_add_piece_to_side(max_board_t *board, max_pieces_t *side, max_0x88_t pos, max_piececode_t piece) {
     MAX_ASSERT(board->pieces[pos.v].v == MAX_PIECECODE_EMPTY);
 
     board->pieces[pos.v] = piece;
@@ -51,7 +51,7 @@ void max_board_add_piece_to_side(max_chessboard_t *board, max_pieces_t *side, ma
     state->position ^= max_zobrist_position_element(&board->zobrist_state, pos, piece);
 }
 
-void max_board_remove_piece_from_side(max_chessboard_t *board, max_pieces_t *side, max_0x88_t pos) {
+void max_board_remove_piece_from_side(max_board_t *board, max_pieces_t *side, max_0x88_t pos) {
     MAX_ASSERT(board->pieces[pos.v].v != MAX_PIECECODE_EMPTY);
 
     max_piececode_t piece = board->pieces[pos.v];
@@ -65,13 +65,13 @@ void max_board_remove_piece_from_side(max_chessboard_t *board, max_pieces_t *sid
     state->position ^= max_zobrist_position_element(&board->zobrist_state, pos, piece);
 }
 
-static void max_board_add_mirrored(max_chessboard_t *board, max_0x88_t pos, uint8_t piecetype) {
+static void max_board_add_mirrored(max_board_t *board, max_0x88_t pos, uint8_t piecetype) {
     max_0x88_t mirrored = max_0x88_mirror_y(pos);
     max_board_add_piece_to_side(board, &board->side.white, pos, max_piececode_new(MAX_PIECECODE_WHITE, piecetype));
     max_board_add_piece_to_side(board, &board->side.black, mirrored, max_piececode_new(MAX_PIECECODE_BLACK, piecetype));
 }
 
-void max_chessboard_default_pos(max_chessboard_t *board) {
+void max_board_default_pos(max_board_t *board) {
     for(unsigned i = MAX_RANK_2; i <= MAX_H2.v; ++i) {
         max_0x88_t pos = max_0x88_raw(i);
         max_board_add_mirrored(board, pos, MAX_PIECECODE_PAWN);
@@ -114,7 +114,7 @@ static void print_check(max_check_t check) {
     printf("check delivered from %c%c", MAX_0x88_FORMAT(check.origin));
 }
 
-void max_chessboard_print(max_chessboard_t *board) {
+void max_board_print(max_board_t *board) {
     for(unsigned y = 8; y > 0; --y) {
         printf("%d ", y);
         for(unsigned x = 0; x < 8; ++x) {

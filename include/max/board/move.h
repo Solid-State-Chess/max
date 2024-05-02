@@ -117,6 +117,70 @@ typedef struct {
     max_0x88_t from;
 } max_smove_t;
 
+/// Create a new sparse move from the given source and destination square, and metadata
+MAX_INLINE_ALWAYS max_smove_t max_smove_new(max_0x88_t from, max_0x88_t to, max_movetag_t tag) {
+    return (max_smove_t){
+        .tag = tag,
+        .to = to,
+        .from = from,
+    };
+}
+
+/// Create a new #max_smove_t representing a capture made by a piece from from the given source square
+/// to an enemy on the given destination square
+MAX_INLINE_ALWAYS max_smove_t max_smove_capture(max_0x88_t from, max_0x88_t to) {
+    return max_smove_new(from, to, MAX_MOVETAG_CAPTURE);
+}
+
+/// Create a new #max_smove_t representing a 'quiet' move from the given square to the given square.
+MAX_INLINE_ALWAYS max_smove_t max_smove_normal(max_0x88_t from, max_0x88_t to) {
+    return max_smove_new(from, to, MAX_MOVETAG_NONE);
+}
+
+/// @}
+
+/// A list of (optionally packed) moves filled during movegen and searched
+/// by the engine. Because the engine must perform move ordering to maximize
+/// the number of pruned nodes during a search, the full list of every possible move
+/// at every depth level must be recorded - potentially representing a significant amount 
+/// of memory usage.
+typedef struct {
+    /// User-provided buffer to write moves to
+    /// @{
+
+#ifdef MAX_PACKED_MOVE
+    max_pmove_t *buf;
+#else
+    max_smove_t *buf;
+#endif
+
+    /// @}
+
+    /// User-specified capacity of the buffer, used by debug assertions
+    /// to ensure we don't overrun the array
+    uint16_t capacity;
+    /// Number of moves stored in this list
+    uint16_t len;
+} max_movelist_t;
+
+
+/// Create a new list of moves using the provided buffer of the given capacity
+/// to store moves in.
+/// \param list [out] List to initialize with the passed buffer
+/// \param buf [in] Buffer to utilize as storage for moves, must have the capacity passed to this function
+/// \param capacity Capacity of the provided buffer in number of elements
+/// @{
+
+#ifdef MAX_PACKED_MOVE
+MAX_IMAX_INLINE_ALWAYS void max_movelist_new(max_movelist_t *list, max_pmvemax_pmove_t *buf, uint16_t capacity) {
+#else
+MAX_INLINE_ALWAYS void max_movelist_new(max_movelist_t *list, max_smove_t *buf, uint16_t capacity) {
+#endif
+    list->buf = buf;
+    list->capacity = capacity;
+    list->len = 0;
+}
+
 /// @}
 
 

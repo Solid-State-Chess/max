@@ -14,10 +14,10 @@
 ///
 /// @{
 
-/// Wrapper struct for a signed increment applied to a #max_0x88_t board location.
+/// Wrapper type for a signed increment applied to a #max_0x88_t board location.
 /// Increments are used extensively in move generation to determine the next location along a ray,
 /// or to store the offsets that a knight jumps to.
-typedef struct { int8_t v; } max_0x88_dir_t;
+typedef int8_t max_0x88_dir_t;
 
 
 enum {
@@ -35,10 +35,25 @@ enum {
     MAX_0x88_DIR_DL    = MAX_0x88_DIR_DOWN + MAX_0x88_DIR_LEFT,
 };
 
-/// Create a new #max_0x88_dir_t structure from the given signed increment.
-MAX_INLINE_ALWAYS max_0x88_dir_t max_0x88_dir_new(int8_t inc) {
-    return (max_0x88_dir_t){ .v = inc };
-}
+/// Length of the #MAX_0x88_DIAGONALS array
+#define MAX_0x88_DIAGONALS_LEN (4)
+
+/// Array of all four diagonal directions that a bishop would slide across
+extern max_0x88_dir_t *MAX_0x88_DIAGONALS;
+
+/// Length of the #MAX_0x88_CARDINALS array
+#define MAX_0x88_CARDINALS_LEN (4)
+
+/// Array of all four cardinal directions that a rook would slide across
+extern max_0x88_dir_t *MAX_0x88_CARDINALS;
+
+/// Length of the #MAX_0x88_RAYS array
+#define MAX_0x88_RAYS_LEN (8)
+
+/// Array of all eight cardinal and diagonal ray directions,
+/// for how a queen would move
+extern max_0x88_dir_t MAX_0x88_RAYS[MAX_0x88_RAYS_LEN];
+
 
 /// Shift the given 0x88 board position as by the given amount.
 /// This shift may result in an invalid board position, which must be checked by the user.
@@ -46,7 +61,7 @@ MAX_INLINE_ALWAYS max_0x88_dir_t max_0x88_dir_new(int8_t inc) {
 /// \param dir [in] A signed increment specifying how to shift the given position
 /// \return A shifted board location, which may be invalid if the shift moved it off the board
 MAX_INLINE_ALWAYS max_0x88_t max_0x88_move(max_0x88_t loc, max_0x88_dir_t dir) {
-    loc.v += dir.v;
+    loc.v += dir;
     return loc;
 }
 
