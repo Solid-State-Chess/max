@@ -26,11 +26,23 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
     
     //Reset the en passant file from the previous packed state, but keep the castle rights
     state.packed = max_packed_state_set_epfile(state.packed, MAX_FILE_INVALID);
+    //If the player moved their king, clear both castle rights bits
+    //This also removes castle rights after castling even if the king did not move to castle,
+    //supporting FIDE's chess960 rules
+    if(move.from.v == friendly->king.loc->v) {
+        state.packed &= ~(max_packed_state_hcastle(side) | max_packed_state_acastle(side));
+    } else if(move.from.v == friendly->aside_rook.v) {
+        state.packed &= ~max_packed_state_acastle(side);
+    } else if(move.from.v == friendly->hside_rook.v) {
+        state.packed &= ~max_packed_state_hcastle(side);
+    }
+
     max_state_stack_push(&board->stack, state);
     
     //Shuffle the pieces as specified in the move
     if(move.tag & MAX_MOVETAG_CAPTURE) {
         max_piececode_t piece = max_board_remove_piece_from_side(board, enemy, move.to);
+        MAX_SANITY(piece.v != MAX_PIECECODE_EMPTY && "Captured piece is empty");
         max_captures_add(&board->captures, piece);
     }
 

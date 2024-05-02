@@ -75,6 +75,12 @@ typedef struct {
         max_lidx_t len;
         max_0x88_t loc[MAX_LIST_CAP_PAWN];
     } pawn;
+    
+    /// Starting position of the A side rook for chess960
+    max_0x88_t aside_rook;
+    
+    /// Starting position of the H side rook for chess960
+    max_0x88_t hside_rook;
 
     /// @}
 } max_pieces_t;

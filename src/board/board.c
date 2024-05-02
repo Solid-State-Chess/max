@@ -148,8 +148,8 @@ static void print_check(max_check_t check) {
 static void print_castlerights(max_packed_state_t state, max_side_t side, char offset) {
     printf(
         "%c%c",
-        max_packed_state_kcastle(side) ? 'K' + offset : '-',
-        max_packed_state_qcastle(side) ? 'Q' + offset : '-'
+        state & max_packed_state_hcastle(side) ? 'K' + offset : '-',
+        state & max_packed_state_acastle(side) ? 'Q' + offset : '-'
     );
 }
 

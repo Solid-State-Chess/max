@@ -65,10 +65,10 @@ enum {
     MAX_PSTATE_EPFILE_INVALID = 0x08,
     /// Bitmask for the lower four bits of a packed state representing the en passant file
     MAX_PSTATE_EPFILE_MASK    = 0x0F,
-    /// Kingside castle bit, must be shifted in order to represent white or black's castle rights
-    MAX_PSTATE_KINGSIDE_CASTLE = 0x01,
-    /// Queenside castle bitmask, must be shifted in order to represent white or black's castle rights
-    MAX_PSTATE_QUEENSIDE_CASTLE = 0x02,
+    /// H side castle bit, must be shifted in order to represent white or black's castle rights
+    MAX_PSTATE_HSIDE_CASTLE = 0x01,
+    /// A side castle bitmask, must be shifted in order to represent white or black's castle rights
+    MAX_PSTATE_ASIDE_CASTLE = 0x02,
     /// Bit position of white's two castle right bits
     MAX_PSTATE_WCASTLE_POS = 4,
     /// Bit position of black's two castle right bits
@@ -86,16 +86,16 @@ MAX_INLINE_ALWAYS uint8_t max_packed_state_epfile(max_packed_state_t state) {
     return state & MAX_PSTATE_EPFILE_MASK;
 }
 
-/// Get a bitmask to check for kingside castle rights on the given side
-MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_kcastle(max_side_t side) {
+/// Get a bitmask to check for H side castle rights on the given side
+MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_hcastle(max_side_t side) {
     uint8_t shift = MAX_PSTATE_WCASTLE_POS + (side << 1);
-    return MAX_PSTATE_KINGSIDE_CASTLE << shift;
+    return MAX_PSTATE_HSIDE_CASTLE << shift;
 }
 
-/// Get a bitmask to check for queenside castle rights for the given side.
-MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_qcastle(max_side_t side) {
+/// Get a bitmask to check for A side castle rights for the given side.
+MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_acastle(max_side_t side) {
     uint8_t shift = MAX_PSTATE_WCASTLE_POS + (side << 1);
-    return MAX_PSTATE_QUEENSIDE_CASTLE << shift;
+    return MAX_PSTATE_ASIDE_CASTLE << shift;
 }
 
 /// @}

@@ -1,6 +1,7 @@
 #include "max/board/movegen.h"
 #include "max/board/dir.h"
 #include "max/board/piececode.h"
+#include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/move.h"
 #include "private/board/movegen.h"
@@ -26,6 +27,7 @@ bool max_board_movegen_attack(max_board_t *board, max_movelist_t *list, max_piec
 
 
 void max_board_movegen(max_board_t *board, max_movelist_t *list) {
+    max_state_t *state = max_board_state(board);
     max_side_t side = max_board_side(board);
     max_pieces_t *pieces = max_board_side_list(board, side);
     max_piecemask_t enemy = max_side_enemy_color_mask(side);
@@ -65,5 +67,10 @@ void max_board_movegen(max_board_t *board, max_movelist_t *list) {
     max_0x88_t from = pieces->king.loc[0];
     for(unsigned i = 0; i < MAX_KING_MOVES_LEN; ++i) {
         max_board_movegen_attack(board, list, enemy, from, max_0x88_move(from, MAX_KING_MOVES[i]));
+    }
+
+    if(max_packed_state_hcastle(side) & state->packed) {
+        max_0x88_t ray = from;
+        
     }
 }
