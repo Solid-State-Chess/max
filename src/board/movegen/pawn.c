@@ -2,6 +2,7 @@
 #include "max/board/dir.h"
 #include "max/board/loc.h"
 #include "max/board/move.h"
+#include "max/board/piececode.h"
 #include "max/board/squares.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
@@ -19,9 +20,18 @@ max_0x88_dir_t MAX_PAWN_ADVANCE_DIR[MAX_SIDES_LEN] = {
 };
 
 uint8_t MAX_PAWN_PROMOTE_RANK[MAX_SIDES_LEN] = {
+    MAX_RANK_8,
+    MAX_RANK_1,
 };
 
 uint8_t MAX_PAWN_EP_RANK[MAX_SIDES_LEN] = {
+    MAX_RANK_5,
+    MAX_RANK_4,
+};
+
+uint8_t MAX_PAWN_HOMERANK[MAX_SIDES_LEN] = {
+    MAX_RANK_2,
+    MAX_RANK_7,
 };
 
 /// Helper to add all four possible promotions to the given movelist with the given tag (meant for capture)
@@ -50,13 +60,16 @@ void max_board_movegen_pawns(max_board_t *board, max_movelist_t *list, max_piece
     max_0x88_dir_t const advance = MAX_PAWN_ADVANCE_DIR[side];
     uint8_t const promote_rank = MAX_PAWN_PROMOTE_RANK[side];
     uint8_t const en_passant_rank = MAX_PAWN_EP_RANK[side];
+    uint8_t const homerank = MAX_PAWN_HOMERANK[side];
 
     max_state_t *state = max_board_state(board);
     bool has_ep = max_packed_state_has_ep(state->state);
+    
 
     for(unsigned i = 0; i < pieces->pawn.len; ++i) {
         max_0x88_t from = pieces->pawn.loc[i];
-        max_0x88_t advanced_from = max_0x88_move(from, MAX_PAWN_ADVANCE_DIR[side]);
+        max_0x88_t advanced_from = max_0x88_move(from, advance);
+        
         if(max_0x88_rank(advanced_from) == promote_rank) {
             if(board->pieces[advanced_from.v].v == MAX_PIECECODE_EMPTY) {
                 max_board_movegen_pawn_promotions(list, from, advanced_from, MAX_MOVETAG_NONE);
@@ -66,6 +79,10 @@ void max_board_movegen_pawns(max_board_t *board, max_movelist_t *list, max_piece
         } else {
             if(board->pieces[advanced_from.v].v == MAX_PIECECODE_EMPTY) {
                 max_movelist_add(list, max_smove_normal(from, advanced_from));
+                max_0x88_t double_move = max_0x88_move(advanced_from, advance);
+                if(max_0x88_rank(from) == homerank && board->pieces[double_move.v].v == MAX_PIECECODE_EMPTY) {
+                    max_movelist_add(list, max_smove_new(from, double_move, MAX_MOVETAG_DOUBLE));
+                }
             }
             max_board_movegen_pawn_attack(board, list, enemy, from, max_0x88_move(advanced_from, MAX_PAWN_ATTACK_SIDES[0])); 
             max_board_movegen_pawn_attack(board, list, enemy, from, max_0x88_move(advanced_from, MAX_PAWN_ATTACK_SIDES[1]));

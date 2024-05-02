@@ -109,9 +109,14 @@ MAX_INLINE_ALWAYS max_piecemask_t max_piececode_color_mask(max_piececode_t piece
     return (max_piecemask_t){ .msk = piece.v & MAX_PIECECODE_COLOR_MASK };
 }
 
-/// Get a piece bitmask tha tmatches pieces of the given side
+/// Get a piece bitmask that matches pieces of the given side
 MAX_INLINE_ALWAYS max_piecemask_t max_side_color_mask(max_side_t side) {
     return (max_piecemask_t){ .msk = MAX_PIECECODE_WHITE << side };
+}
+
+/// Get a piece bitmask that matches enemy pieces of the given side
+MAX_INLINE_ALWAYS max_piecemask_t max_side_enemy_color_mask(max_side_t side) {
+    return (max_piecemask_t){ .msk = MAX_PIECECODE_BLACK >> side };
 }
 
 /// @}

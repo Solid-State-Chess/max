@@ -35,6 +35,8 @@ enum {
     MAX_MOVETAG_PROOK     = 0x04,
     /// Indicates that a pawn has promoted to a queen
     MAX_MOVETAG_PQUEEN    = 0x05,
+    /// Indicates a pawn double move from the homerow that enables en passant capture
+    MAX_MOVETAG_DOUBLE    = 0x06,
     /// A flag set in the fourth bit to indicate that a capture was made.
     /// This flag can ONLY be combined with the promotion flags to indicate that
     /// a pawn both captured a piece and promoted itself.
@@ -179,6 +181,16 @@ MAX_INLINE_ALWAYS void max_movelist_new(max_movelist_t *list, max_smove_t *buf, 
     list->buf = buf;
     list->capacity = capacity;
     list->len = 0;
+}
+
+/// Get a new 'slice' of the given movelist representing a new, empty list with buffer positioned at the end
+/// of filled elements of the given buffer.
+MAX_INLINE_ALWAYS max_movelist_t max_movelist_slice(max_movelist_t *list) {
+    return (max_movelist_t){
+        .buf = list->buf + list->len,
+        .capacity = list->capacity - list->len,
+        .len = 0,
+    };
 }
 
 /// @}
