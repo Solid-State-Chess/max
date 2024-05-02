@@ -78,6 +78,12 @@ MAX_INLINE_ALWAYS max_piececode_t max_piececode_new(uint8_t side, uint8_t type) 
     return (max_piececode_t){.v = side | type };
 }
 
+/// Get a side mask to use in either #max_piecemask_t or in #max_piececode_new representing the color
+/// bits that will be set for pieces of the given side.
+MAX_INLINE_ALWAYS uint8_t max_piececode_color_for_side(max_side_t side) {
+    return MAX_PIECECODE_WHITE << side;
+}
+
 /// Get a #max_side_t representing the color of the given piece.
 /// The piece should not be empty or invalid, as without debug assertions these
 /// pieces will be represented as white.

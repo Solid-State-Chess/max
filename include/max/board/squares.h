@@ -103,7 +103,17 @@ enum {
     MAX_RANK_6 = 5,
     MAX_RANK_7 = 6,
     MAX_RANK_8 = 7,
-    MAX_RANK_INVALID = 8
+    MAX_RANK_INVALID = 8,
 };
 
-#undef max_0x88_raw
+enum {
+    MAX_FILE_1 = 0,
+    MAX_FILE_2 = 1,
+    MAX_FILE_3 = 2,
+    MAX_FILE_4 = 3,
+    MAX_FILE_5 = 4,
+    MAX_FILE_6 = 5,
+    MAX_FILE_7 = 6,
+    MAX_FILE_8 = 7,
+    MAX_FILE_INVALID = 8,
+};

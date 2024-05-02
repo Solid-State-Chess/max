@@ -1,6 +1,7 @@
 #include "max/board/board.h"
 #include "max/board/loc.h"
 #include "max/board/piececode.h"
+#include "max/board/side.h"
 #include "max/board/squares.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
@@ -144,7 +145,17 @@ static void print_check(max_check_t check) {
     printf("check delivered from %c%c", MAX_0x88_FORMAT(check.origin));
 }
 
+static void print_castlerights(max_packed_state_t state, max_side_t side, char offset) {
+    printf(
+        "%c%c",
+        max_packed_state_kcastle(side) ? 'K' + offset : '-',
+        max_packed_state_qcastle(side) ? 'Q' + offset : '-'
+    );
+}
+
 void max_board_print(max_board_t *board) {
+    max_state_t *state = max_board_state(board);
+
     for(unsigned y = 8; y > 0; --y) {
         printf("%d ", y);
         for(unsigned x = 0; x < 8; ++x) {
@@ -168,7 +179,6 @@ void max_board_print(max_board_t *board) {
         
         switch(y) {
             case 8: printf("STATE"); break;
-            
             case 7:
 #ifdef MAX_ZOBRIST_64
     printf("Zobrist Key: %" PRIX64, max_board_state(board)->position);
@@ -178,7 +188,6 @@ void max_board_print(max_board_t *board) {
             break;
 
             case 6: {
-                max_state_t *state = max_board_state(board);
                 uint8_t checks = max_state_checks(state);
                 if(checks > 0) {
                     print_check(state->check[0]);
@@ -190,9 +199,14 @@ void max_board_print(max_board_t *board) {
             } break;
 
             case 5: {
-                max_state_t *state = max_board_state(board);
+                fputs("Castle Rights: ", stdout);
+                print_castlerights(state->packed, MAX_SIDE_BLACK, 0);
+                print_castlerights(state->packed, MAX_SIDE_WHITE, 'a' - 'A');
+            } break;
+
+            case 4: {
                 if(max_packed_state_has_ep(state->packed)) {
-                    printf("En passant capture possible on the %c file", max_packed_state_epfile(state->packed) + 'A');
+                    printf("En passant on the %c file", max_packed_state_epfile(state->packed) + 'A');
                 }
             } break;
         }

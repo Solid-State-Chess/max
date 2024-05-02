@@ -1,6 +1,7 @@
 #include "max/board/loc.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
+#include "max/board/squares.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
@@ -23,8 +24,8 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
         .position = old_state->position
     };
     
-    //Reset the en passant file from before
-    state.packed |= MAX_PSTATE_EPFILE_INVALID;
+    //Reset the en passant file from the previous packed state, but keep the castle rights
+    state.packed = max_packed_state_set_epfile(state.packed, MAX_FILE_INVALID);
     max_state_stack_push(&board->stack, state);
     
     //Shuffle the pieces as specified in the move
@@ -43,9 +44,15 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
         case MAX_MOVETAG_ENPASSANT: {
             //Shift the destination 'down' relative to the side that is moving to get the captured pawn's position
             max_0x88_t captured_pos = max_0x88_move(move.to, -MAX_PAWN_ADVANCE_DIR[side]);
-            max_piececode_t captured = max_board_remove_piece_from_side(board, enemy, captured_pos);
+            MAX_SANITY(max_0x88_valid(captured_pos) && "En passant capture square is not valid");
 
-            MAX_ASSERT(captured.v != MAX_PIECECODE_EMPTY);
+            max_piececode_t captured = max_board_remove_piece_from_side(board, enemy, captured_pos);
+            
+            //Ensure that the captured piece is actually an enemy pawn
+            MAX_SANITY(
+                captured.v == max_piececode_new(max_piececode_color_for_side(max_board_enemy_side(board)), MAX_PIECECODE_PAWN).v &&
+                "Piece captured en passant is not an enemy pawn"
+            );
 
             max_captures_add(&board->captures, captured);
         } break;
