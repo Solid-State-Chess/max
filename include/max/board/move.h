@@ -48,9 +48,9 @@ enum {
     /// This is a bitmask that can be converted to and from a #max_castle_side_t
     MAX_MOVETAG_HCASTLE   = 0x20,
     /// Bit position of the #MAX_MOVETAG_ACASTLE bitmask
-    MAX_MOVETAG_ACASTLE_POS = 5,
+    MAX_MOVETAG_ACASTLE_POS = 4,
     /// Bit position of teh #MAX_MOVETAG_HCASTLE bitmask
-    MAX_MOVETAG_HCASTLE_POS = 6,
+    MAX_MOVETAG_HCASTLE_POS = 5,
 };
 
 /// Check if the given move tag represents a promotion to any piece type.
