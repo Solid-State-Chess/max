@@ -125,6 +125,7 @@ void max_board_default_pos(max_board_t *board) {
 #ifdef MAX_CONSOLE
 #include <stdio.h>
 #include <ctype.h>
+#include "max/board/move.h"
 
 #ifdef MAX_ZOBRIST_64
 #include <inttypes.h>
@@ -147,11 +148,14 @@ static void print_check(max_check_t check) {
     printf("check delivered from %c%c", MAX_0x88_FORMAT(check.origin));
 }
 
-static void print_castlerights(max_packed_state_t state, max_side_t side, char offset) {
+static void print_castlerights(max_board_t *board, max_packed_state_t state, max_side_t side, char offset) {
+    max_pieces_t *pieces = max_board_side_list(board, side);
+    char aside = max_0x88_file(pieces->initial_rook[MAX_CASTLE_ASIDE]) + 'A';
+    char hside = max_0x88_file(pieces->initial_rook[MAX_CASTLE_HSIDE]) + 'A';
     printf(
         "%c%c",
-        state & max_packed_state_hcastle(side) ? 'K' + offset : '-',
-        state & max_packed_state_acastle(side) ? 'Q' + offset : '-'
+        state & max_packed_state_acastle(side) ? hside + offset : '-',
+        state & max_packed_state_hcastle(side) ? aside + offset : '-'
     );
 }
 
@@ -202,8 +206,8 @@ void max_board_print(max_board_t *board) {
 
             case 5: {
                 fputs("Castle Rights: ", stdout);
-                print_castlerights(state->packed, MAX_SIDE_BLACK, 0);
-                print_castlerights(state->packed, MAX_SIDE_WHITE, 'a' - 'A');
+                print_castlerights(board, state->packed, MAX_SIDE_BLACK, 0);
+                print_castlerights(board, state->packed, MAX_SIDE_WHITE, 'a' - 'A');
             } break;
 
             case 4: {
