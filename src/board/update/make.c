@@ -44,6 +44,8 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
         max_piececode_t piece = max_board_remove_piece_from_side(board, enemy, move.to);
         MAX_SANITY(piece.v != MAX_PIECECODE_EMPTY && "Captured piece is empty");
         max_captures_add(&board->captures, piece);
+    } else {
+        MAX_SANITY(board->pieces[move.to.v].v == MAX_PIECECODE_EMPTY);
     }
 
     switch(move.tag & ~MAX_MOVETAG_CAPTURE) {

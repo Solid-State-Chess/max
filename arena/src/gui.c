@@ -151,6 +151,7 @@ int gui_state_run(gui_state_t *state) {
     for(;;) {
     outer:
         if(!enginedone) {
+            max_movelist_clear(&state->shared->moves);
             max_board_movegen(&state->shared->engine, &state->shared->moves);
             enginedone = true;
         }

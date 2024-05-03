@@ -190,6 +190,11 @@ MAX_INLINE_ALWAYS void max_movelist_new(max_movelist_t *list, max_smove_t *buf, 
     list->len = 0;
 }
 
+/// Clear the given move list, resetting its length to zero without modifying any other state.
+MAX_INLINE_ALWAYS void max_movelist_clear(max_movelist_t *list) {
+    list->len = 0;
+}
+
 /// Get a new 'slice' of the given movelist representing a new, empty list with buffer positioned at the end
 /// of filled elements of the given buffer.
 MAX_INLINE_ALWAYS max_movelist_t max_movelist_slice(max_movelist_t *list) {
