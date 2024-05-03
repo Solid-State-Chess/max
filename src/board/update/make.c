@@ -70,6 +70,10 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
 
             max_captures_add(&board->captures, captured);
         } break;
+
+        case MAX_MOVETAG_CASTLE: {
+            
+        } break;
     }
 
     max_board_move_piece_from_side(board, friendly, move.from, move.to);

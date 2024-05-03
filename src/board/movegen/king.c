@@ -1,6 +1,8 @@
 #include "private/board/movegen/king.h"
+#include "max/board/move.h"
 #include "max/board/side.h"
 #include "max/board/squares.h"
+#include "private/board/move.h"
 
 
 max_0x88_dir_t MAX_KING_MOVES[MAX_KING_MOVES_LEN] = {
@@ -44,13 +46,27 @@ void max_board_movegen_castle(max_board_t *board, max_movelist_t *movelist, max_
     max_0x88_t rdest = MAX_CASTLE_ROOK_DEST[castle_side][color];
     
     max_0x88_dir_t dir;
-    max_0x88_line(rook, rdest, &dir);
+    bool has_line = max_0x88_line(rook, rdest, &dir);
+    MAX_SANITY(has_line && "Rook on its starting square has no line to its castle square");
 
     max_0x88_t scan = rook;
-    while(scan.v != rdest.v) {
+    do {
         scan = max_0x88_move(scan, dir);
         if(scan.v != kpos.v && board->pieces[scan.v].v != MAX_PIECECODE_EMPTY) {
             return;
         }
-    }
+    } while(scan.v != rdest.v);
+    
+    max_0x88_t kdest = MAX_CASTLE_KING_DEST[castle_side][color];
+    has_line = max_0x88_line(kpos, kdest, &dir);
+    MAX_SANITY(has_line && "King on its starting square has no line to its castle square");
+    scan = kpos;
+    do {
+        scan = max_0x88_move(scan, dir);
+        if(scan.v != rook.v && board->pieces[scan.v].v != MAX_PIECECODE_EMPTY) {
+            return;
+        }
+    } while(scan.v != kdest.v);
+
+    max_movelist_add(movelist, max_smove_new(kpos, kdest, MAX_MOVETAG_CASTLE));
 }

@@ -50,68 +50,23 @@ MAX_INLINE_ALWAYS bool max_movetag_is_promote(max_movetag_t tag) {
     return tag > MAX_MOVETAG_ENPASSANT && tag <= MAX_MOVETAG_PQUEEN;
 }
 
-/// @}
+/// Side that castling can be performed, either 0 or 1.
+/// ```
+/// 0 - A side castling
+/// 1 - H side castling
+/// ```
+typedef uint8_t max_castle_side_t;
 
-/// \defgroup pmove Packed Move Representation
-/// Functions to operate on 2 byte packed moves.
-/// Despite a seemingly small memory gain in small numbers,
-/// the chess engine must maintain a list of all moves it is processing at every step of the
-/// game tree, and thus small memory savings can accumulate to kilobytes of space.
-/// @{
+enum {
+    MAX_CASTLE_ASIDE = 0,
+    MAX_CASTLE_HSIDE = 1,
+};
 
-/// A move that has been packed into two bytes using 6 bit square encoding.
-/// This leaves 4 bits free for move flags like capture, promotions, and castling.
-///
-/// \section Representation
-///
-///              15..12                       11..6                      5..0
-///     [4 bits - max_movetag_t tag] [6 bits - max_6bit_t to] [6 bits - max_6bit_t from]
-typedef uint16_t max_pmove_t;
-
-/// \name Packed Move Bitmasks and Offsets
-/// @{
-
-/// Bitmask for the lower 6 bits of a 16 bit value
-#define MAX_PMOVE_FROM_MASK (0x003F)
-/// Bitmask for bits [11..6] of a 16 bit value
-#define MAX_PMOVE_TO_MASK   (0x0FC0)
-/// Bit position of the LSB of #MAX_PMOVE_TO_MASK, used to shift the destination square down
-#define MAX_PMOVE_TO_POS    (6)
-/// Bitmask for the upper four bits of a 16 bit value, used to store the move flags
-#define MAX_PMOVE_TAG_MASK  (0xF000)
-/// Bit position of the LSB of #MAX_PMOVE_TAG_MASK, used to shift the flags down
-#define MAX_PMOVE_TAG_POS   (12)
+/// Length of arrays indexed by a castle side bit
+#define MAX_CASTLES_LEN (2)
 
 /// @}
 
-/// \name Packed Move Functions
-/// @{
-
-/// Get the 0x88 encoded source square from the given packed move.
-MAX_INLINE_ALWAYS max_0x88_t max_pmove_from(max_pmove_t move) {
-    return max_6bit_to_0x88((max_6bit_t){ .v = move & MAX_PMOVE_FROM_MASK });
-}
-
-/// Get the 0x88 encoded destination square from the given packed move.
-MAX_INLINE_ALWAYS max_0x88_t max_pmove_to(max_pmove_t move) {
-    return max_6bit_to_0x88((max_6bit_t){ .v = (move & MAX_PMOVE_TO_MASK) >> MAX_PMOVE_TO_POS });
-}
-
-/// Get the four bit move tag from the given packed move.
-MAX_INLINE_ALWAYS max_movetag_t max_pmove_tag(max_pmove_t move) {
-    return move >> MAX_PMOVE_TAG_POS;
-}
-
-/// @}
-
-/// @}
-
-
-/// \defgroup smove Sparse Move Representation
-/// Move representation occupying three bytes in memory - storing source and destination squares in their
-/// 0x88 representations. This representation is best for processing speed, but may cost a few kilobytes in
-/// move list sizes.
-/// @{
 
 /// A move with from and to square, plus flags stored in a separate byte.
 /// This structure uses three bytes to represent a move with positions already stored
@@ -178,13 +133,7 @@ typedef struct {
 /// \param list [out] List to initialize with the passed buffer
 /// \param buf [in] Buffer to utilize as storage for moves, must have the capacity passed to this function
 /// \param capacity Capacity of the provided buffer in number of elements
-/// @{
-
-#ifdef MAX_PACKED_MOVE
-MAX_IMAX_INLINE_ALWAYS void max_movelist_new(max_movelist_t *list, max_pmvemax_pmove_t *buf, uint16_t capacity) {
-#else
 MAX_INLINE_ALWAYS void max_movelist_new(max_movelist_t *list, max_smove_t *buf, uint16_t capacity) {
-#endif
     list->buf = buf;
     list->capacity = capacity;
     list->len = 0;
@@ -207,7 +156,5 @@ MAX_INLINE_ALWAYS max_movelist_t max_movelist_slice(max_movelist_t *list) {
 
 /// @}
 
-
-/// @}
 
 /// @}

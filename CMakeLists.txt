@@ -7,7 +7,6 @@ project(
     LANGUAGES C
 )
 
-option(MAX_PACKED_MOVELIST "Enable 2 byte movelist entry representation instead of 3 bytes" OFF)
 option(MAX_ZOBRIST_64      "Enable 64-bit zobrist over 32-bit keys" OFF)
 option(MAX_TESTS   "Enable max-tests compilation" ON)
 option(MAX_DOC     "Enable Doxygen documentation build" OFF)
@@ -46,7 +45,6 @@ target_compile_definitions(
     $<$<BOOL:${MAX_ASSERTS}>:MAX_ASSERTS>
     $<$<BOOL:${MAX_ASSERTS_SANITY}>:MAX_ASSERTS_SANITY>
     $<$<BOOL:${MAX_CONSOLE}>:MAX_CONSOLE>
-    $<$<BOOL:${MAX_PACKED_MOVE}>:MAX_PACKED_MOVE>
     $<$<BOOL:${MAX_ZOBRIST_64}>:MAX_ZOBRIST_64>
 )
 

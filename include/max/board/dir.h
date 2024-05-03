@@ -11,7 +11,7 @@
 /// @{
 
 /// \defgroup x88dir x88 Coordinate Directions
-///
+/// Signed increments that can be applied to a 0x88 board location.
 /// @{
 
 /// Wrapper type for a signed increment applied to a #max_0x88_t board location.

@@ -117,6 +117,12 @@ void max_board_default_pos(max_board_t *board) {
 
     max_board_add_mirrored(board, MAX_D1, MAX_PIECECODE_QUEEN);
     max_board_add_mirrored(board, MAX_E1, MAX_PIECECODE_KING);
+
+    board->side.white.aside_rook = MAX_A1;
+    board->side.white.hside_rook = MAX_H1;
+
+    board->side.black.aside_rook = MAX_A8;
+    board->side.black.hside_rook = MAX_H8;
 }
 
 
