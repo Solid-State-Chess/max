@@ -3,6 +3,7 @@
 #include "max/board/piececode.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
+#include "private/board/move.h"
 #include "private/board/movegen.h"
 #include "private/board/movegen/king.h"
 #include "private/board/movegen/knight.h"
@@ -69,9 +70,9 @@ void max_board_movegen(max_board_t *board, max_movelist_t *list) {
     }
 
     if(max_packed_state_hcastle(side) & state->packed) {
-        max_board_movegen_castle(board, list, pieces, pieces->hside_rook, MAX_CASTLE_HSIDE);
+        max_board_movegen_castle(board, list, pieces, MAX_CASTLE_HSIDE);
     }
     if(max_packed_state_acastle(side) & state->packed) {
-        max_board_movegen_castle(board, list, pieces, pieces->aside_rook, MAX_CASTLE_ASIDE);
+        max_board_movegen_castle(board, list, pieces, MAX_CASTLE_ASIDE);
     }
 }

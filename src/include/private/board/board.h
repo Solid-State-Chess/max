@@ -2,6 +2,8 @@
 
 #include "max/board/board.h"
 #include "max/board/loc.h"
+#include "max/board/move.h"
+#include "max/board/squares.h"
 #include "max/board/state.h"
 #include "max/def.h"
 
@@ -19,6 +21,15 @@ MAX_INLINE_ALWAYS max_pieces_t* max_board_side_list(max_board_t *board, max_side
 /// Peek the top of the state stack for the game state on the current ply.
 MAX_INLINE_ALWAYS max_state_t* max_board_state(max_board_t *board) {
     return max_state_stack_peek(&board->stack);
+}
+
+/// Set the A and H side rook files for both white and black.
+/// This initializes the piece lists for both sides with initial rook positions
+MAX_INLINE_ALWAYS void max_board_set_initial_rook_files(max_board_t *board, uint8_t aside, uint8_t hside) {
+    board->side.white.initial_rook[MAX_CASTLE_ASIDE] = max_0x88_new(MAX_RANK_1, aside);
+    board->side.white.initial_rook[MAX_CASTLE_HSIDE] = max_0x88_new(MAX_RANK_1, hside);
+    board->side.black.initial_rook[MAX_CASTLE_ASIDE] = max_0x88_new(MAX_RANK_8, aside);
+    board->side.black.initial_rook[MAX_CASTLE_HSIDE] = max_0x88_new(MAX_RANK_8, hside);
 }
 
 /// Add a piece to the board at the given position.

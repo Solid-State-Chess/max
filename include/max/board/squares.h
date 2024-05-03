@@ -107,13 +107,13 @@ enum {
 };
 
 enum {
-    MAX_FILE_1 = 0,
-    MAX_FILE_2 = 1,
-    MAX_FILE_3 = 2,
-    MAX_FILE_4 = 3,
-    MAX_FILE_5 = 4,
-    MAX_FILE_6 = 5,
-    MAX_FILE_7 = 6,
-    MAX_FILE_8 = 7,
+    MAX_FILE_A = 0,
+    MAX_FILE_B = 1,
+    MAX_FILE_C = 2,
+    MAX_FILE_D = 3,
+    MAX_FILE_E = 4,
+    MAX_FILE_F = 5,
+    MAX_FILE_G = 6,
+    MAX_FILE_H = 7,
     MAX_FILE_INVALID = 8,
 };

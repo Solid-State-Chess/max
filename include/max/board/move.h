@@ -37,12 +37,20 @@ enum {
     MAX_MOVETAG_PQUEEN    = 0x05,
     /// Indicates a pawn double move from the homerow that enables en passant capture
     MAX_MOVETAG_DOUBLE    = 0x06,
-    /// Indicates a castle move, kingside or queenside is determined by the destination square
-    MAX_MOVETAG_CASTLE    = 0x07,
     /// A flag set in the fourth bit to indicate that a capture was made.
     /// This flag can ONLY be combined with the promotion flags to indicate that
     /// a pawn both captured a piece and promoted itself.
     MAX_MOVETAG_CAPTURE   = 0x08,
+    /// The king is castling with the rook on the A side.
+    /// This is a bitmask that can be converted to and from a #max_castle_side_t
+    MAX_MOVETAG_ACASTLE   = 0x10,
+    /// The king is castling with the rook on the H side.
+    /// This is a bitmask that can be converted to and from a #max_castle_side_t
+    MAX_MOVETAG_HCASTLE   = 0x20,
+    /// Bit position of the #MAX_MOVETAG_ACASTLE bitmask
+    MAX_MOVETAG_ACASTLE_POS = 5,
+    /// Bit position of teh #MAX_MOVETAG_HCASTLE bitmask
+    MAX_MOVETAG_HCASTLE_POS = 6,
 };
 
 /// Check if the given move tag represents a promotion to any piece type.
@@ -50,7 +58,9 @@ MAX_INLINE_ALWAYS bool max_movetag_is_promote(max_movetag_t tag) {
     return tag > MAX_MOVETAG_ENPASSANT && tag <= MAX_MOVETAG_PQUEEN;
 }
 
-/// Side that castling can be performed, either 0 or 1.
+/// Wrapper typedef for the side that a king is castling with, defined as
+/// A and H side castling to fit with chess960 terminology.
+///
 /// ```
 /// 0 - A side castling
 /// 1 - H side castling
@@ -58,12 +68,19 @@ MAX_INLINE_ALWAYS bool max_movetag_is_promote(max_movetag_t tag) {
 typedef uint8_t max_castle_side_t;
 
 enum {
+    /// Castling occurs with the A side rook (to the left of the king)
     MAX_CASTLE_ASIDE = 0,
+    /// Castling occurs with the H side rook (to the right of the king)
     MAX_CASTLE_HSIDE = 1,
 };
 
-/// Length of arrays indexed by a castle side bit
+/// Length of a lookup table array when indexed by a #max_castle_side_t
 #define MAX_CASTLES_LEN (2)
+
+/// Get a bitmask for a move tag representing a castle with the rook on the A or H file as specified.
+MAX_INLINE_ALWAYS max_movetag_t max_movetag_for_castle_side(max_castle_side_t castle) {
+    return (MAX_MOVETAG_ACASTLE << castle);
+}
 
 /// @}
 
@@ -73,7 +90,7 @@ enum {
 /// in 0x88 form occupying one byte each - if memory is not a top priority this 
 /// representation enables faster processing to avoid packing and unpacking destination squares.
 typedef struct {
-    /// Four bits used to represent any special attributes required to specify the moves side effects.
+    /// One byte used to represent any special attributes required to specify the moves side effects.
     max_movetag_t tag;
     /// A 0x88 board index identifying the square that was moved to
     max_0x88_t to;

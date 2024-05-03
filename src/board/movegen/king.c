@@ -39,8 +39,9 @@ max_0x88_t MAX_CASTLE_ROOK_DEST[MAX_CASTLES_LEN][MAX_SIDES_LEN] = {
 };
 
 
-void max_board_movegen_castle(max_board_t *board, max_movelist_t *movelist, max_pieces_t *pieces, max_0x88_t rook, max_castle_side_t castle_side) {
+void max_board_movegen_castle(max_board_t *board, max_movelist_t *movelist, max_pieces_t *pieces, max_castle_side_t castle_side) {
     max_0x88_t kpos = *pieces->king.loc;
+    max_0x88_t rook = pieces->initial_rook[castle_side];
 
     max_side_t color = max_board_side(board);
     max_0x88_t rdest = MAX_CASTLE_ROOK_DEST[castle_side][color];
@@ -68,5 +69,5 @@ void max_board_movegen_castle(max_board_t *board, max_movelist_t *movelist, max_
         }
     } while(scan.v != kdest.v);
 
-    max_movelist_add(movelist, max_smove_new(kpos, kdest, MAX_MOVETAG_CASTLE));
+    max_movelist_add(movelist, max_smove_new(kpos, kdest, max_movetag_for_castle_side(castle_side)));
 }

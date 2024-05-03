@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "max/board/loc.h"
+#include "max/board/move.h"
 
 
 /// \ingroup board
@@ -76,7 +77,12 @@ typedef struct {
         max_0x88_t loc[MAX_LIST_CAP_PAWN];
     } pawn;
     
-    max_0x88_t initial_rook[]
+    /// Initial positions of the A and H side rooks.
+    /// For chess960, the two rooks must always be left (A side) and right
+    /// (H side) of the king, but they may start on any square.
+    /// In order to track castling rights and compute castling validity, we must know the initial
+    /// square of the rook
+    max_0x88_t initial_rook[MAX_CASTLES_LEN];
 
     /// @}
 } max_pieces_t;

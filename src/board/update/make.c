@@ -5,6 +5,7 @@
 #include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
+#include "private/board/movegen/king.h"
 #include "private/board/movegen/pawn.h"
 #include "private/board/state.h"
 
@@ -31,9 +32,9 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
     //supporting FIDE's chess960 rules
     if(move.from.v == friendly->king.loc->v) {
         state.packed &= ~(max_packed_state_hcastle(side) | max_packed_state_acastle(side));
-    } else if(move.from.v == friendly->aside_rook.v) {
+    } else if(move.from.v == friendly->initial_rook[MAX_CASTLE_ASIDE].v) {
         state.packed &= ~max_packed_state_acastle(side);
-    } else if(move.from.v == friendly->hside_rook.v) {
+    } else if(move.from.v == friendly->initial_rook[MAX_CASTLE_HSIDE].v) {
         state.packed &= ~max_packed_state_hcastle(side);
     }
 
@@ -71,8 +72,22 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             max_captures_add(&board->captures, captured);
         } break;
 
-        case MAX_MOVETAG_CASTLE: {
-            
+        case MAX_MOVETAG_ACASTLE: {
+            max_board_move_piece_from_side(
+                board,
+                friendly,
+                friendly->initial_rook[MAX_CASTLE_ASIDE],
+                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_ASIDE][side]
+            );
+        } break;
+
+        case MAX_MOVETAG_HCASTLE: {
+            max_board_move_piece_from_side(
+                board,
+                friendly,
+                friendly->initial_rook[MAX_CASTLE_HSIDE],
+                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_HSIDE][side]
+            );
         } break;
     }
 

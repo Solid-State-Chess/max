@@ -1,6 +1,5 @@
 #pragma once
 #include "max/assert.h"
-#include "max/board/loc.h"
 #include "max/board/move.h"
 #include "max/def.h"
 

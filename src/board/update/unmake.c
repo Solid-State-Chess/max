@@ -2,6 +2,7 @@
 #include "max/board/movegen.h"
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
+#include "private/board/movegen/king.h"
 #include "private/board/movegen/pawn.h"
 #include "private/board/state.h"
 
@@ -34,6 +35,24 @@ void max_board_unmake_move(max_board_t *board, max_smove_t move) {
 
             max_piececode_t captured = max_captures_pop(&board->captures);
             max_board_add_piece_to_side(board, enemy, original_pos, captured);
+        } break;
+
+        case MAX_MOVETAG_ACASTLE: {
+            max_board_move_piece_from_side(
+                board,
+                friendly,
+                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_ASIDE][side],
+                friendly->initial_rook[MAX_CASTLE_ASIDE]
+            );
+        } break;
+
+        case MAX_MOVETAG_HCASTLE: {
+            max_board_move_piece_from_side(
+                board,
+                friendly,
+                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_HSIDE][side],
+                friendly->initial_rook[MAX_CASTLE_HSIDE]
+            );
         } break;
     }
 
