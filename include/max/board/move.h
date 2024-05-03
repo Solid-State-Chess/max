@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "max/board/loc.h"
+#include "max/board/piececode.h"
 #include "max/def.h"
 
 
@@ -55,8 +56,14 @@ enum {
 
 /// Check if the given move tag represents a promotion to any piece type.
 MAX_INLINE_ALWAYS bool max_movetag_is_promote(max_movetag_t tag) {
+    tag &= ~MAX_MOVETAG_CAPTURE;
     return tag > MAX_MOVETAG_ENPASSANT && tag <= MAX_MOVETAG_PQUEEN;
 }
+
+/// Lookup a piececode with the correct color and type bits set for the given
+/// promotion move tag.
+/// The movetag is assumed to be a promotion move (this is checked in with debug assertions)
+max_piececode_t max_piececode_for_movetag_promote(max_movetag_t tag, max_side_t side);
 
 /// Wrapper typedef for the side that a king is castling with, defined as
 /// A and H side castling to fit with chess960 terminology.

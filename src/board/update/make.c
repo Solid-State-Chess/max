@@ -50,10 +50,13 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
     }
 
     switch(move.tag & ~MAX_MOVETAG_CAPTURE) {
-        case MAX_MOVETAG_NONE: break;
+        case MAX_MOVETAG_NONE: {
+            max_board_move_piece_from_side(board, friendly, move.from, move.to);
+        } break;
         // Update the en passant file
         case MAX_MOVETAG_DOUBLE: {
             max_board_state(board)->packed = max_packed_state_set_epfile(max_board_state(board)->packed, max_0x88_file(move.from));
+            max_board_move_piece_from_side(board, friendly, move.from, move.to);
         } break;
 
         case MAX_MOVETAG_ENPASSANT: {
@@ -70,6 +73,8 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             );
 
             max_captures_add(&board->captures, captured);
+
+            max_board_move_piece_from_side(board, friendly, move.from, move.to);
         } break;
 
         case MAX_MOVETAG_ACASTLE:
@@ -88,10 +93,28 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
                 friendly->initial_rook[castle],
                 MAX_CASTLE_ROOK_DEST[castle][side]
             );
+
+            max_board_move_piece_from_side(board, friendly, move.from, move.to);
+        } break;
+
+        default: {
+            MAX_SANITY(max_movetag_is_promote(move.tag));
+            max_piececode_t promoted = max_piececode_for_movetag_promote(move.tag, side);
+            max_board_add_piece_to_side(
+                board,
+                friendly,
+                move.to,
+                promoted
+            );
+
+            max_board_remove_piece_from_side(
+                board,
+                friendly,
+                move.from
+            );
         } break;
     }
 
-    max_board_move_piece_from_side(board, friendly, move.from, move.to);
 
     //Increment the ply to indicate that the other side is now to move 
     board->ply += 1;

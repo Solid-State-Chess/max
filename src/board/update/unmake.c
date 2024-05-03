@@ -14,20 +14,14 @@ void max_board_unmake_move(max_board_t *board, max_smove_t move) {
     max_side_t side = max_board_side(board);
     max_pieces_t *friendly  = max_board_side_list(board, side);
     max_pieces_t *enemy = max_board_side_list(board, max_board_enemy_side(board));
-    
-    //Move the piece back to its origin square (we need to take this into consideration when undoing promotions)
-    max_board_move_piece_from_side(board, friendly, move.to, move.from);
-    
-    //Re-add any captured piece
-    //This does nothing for en passant because EP captured pieces are NOT on the destination square
-    if(move.tag & MAX_MOVETAG_CAPTURE) {
-        max_piececode_t captured = max_captures_pop(&board->captures);
-        max_board_add_piece_to_side(board, enemy, move.to, captured);
-    }
 
-    switch(move.tag & ~MAX_MOVETAG_CAPTURE) {
-        case MAX_MOVETAG_NONE: break;
-        case MAX_MOVETAG_DOUBLE: break;
+    switch(move.tag) {
+        case MAX_MOVETAG_NONE:
+        case MAX_MOVETAG_DOUBLE: {
+            //Move the piece back to its origin square (we need to take this into consideration when undoing promotions)
+            max_board_move_piece_from_side(board, friendly, move.to, move.from);
+        } break;
+
         case MAX_MOVETAG_ENPASSANT: {
             //Shift the en passant capture 'down' relative to the side to move to get the square that the captured
             //pawn must have been at
@@ -35,6 +29,8 @@ void max_board_unmake_move(max_board_t *board, max_smove_t move) {
 
             max_piececode_t captured = max_captures_pop(&board->captures);
             max_board_add_piece_to_side(board, enemy, original_pos, captured);
+
+            max_board_move_piece_from_side(board, friendly, move.to, move.from);
         } break;
 
         case MAX_MOVETAG_ACASTLE:
@@ -52,8 +48,32 @@ void max_board_unmake_move(max_board_t *board, max_smove_t move) {
                 MAX_CASTLE_ROOK_DEST[castle][side],
                 friendly->initial_rook[castle]
             );
-        } break;
 
+            max_board_move_piece_from_side(board, friendly, move.to, move.from);
+        } break;
+        
+        default: {
+            MAX_SANITY(max_movetag_is_promote(move.tag));
+            max_board_remove_piece_from_side(
+                board,
+                friendly,
+                move.to
+            );
+
+            max_board_add_piece_to_side(
+                board,
+                friendly,
+                move.from,
+                max_piececode_new(side, MAX_PIECECODE_PAWN)
+            );
+        }
+    }
+
+    //Re-add any captured piece
+    //This does nothing for en passant because EP captured pieces are NOT on the destination square
+    if(move.tag & MAX_MOVETAG_CAPTURE) {
+        max_piececode_t captured = max_captures_pop(&board->captures);
+        max_board_add_piece_to_side(board, enemy, move.to, captured);
     }
 
     //Pop from the state stack last because the prior operations may have modified the zobrist key
