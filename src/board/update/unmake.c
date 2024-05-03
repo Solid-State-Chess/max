@@ -37,23 +37,17 @@ void max_board_unmake_move(max_board_t *board, max_smove_t move) {
             max_board_add_piece_to_side(board, enemy, original_pos, captured);
         } break;
 
-        case MAX_MOVETAG_ACASTLE: {
+        case MAX_MOVETAG_ACASTLE:
+        case MAX_MOVETAG_HCASTLE: {
+            max_castle_side_t castle = max_castle_side_for_movetag(move.tag);
             max_board_move_piece_from_side(
                 board,
                 friendly,
-                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_ASIDE][side],
-                friendly->initial_rook[MAX_CASTLE_ASIDE]
+                MAX_CASTLE_ROOK_DEST[castle][side],
+                friendly->initial_rook[castle]
             );
         } break;
 
-        case MAX_MOVETAG_HCASTLE: {
-            max_board_move_piece_from_side(
-                board,
-                friendly,
-                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_HSIDE][side],
-                friendly->initial_rook[MAX_CASTLE_HSIDE]
-            );
-        } break;
     }
 
     //Pop from the state stack last because the prior operations may have modified the zobrist key

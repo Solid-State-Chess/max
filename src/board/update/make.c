@@ -72,21 +72,14 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             max_captures_add(&board->captures, captured);
         } break;
 
-        case MAX_MOVETAG_ACASTLE: {
-            max_board_move_piece_from_side(
-                board,
-                friendly,
-                friendly->initial_rook[MAX_CASTLE_ASIDE],
-                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_ASIDE][side]
-            );
-        } break;
-
+        case MAX_MOVETAG_ACASTLE:
         case MAX_MOVETAG_HCASTLE: {
+            max_castle_side_t castle = max_castle_side_for_movetag(move.tag);
             max_board_move_piece_from_side(
                 board,
                 friendly,
-                friendly->initial_rook[MAX_CASTLE_HSIDE],
-                MAX_CASTLE_ROOK_DEST[MAX_CASTLE_HSIDE][side]
+                friendly->initial_rook[castle],
+                MAX_CASTLE_ROOK_DEST[castle][side]
             );
         } break;
     }

@@ -82,6 +82,14 @@ MAX_INLINE_ALWAYS max_movetag_t max_movetag_for_castle_side(max_castle_side_t ca
     return (MAX_MOVETAG_ACASTLE << castle);
 }
 
+/// Get a #max_castle_side_t index for the given movetag.
+/// The movetag MUST be either #MAX_MOVETAG_ACASTLE or #MAX_MOVETAG_HCASTLE
+/// (checked with debug assertions)
+MAX_INLINE_ALWAYS max_castle_side_t max_castle_side_for_movetag(max_movetag_t tag) {
+    MAX_ASSERT(tag == MAX_MOVETAG_ACASTLE || tag == MAX_MOVETAG_HCASTLE);
+    return tag >> MAX_MOVETAG_HCASTLE_POS;
+}
+
 /// @}
 
 
