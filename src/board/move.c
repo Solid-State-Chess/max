@@ -2,7 +2,8 @@
 #include "max/board/move.h"
 #include "max/board/piececode.h"
 
-static const uint8_t MAX_PIECECODE_FOR_PROMOTE_TAG[5] = {
+static const uint8_t MAX_PIECECODE_FOR_PROMOTE_TAG[6] = {
+    0,
     0,
     MAX_PIECECODE_KNIGHT,
     MAX_PIECECODE_BISHOP,
