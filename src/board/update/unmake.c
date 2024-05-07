@@ -15,7 +15,7 @@ void max_board_unmake_move(max_board_t *board, max_smove_t move) {
     max_pieces_t *friendly  = max_board_side_list(board, side);
     max_pieces_t *enemy = max_board_side_list(board, max_board_enemy_side(board));
 
-    switch(move.tag) {
+    switch(move.tag & ~MAX_MOVETAG_CAPTURE) {
         case MAX_MOVETAG_NONE:
         case MAX_MOVETAG_DOUBLE: {
             //Move the piece back to its origin square (we need to take this into consideration when undoing promotions)
