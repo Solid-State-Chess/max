@@ -96,7 +96,8 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
 
             max_board_move_piece_from_side(board, friendly, move.from, move.to);
         } break;
-
+        
+        //Only MAX_MOVETAG_P* promotion moves
         default: {
             MAX_SANITY(max_movetag_is_promote(move.tag));
             max_piececode_t promoted = max_piececode_for_movetag_promote(move.tag, side);

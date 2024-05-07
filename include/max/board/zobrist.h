@@ -11,6 +11,8 @@
 /// @{
 
 /// \defgroup zobrist Zobrist Keys
+/// Zobrist hashing builds unique identifiers for chess positions, to be used in a transposition table and to
+/// efficiently store and compare positions when determining draws by threefold repetition.
 /// @{
 
 

@@ -38,13 +38,15 @@ enum {
 /// Length of the #MAX_0x88_DIAGONALS array
 #define MAX_0x88_DIAGONALS_LEN (4)
 
-/// Array of all four diagonal directions that a bishop would slide across
+/// Array of all four diagonal directions that a bishop would slide across.
+/// Internally, this is a pointer to a segment of #MAX_0x88_RAYS.
 extern max_0x88_dir_t *MAX_0x88_DIAGONALS;
 
 /// Length of the #MAX_0x88_CARDINALS array
 #define MAX_0x88_CARDINALS_LEN (4)
 
-/// Array of all four cardinal directions that a rook would slide across
+/// Array of all four cardinal directions that a rook would slide across.
+/// Internally, this is a pointer to a segment of #MAX_0x88_RAYS.
 extern max_0x88_dir_t *MAX_0x88_CARDINALS;
 
 /// Length of the #MAX_0x88_RAYS array

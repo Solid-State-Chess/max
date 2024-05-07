@@ -4,6 +4,7 @@
 #include "max/board/loc.h"
 #include "max/board/state.h"
 #include "max/def.h"
+#include <string.h>
 
 
 /// \ingroup state
@@ -65,6 +66,19 @@ MAX_INLINE_ALWAYS void max_state_stack_push(max_state_stack_t *stack, max_state_
 MAX_INLINE_ALWAYS void max_state_stack_pop(max_state_stack_t *stack) {
     stack->head -= 1;
     stack->head_ptr -= 1;
+}
+
+/// Remove all elements under the top 'count' elements of the given stack,
+/// resetting its length to <= count.
+/// This is used to reset the state stack to under four elements to ensure it always has capacity for engine search.
+/// \param count Number of elements to move from the head of the stack to the bottom
+MAX_INLINE_ALWAYS void max_state_stack_lower_head(max_state_stack_t *stack, uint8_t count) {
+    if(stack->head >= count) {
+        max_state_t *upper_buf = stack->head_ptr - (count - 1);
+        memcpy(stack->plates, upper_buf, count);
+        stack->head = count - 1;
+        stack->head_ptr = upper_buf;
+    }
 }
 
 /// @}
