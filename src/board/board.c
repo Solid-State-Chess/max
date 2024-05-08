@@ -89,8 +89,8 @@ max_piececode_t max_board_remove_piece_from_side(max_board_t *board, max_pieces_
     //Remove the piece from the side's position list
     max_lidx_t idx = board->indices[pos.v];
     max_loclist_t *list = max_pieces_get_list(side, piece);
-    max_loclist_remove(list, idx);
-    board->indices[list->loc[idx].v] = idx;
+    max_0x88_t updated = max_loclist_remove(list, idx);
+    board->indices[updated.v] = idx;
     
     //Update the zobrist hash to reflect the removed piece from the square
     max_state_t *state = max_board_state(board);

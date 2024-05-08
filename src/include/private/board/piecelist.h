@@ -54,11 +54,16 @@ MAX_INLINE_ALWAYS max_lidx_t max_loclist_add(max_loclist_t *pieces, max_0x88_t p
     return pieces->len - 1;
 }
 
-/// Remove the piece at the given index from the list
-MAX_INLINE_ALWAYS void max_loclist_remove(max_loclist_t *pieces, max_lidx_t idx) {
+/// Remove the piece at the given index from the list.
+/// # Important
+/// This function is guaranteed to place the last element of the list into the removed index.
+/// In the actual board, this means that the index board must ALSO be updated with the removed list index for the piece at the last index.
+/// \return The board location of the board location that has replaced the one at `idx`.
+/// The index board at the returned position MUST be updated to reflect that the new index for that position is now `idx`.
+MAX_INLINE_ALWAYS max_0x88_t max_loclist_remove(max_loclist_t *pieces, max_lidx_t idx) {
     MAX_ASSERT(pieces->len > 0);
     pieces->len -= 1;
-    pieces->loc[idx] = pieces->loc[pieces->len];
+    return pieces->loc[idx] = pieces->loc[pieces->len];
 }
 
 
