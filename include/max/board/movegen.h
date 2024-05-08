@@ -14,7 +14,7 @@
 /// @{
 
 /// Fill a movelist with all pseudolegal moves for the current side to play.
-/// Generated moves are not checked for validity, and must be validated before being played
+/// Generated moves are not checked for legality, and must be validated before being played
 /// on the board.
 void max_board_movegen(max_board_t *board, max_movelist_t *list);
 

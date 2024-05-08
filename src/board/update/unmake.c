@@ -66,7 +66,7 @@ void max_board_unmake_move(max_board_t *board, max_smove_t move) {
                 move.from,
                 max_piececode_new(side, MAX_PIECECODE_PAWN)
             );
-        }
+        } break;
     }
 
     //Re-add any captured piece

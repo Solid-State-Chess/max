@@ -88,6 +88,12 @@ typedef struct {
 } max_pieces_t;
 
 
+#ifdef MAX_CONSOLE
+/// Print the given piece list to the console
+void max_pieces_print(max_pieces_t *pieces);
+#endif
+
+
 /// @}
 
 /// @}

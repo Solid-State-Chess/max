@@ -23,7 +23,8 @@ MAX_INLINE_ALWAYS void max_captures_add(max_captures_t *caps, max_piececode_t pi
 /// With debug assertions enabled, this will bounds check the capture stack to ensure we return a valid piece.
 MAX_INLINE_ALWAYS max_piececode_t max_captures_pop(max_captures_t *caps) {
     MAX_ASSERT(caps->len > 0);
-    return caps->pieces[--caps->len];
+    caps->len -= 1;
+    return caps->pieces[caps->len];
 }
 
 /// @}

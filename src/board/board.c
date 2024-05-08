@@ -1,6 +1,7 @@
 #include "max/board/board.h"
 #include "max/board/loc.h"
 #include "max/board/piececode.h"
+#include "max/board/piecelist.h"
 #include "max/board/side.h"
 #include "max/board/squares.h"
 #include "max/board/state.h"
@@ -32,8 +33,8 @@ void max_board_new(max_board_t *board, max_state_t *buffer, uint64_t seed) {
 void max_board_reset(max_board_t *board) {
     max_chessboard_init_pieces(board);
 
-    max_plist_new(&board->side.white);
-    max_plist_new(&board->side.black);
+    max_pieces_new(&board->side.white);
+    max_pieces_new(&board->side.black);
 
     max_captures_new(&board->captures);
     max_state_stack_new(&board->stack, board->stack.plates, max_state_default());
@@ -48,7 +49,7 @@ void max_board_add_piece_to_side(max_board_t *board, max_pieces_t *side, max_0x8
     board->pieces[pos.v] = piece;
     
     //Update position lists of the given side to show added piece
-    max_loclist_t *list = max_plist_get_list(side, piece);
+    max_loclist_t *list = max_pieces_get_list(side, piece);
     max_lidx_t idx = max_loclist_add(list, pos);
     board->indices[pos.v] = idx;
     
@@ -64,7 +65,7 @@ void max_board_move_piece_from_side(max_board_t *board, max_pieces_t *side, max_
     
     //Update position lists for the given side to reflect new position of the moved piece
     max_lidx_t idx = board->indices[from.v];
-    max_loclist_t *list = max_plist_get_list(side, piece);
+    max_loclist_t *list = max_pieces_get_list(side, piece);
     list->loc[idx] = to;
     board->indices[to.v] = idx;
     
@@ -87,8 +88,9 @@ max_piececode_t max_board_remove_piece_from_side(max_board_t *board, max_pieces_
     
     //Remove the piece from the side's position list
     max_lidx_t idx = board->indices[pos.v];
-    max_loclist_t *list = max_plist_get_list(side, piece);
+    max_loclist_t *list = max_pieces_get_list(side, piece);
     max_loclist_remove(list, idx);
+    board->indices[list->loc[idx].v] = idx;
     
     //Update the zobrist hash to reflect the removed piece from the square
     max_state_t *state = max_board_state(board);
@@ -228,6 +230,12 @@ void max_board_print(max_board_t *board) {
     }
 
     putchar('\n');
+
+    puts("WHITE");
+    max_pieces_print(&board->side.white);
+    puts("\nBLACK");
+    max_pieces_print(&board->side.black);
+
 }
 
 #endif
