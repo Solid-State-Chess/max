@@ -202,6 +202,10 @@ int gui_state_run(gui_state_t *state) {
                                 max_movelist_t moves = state->shared->moves;
                                 for(unsigned i = 0; i < moves.len; ++i) {
                                     max_smove_t move = moves.buf[i];
+                                    if(!max_board_legal(&state->shared->engine, move)) {
+                                        continue;
+                                    }
+
                                     if(move.from.v == state->grabbed.from.v && move.to.v == to.v) {
                                         if(max_movetag_is_promote(move.tag)) {
                                             if(!state->promote.selecting) {

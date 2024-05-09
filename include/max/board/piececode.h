@@ -113,6 +113,11 @@ MAX_INLINE_ALWAYS max_piecemask_t max_piecemask_combine(max_piecemask_t v1, max_
     return (max_piecemask_t){ .msk = v1.msk | v2.msk };
 }
 
+/// Get a new #max_piecemask_t wrapper struct from the given raw bitmask.
+MAX_INLINE_ALWAYS max_piecemask_t max_piecemask_new(uint8_t mask) {
+    return (max_piecemask_t){ .msk = mask };
+}
+
 /// Check if the given piece matches the bitmask
 /// \param Piece the piece bitfield to mask with a bitwise AND
 /// \param mask Bitmask to apply to the given piece
