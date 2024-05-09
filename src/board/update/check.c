@@ -47,7 +47,7 @@ static max_check_t* max_board_piece_delivers_check(max_board_t *board, max_0x88_
         } break;
     }
 
-    return check + 1;
+    return check;
 }
 
 static max_check_t* max_board_update_discovered_check(max_board_t *board, max_0x88_t kpos, max_0x88_t from, max_check_t *check) {
