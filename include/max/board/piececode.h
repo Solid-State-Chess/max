@@ -108,10 +108,6 @@ typedef struct { uint8_t msk; } max_piecemask_t;
 
 #define MAX_PIECEMASK_CARDINAL ((max_piecemask_t){ .msk = MAX_PIECECODE_ROOK   })
 
-/// Combine the two given piece code masks into a single mask that can be tested in one operation.
-MAX_INLINE_ALWAYS max_piecemask_t max_piecemask_combine(max_piecemask_t v1, max_piecemask_t v2) {
-    return (max_piecemask_t){ .msk = v1.msk | v2.msk };
-}
 
 /// Get a new #max_piecemask_t wrapper struct from the given raw bitmask.
 MAX_INLINE_ALWAYS max_piecemask_t max_piecemask_new(uint8_t mask) {

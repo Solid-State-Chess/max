@@ -6,6 +6,7 @@
 #include "max/board/piececode.h"
 #include "max/def.h"
 #include "private/board/board.h"
+#include <stdio.h>
 
 /// Check if a piece on the given square is pinned by an enemy slider to the friendly king.
 /// \return The pinning direction from king to `pos` if the piece is pinned, otherwise #MAX_0x88_DIR_INVALID
@@ -14,10 +15,8 @@ static MAX_INLINE_ALWAYS max_0x88_dir_t max_board_piece_is_pinned(max_board_t *b
     
     max_0x88_dir_t dir = max_0x88_line(kpos, pos);
     if(dir != MAX_0x88_DIR_INVALID) {
-        max_piecemask_t mask = max_piecemask_combine(
-            max_0x88_piecemask_for_dir(dir),
-            max_side_color_mask(max_board_enemy_side(board))
-        );
+        max_piecemask_t mask = max_0x88_piecemask_for_dir(dir);
+        max_piecemask_t enemy = max_side_color_mask(max_board_enemy_side(board));
         
         //Move along the king->piece line to check if there is a valid slider behind the pinned piece
         max_0x88_t scan = pos;
@@ -29,7 +28,7 @@ static MAX_INLINE_ALWAYS max_0x88_dir_t max_board_piece_is_pinned(max_board_t *b
 
             max_piececode_t attacker = board->pieces[scan.v];
             if(attacker.v != MAX_PIECECODE_EMPTY) {
-                if(max_piececode_match(attacker, mask)) {
+                if(max_piececode_match(attacker, mask) && max_piececode_match(attacker, enemy)) {
                     break;
                 }
                 return MAX_0x88_DIR_INVALID;
@@ -52,7 +51,7 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
     max_state_t *state = max_board_state(board);
 
     max_piececode_t moved = board->pieces[move.from.v];
-    if(max_piececode_match(moved, max_piecemask_new(MAX_PIECECODE_KING))) {
+    if((moved.v & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING) {
         if(move.tag == MAX_MOVETAG_ACASTLE || move.tag == MAX_MOVETAG_HCASTLE) {
 
         } else {
@@ -77,6 +76,7 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
     } else {
         max_0x88_dir_t pin_dir = max_board_piece_is_pinned(board, move.from);
         if(pin_dir != MAX_0x88_DIR_INVALID) {
+            printf("PINNED @ %d\n", pin_dir);
             max_0x88_t kpos = *max_board_side_list(board, max_board_side(board))->king.loc;
             return pin_dir != max_0x88_line(kpos, move.to);
         } else {
