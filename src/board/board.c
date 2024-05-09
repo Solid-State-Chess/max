@@ -42,6 +42,21 @@ void max_board_reset(max_board_t *board) {
     board->ply = 0;
 }
 
+bool max_board_empty_between_with_dir(max_board_t *board, max_0x88_t from, max_0x88_t to, max_0x88_dir_t dir) {
+    MAX_SANITY(dir == max_0x88_line(from, to));
+
+    from = max_0x88_move(from, dir);
+    while(from.v != to.v) {
+        if(board->pieces[from.v].v != MAX_PIECECODE_EMPTY) {
+            return false;
+        }
+
+        from = max_0x88_move(from, dir);
+    }
+
+    return true;
+}
+
 void max_board_add_piece_to_side(max_board_t *board, max_pieces_t *side, max_0x88_t pos, max_piececode_t piece) {
     MAX_ASSERT(board->pieces[pos.v].v == MAX_PIECECODE_EMPTY);
     

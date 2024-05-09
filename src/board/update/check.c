@@ -5,6 +5,7 @@
 #include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/movegen.h"
+#include "private/board/movegen/king.h"
 #include "private/board/movegen/knight.h"
 #include "private/board/movegen/pawn.h"
 
@@ -99,4 +100,66 @@ void max_board_update_check(max_board_t *board, max_0x88_t from, max_0x88_t to) 
     //Update the check pointer if the given piece delivers check itself
     check = max_board_piece_delivers_check(board, kpos, to, check);
     check = max_board_update_discovered_check(board, kpos, from, check);
+}
+
+static MAX_INLINE_ALWAYS bool max_board_attack_lookup(max_board_t *board, max_0x88_t pos, max_piecemask_t mask) {
+    return (max_0x88_valid(pos) && max_piececode_match(board->pieces[pos.v], mask));
+}
+
+static bool max_board_attack_slide(max_board_t *board, max_0x88_t pos, max_0x88_dir_t dir, max_piecemask_t mask) {
+    for(;;) {
+        pos = max_0x88_move(pos, dir);
+        if(!max_0x88_valid(pos)) {
+            return false;
+        }
+
+        max_piececode_t piece = board->pieces[pos.v];
+        if(piece.v != MAX_PIECECODE_EMPTY) {
+            return max_piececode_match(piece, mask);
+        }
+    }
+}
+
+bool max_board_square_is_attacked(max_board_t *board, max_0x88_t pos) {
+    max_side_t enemy_side = max_board_enemy_side(board);
+    max_piecemask_t enemy_color = max_side_color_mask(enemy_side);
+    max_piecemask_t enemy_mask = max_piecemask_combine(max_piecemask_new(MAX_PIECECODE_PAWN), enemy_color);
+
+    max_0x88_t scan = max_0x88_move(pos, MAX_PAWN_ADVANCE_DIR[enemy_side]);
+    if(
+        max_board_attack_lookup(board, max_0x88_move(scan, MAX_PAWN_ATTACK_SIDES[0]), enemy_mask) ||
+        max_board_attack_lookup(board, max_0x88_move(scan, MAX_PAWN_ATTACK_SIDES[1]), enemy_mask)
+    ) {
+        return true;
+    }
+    
+    enemy_mask = max_piecemask_combine(max_piecemask_new(MAX_PIECECODE_KNIGHT), enemy_color);
+    for(unsigned i = 0; i < MAX_KNIGHT_MOVES_LEN; ++i) {
+        if(max_board_attack_lookup(board, max_0x88_move(pos, MAX_KNIGHT_MOVES[i]), enemy_mask)) {
+            return true;
+        }
+    }
+
+    enemy_mask = max_piecemask_combine(max_piecemask_new(MAX_PIECECODE_BISHOP), enemy_color);
+    for(unsigned i = 0; i < MAX_0x88_DIAGONALS_LEN; ++i) {
+        if(max_board_attack_slide(board, pos, MAX_0x88_DIAGONALS[i], enemy_mask)) {
+            return true;
+        }
+    }
+
+    enemy_mask = max_piecemask_combine(max_piecemask_new(MAX_PIECECODE_ROOK), enemy_color);
+    for(unsigned i = 0; i < MAX_0x88_CARDINALS_LEN; ++i) {
+        if(max_board_attack_slide(board, pos, MAX_0x88_CARDINALS[i], enemy_mask)) {
+            return true;
+        }
+    }
+
+    enemy_mask = max_piecemask_combine(max_piecemask_new(MAX_PIECECODE_KING), enemy_color);
+    for(unsigned i = 0; i < MAX_KING_MOVES_LEN; ++i) {
+        if(max_board_attack_lookup(board, max_0x88_move(pos, MAX_KING_MOVES[i]), enemy_mask)) {
+            return true;
+        }
+    }
+
+    return false;
 }

@@ -41,20 +41,12 @@ MAX_INLINE_ALWAYS void max_board_set_initial_rook_files(max_board_t *board, uint
 /// \param to The destination square to travel towards.
 /// \param dir The direction along which to travel from the source square to the destination square
 /// \return true if there are no pieces between the two squares along the given line
-MAX_INLINE_ALWAYS bool max_board_empty_between_with_dir(max_board_t *board, max_0x88_t from, max_0x88_t to, max_0x88_dir_t dir) {
-    MAX_SANITY(dir == max_0x88_line(from, to));
+bool max_board_empty_between_with_dir(max_board_t *board, max_0x88_t from, max_0x88_t to, max_0x88_dir_t dir);
 
-    from = max_0x88_move(from, dir);
-    while(from.v != to.v) {
-        if(board->pieces[from.v].v != MAX_PIECECODE_EMPTY) {
-            return false;
-        }
-
-        from = max_0x88_move(from, dir);
-    }
-
-    return true;
-}
+/// Check if the given square is attacked by any enemy piece, without providing any information about the type or location of the attacker.
+/// This function is meant for king movement legality and castling validation, and is not the most efficient way to check for valid moves.
+/// \return true if the given square is attacked by any sliding or jumping enemy piece
+bool max_board_square_is_attacked(max_board_t *board, max_0x88_t pos);
 
 /// Add a piece to the board at the given position.
 /// Updates the current zobrist hash, adds a piece to it's corresponding side's piece list,
