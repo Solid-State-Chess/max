@@ -64,7 +64,7 @@ static max_check_t* max_board_update_discovered_check(max_board_t *board, max_0x
                 max_piececode_t piece = board->pieces[scan.v];
                 if(piece.v != MAX_PIECECODE_EMPTY) {
                     max_piecemask_t mask = max_0x88_piecemask_for_dir(dir);
-                    if(max_piececode_match(piece, mask) && !max_piececode_match(piece, max_side_color_mask(max_board_side(board)))) {
+                    if(max_piececode_match(piece, max_piecemask_combine(mask, max_side_color_mask(max_board_side(board))))) {
                         check->origin = scan;
                         check->ray = dir;
                         return check + 1;
