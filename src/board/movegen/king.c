@@ -1,4 +1,5 @@
 #include "private/board/movegen/king.h"
+#include "max/board/dir.h"
 #include "max/board/move.h"
 #include "max/board/side.h"
 #include "max/board/squares.h"
@@ -46,9 +47,8 @@ void max_board_movegen_castle(max_board_t *board, max_movelist_t *movelist, max_
     max_side_t color = max_board_side(board);
     max_0x88_t rdest = MAX_CASTLE_ROOK_DEST[castle_side][color];
     
-    max_0x88_dir_t dir;
-    bool has_line = max_0x88_line(rook, rdest, &dir);
-    MAX_SANITY(has_line && "Rook on its starting square has no line to its castle square");
+    max_0x88_dir_t dir = max_0x88_line(rook, rdest);
+    MAX_SANITY(dir != MAX_0x88_DIR_INVALID && "Rook on its starting square has no line to its castle square");
 
     max_0x88_t scan = rook;
     do {
@@ -59,8 +59,8 @@ void max_board_movegen_castle(max_board_t *board, max_movelist_t *movelist, max_
     } while(scan.v != rdest.v);
     
     max_0x88_t kdest = MAX_CASTLE_KING_DEST[castle_side][color];
-    has_line = max_0x88_line(kpos, kdest, &dir);
-    MAX_SANITY(has_line && "King on its starting square has no line to its castle square");
+    dir = max_0x88_line(kpos, kdest);
+    MAX_SANITY(dir != MAX_0x88_DIR_INVALID && "King on its starting square has no line to its castle square");
     scan = kpos;
     do {
         scan = max_0x88_move(scan, dir);

@@ -26,7 +26,7 @@ typedef struct {
     /// Board location where check originates from.
     /// If this square is off the board, then the check structure is considered 'empty'
     max_0x88_t origin;
-    /// Direction from the origin to the king's location that a sliding attacker on 'origin'
+    /// Direction from the king's location to the sliding attacker on 'origin'
     /// attacks the king through.
     /// If this ray is invalid (0), then the check structure represents check delivered from a jumping piece.
     max_0x88_dir_t ray;

@@ -3,6 +3,7 @@
 #include "max/board/board.h"
 #include "max/board/move.h"
 #include "max/board/piececode.h"
+#include <stdbool.h>
 
 
 /// \ingroup movegen
@@ -29,6 +30,7 @@ bool max_board_movegen_attack(max_board_t *board, max_movelist_t *list, max_piec
 /// It is meant to be called exclusively from the max_board_make_move() function, and does not need to be considered in
 /// move unmaking because we can just reuse the check structure stored on the stack.
 void max_board_update_check(max_board_t *board, max_0x88_t from, max_0x88_t to);
+
 
 /// @}
 

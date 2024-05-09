@@ -102,6 +102,12 @@ MAX_INLINE_ALWAYS max_side_t max_piececode_side(max_piececode_t piece) {
 /// errors when combining piece codes
 typedef struct { uint8_t msk; } max_piecemask_t;
 
+#define MAX_PIECEMASK_EMPTY    ((max_piecemask_t){ .msk = 0 })
+
+#define MAX_PIECEMASK_DIAGONAL ((max_piecemask_t){ .msk = MAX_PIECECODE_BISHOP })
+
+#define MAX_PIECEMASK_CARDINAL ((max_piecemask_t){ .msk = MAX_PIECECODE_ROOK   })
+
 /// Check if the given piece matches the bitmask
 /// \param Piece the piece bitfield to mask with a bitwise AND
 /// \param mask Bitmask to apply to the given piece

@@ -4,7 +4,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "max/assert.h"
 #include "max/board/loc.h"
+#include "max/board/piececode.h"
 #include "max/def.h"
 
 /// \ingroup loc
@@ -70,9 +72,33 @@ MAX_INLINE_ALWAYS max_0x88_t max_0x88_move(max_0x88_t loc, max_0x88_dir_t dir) {
 /// Get the single-square direction increment (if any) that moves from the given square to the given square.
 /// \param [in] from The board position that a ray is cast from
 /// \param [in] to The board position that a ray reaches
-/// \param [out] dir The direction increment that will be filled if there is a straight line connecting the two squares
-/// \return true if there was a straight line connecting the two squares
-bool max_0x88_line(max_0x88_t from, max_0x88_t to, max_0x88_dir_t *dir);
+/// \return  The direction increment of a straight line connecting the two squares, or MAX_0x88_DIR_INVALID if there is no line between the squares
+max_0x88_dir_t max_0x88_line(max_0x88_t from, max_0x88_t to);
+
+/// Get a piecemask for a piece that attacks the given direction.
+/// \param dir Ray direction along which a piece moves
+/// \return A piece mask that matches pieces that can move along the given ray direction, or an empty piecemask if dir is MAX_0x88_DIR_INVALID
+MAX_INLINE_ALWAYS max_piecemask_t max_0x88_piecemask_for_dir(max_0x88_dir_t dir) {
+    switch(dir) {
+        case MAX_0x88_DIR_UR:
+        case MAX_0x88_DIR_UL:
+        case MAX_0x88_DIR_DR:
+        case MAX_0x88_DIR_DL:
+            return MAX_PIECEMASK_DIAGONAL;
+        break;
+
+        case MAX_0x88_DIR_INVALID: return MAX_PIECEMASK_EMPTY; break;
+        default:
+            MAX_SANITY(
+                dir == MAX_0x88_DIR_UP ||
+                dir == MAX_0x88_DIR_DOWN ||
+                dir == MAX_0x88_DIR_RIGHT ||
+                dir == MAX_0x88_DIR_LEFT
+            );
+            return MAX_PIECEMASK_CARDINAL;
+        break;
+    }
+}
 
 
 /// @}

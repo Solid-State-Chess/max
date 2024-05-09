@@ -20,10 +20,9 @@ max_0x88_dir_t *MAX_0x88_CARDINALS = &MAX_0x88_RAYS[0];
 // between them
 static max_0x88_dir_t MAX_DIRECTION_BY_DIFF[MAX_0x88_DIFF_LEN] = {MAX_0x88_DIR_INVALID};
 
-bool max_0x88_line(max_0x88_t from, max_0x88_t to, max_0x88_dir_t *dir) {
+max_0x88_dir_t max_0x88_line(max_0x88_t from, max_0x88_t to) {
     max_0x88_diff_t diff = max_0x88_diff(from, to);
-    *dir = MAX_DIRECTION_BY_DIFF[diff.v];
-    return *dir != MAX_0x88_DIR_INVALID;
+    return MAX_DIRECTION_BY_DIFF[diff.v];
 }
 
 static void max_0x88_init_line(uint8_t start, int8_t inc) {
@@ -51,11 +50,11 @@ void max_0x88_init_static(void) {
 
 void max_0x88_dir_unit_tests(void) {
     max_0x88_dir_t dir;
-    ASSERT(max_0x88_line(MAX_E2, MAX_E8, &dir) && dir == MAX_0x88_DIR_UP, "Direction finding wrong, got %d", dir);
-    ASSERT(max_0x88_line(MAX_D5, MAX_F7, &dir) && dir == MAX_0x88_DIR_UR, "");
-    ASSERT(max_0x88_line(MAX_A6, MAX_A4, &dir) && dir == MAX_0x88_DIR_DOWN, "");
-    ASSERT(max_0x88_line(MAX_A1, MAX_F6, &dir) && dir == MAX_0x88_DIR_UR, "");
-    ASSERT(max_0x88_line(MAX_F6, MAX_A1, &dir) && dir == MAX_0x88_DIR_DL, "");
-    ASSERT(!max_0x88_line(MAX_E2, MAX_E2, &dir), "There is a line between the same square: %d", dir);
+    ASSERT(max_0x88_line(MAX_E2, MAX_E8) == MAX_0x88_DIR_UP, "Direction finding wrong, got %d", dir);
+    ASSERT(max_0x88_line(MAX_D5, MAX_F7) == MAX_0x88_DIR_UR, "");
+    ASSERT(max_0x88_line(MAX_A6, MAX_A4) == MAX_0x88_DIR_DOWN, "");
+    ASSERT(max_0x88_line(MAX_A1, MAX_F6) == MAX_0x88_DIR_UR, "");
+    ASSERT(max_0x88_line(MAX_F6, MAX_A1) == MAX_0x88_DIR_DL, "");
+    ASSERT(max_0x88_line(MAX_E2, MAX_E2) == MAX_0x88_DIR_INVALID, "There is a line between the same square: %d", dir);
 }
 #endif

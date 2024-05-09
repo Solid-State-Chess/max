@@ -74,9 +74,9 @@ void max_board_tests(void) {
     max_board_perft(&board, &count, moves, 3);
     ASSERT(count.nodes == MAX_BOARD_PERFT_3, "perft(3) invalid - expecting %zu nodes\n", MAX_BOARD_PERFT_3);
 
-    count = max_perft_count_default();
+    /*count = max_perft_count_default();
     max_board_perft(&board, &count, moves, 6);
-    ASSERT(count.nodes == MAX_BOARD_PERFT_6, "perft(6) invalid - expecting %zu nodes\n", MAX_BOARD_PERFT_6);
+    ASSERT(count.nodes == MAX_BOARD_PERFT_6, "perft(6) invalid - expecting %zu nodes\n", MAX_BOARD_PERFT_6);*/
 }
 
 

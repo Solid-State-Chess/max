@@ -3,6 +3,7 @@
 #include "max/board/board.h"
 #include "max/board/loc.h"
 #include "max/board/move.h"
+#include "max/board/piececode.h"
 #include "max/board/squares.h"
 #include "max/board/state.h"
 #include "max/def.h"
@@ -30,6 +31,29 @@ MAX_INLINE_ALWAYS void max_board_set_initial_rook_files(max_board_t *board, uint
     board->side.white.initial_rook[MAX_CASTLE_HSIDE] = max_0x88_new(MAX_RANK_1, hside);
     board->side.black.initial_rook[MAX_CASTLE_ASIDE] = max_0x88_new(MAX_RANK_8, aside);
     board->side.black.initial_rook[MAX_CASTLE_HSIDE] = max_0x88_new(MAX_RANK_8, hside);
+}
+
+/// Check if all squares between the given two locations are empty, using a direction that points from the given source square to the given
+/// destination square to avoid having to recomupte this direction.
+/// Does not check the source or destination square for emptiness.
+/// Debug sanity checks will ensure that `dir` matches the direction between `from` and `to`.
+/// \param from The source square to travel from along the given `dir`
+/// \param to The destination square to travel towards.
+/// \param dir The direction along which to travel from the source square to the destination square
+/// \return true if there are no pieces between the two squares along the given line
+inline bool max_board_empty_between_with_dir(max_board_t *board, max_0x88_t from, max_0x88_t to, max_0x88_dir_t dir) {
+    MAX_SANITY(dir == max_0x88_line(from, to));
+
+    from = max_0x88_move(from, dir);
+    while(from.v != to.v) {
+        if(board->pieces[from.v].v != MAX_PIECECODE_EMPTY) {
+            return false;
+        }
+
+        from = max_0x88_move(from, dir);
+    }
+
+    return true;
 }
 
 /// Add a piece to the board at the given position.
