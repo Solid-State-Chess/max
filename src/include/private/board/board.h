@@ -41,7 +41,7 @@ MAX_INLINE_ALWAYS void max_board_set_initial_rook_files(max_board_t *board, uint
 /// \param to The destination square to travel towards.
 /// \param dir The direction along which to travel from the source square to the destination square
 /// \return true if there are no pieces between the two squares along the given line
-inline bool max_board_empty_between_with_dir(max_board_t *board, max_0x88_t from, max_0x88_t to, max_0x88_dir_t dir) {
+MAX_INLINE_ALWAYS bool max_board_empty_between_with_dir(max_board_t *board, max_0x88_t from, max_0x88_t to, max_0x88_dir_t dir) {
     MAX_SANITY(dir == max_0x88_line(from, to));
 
     from = max_0x88_move(from, dir);

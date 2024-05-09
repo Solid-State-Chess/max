@@ -38,7 +38,7 @@ static max_check_t* max_board_piece_delivers_check(max_board_t *board, max_0x88_
             max_0x88_dir_t dir = max_0x88_line(kpos, pos);
             if(
                 max_piececode_match(piece, max_0x88_piecemask_for_dir(dir)) &&
-                max_board_empty_between_with_dir(board, pos, kpos, dir)
+                max_board_empty_between_with_dir(board, kpos, pos, dir)
             ) {
                 check->origin = pos;
                 check->ray = dir;
