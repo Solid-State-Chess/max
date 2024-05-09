@@ -6,7 +6,6 @@
 #include "max/board/piececode.h"
 #include "max/def.h"
 #include "private/board/board.h"
-#include <stdio.h>
 
 /// Check if a piece on the given square is pinned by an enemy slider to the friendly king.
 /// \return The pinning direction from king to `pos` if the piece is pinned, otherwise #MAX_0x88_DIR_INVALID
@@ -76,9 +75,8 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
     } else {
         max_0x88_dir_t pin_dir = max_board_piece_is_pinned(board, move.from);
         if(pin_dir != MAX_0x88_DIR_INVALID) {
-            printf("PINNED @ %d\n", pin_dir);
             max_0x88_t kpos = *max_board_side_list(board, max_board_side(board))->king.loc;
-            return pin_dir != max_0x88_line(kpos, move.to);
+            return pin_dir == max_0x88_line(kpos, move.to);
         } else {
             return true;
         }
