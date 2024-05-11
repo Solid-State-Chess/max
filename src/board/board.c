@@ -146,6 +146,7 @@ void max_board_default_pos(max_board_t *board) {
 void max_board_tests(void) {
     max_board_check_unit_tests();
     max_board_legality_unit_tests();
+    max_board_perft_unit_tests();
 }
 
 #endif
@@ -257,12 +258,18 @@ void max_board_print(max_board_t *board) {
     }
 
     putchar('\n');
+    
+    #ifdef MAX_ASSERTS_SANITY
 
-    puts("WHITE");
-    max_pieces_print(&board->side.white);
-    puts("\nBLACK");
-    max_pieces_print(&board->side.black);
+    max_state_t *sp = board->stack.plates;
+    unsigned i = 1;
+    do {
+        printf("%u. %c%c%c%c\n", i, MAX_0x88_FORMAT(sp->move.from), MAX_0x88_FORMAT(sp->move.to));
+        sp += 1;
+        i += 1;
+    } while(sp != board->stack.head_ptr);
 
+    #endif
 }
 
 #endif

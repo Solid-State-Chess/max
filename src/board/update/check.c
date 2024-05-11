@@ -126,9 +126,9 @@ static bool max_board_attack_slide(max_board_t *board, max_0x88_t pos, max_0x88_
 bool max_board_square_is_attacked(max_board_t *board, max_0x88_t pos) {
     max_side_t enemy_side = max_board_enemy_side(board);
     max_piecemask_t enemy_color = max_side_color_mask(enemy_side);
-    max_piececode_t enemy_piece = max_piececode_new(enemy_color.msk, MAX_PIECECODE_PAWN);
+    max_piececode_t enemy_piece = max_piececode_new(max_piececode_color_for_side(enemy_side), MAX_PIECECODE_PAWN);
 
-    max_0x88_t scan = max_0x88_move(pos, MAX_PAWN_ADVANCE_DIR[enemy_side]);
+    max_0x88_t scan = max_0x88_move(pos, -MAX_PAWN_ADVANCE_DIR[enemy_side]);
     if(
         max_board_attack_lookup(board, max_0x88_move(scan, MAX_PAWN_ATTACK_SIDES[0]), enemy_piece) ||
         max_board_attack_lookup(board, max_0x88_move(scan, MAX_PAWN_ATTACK_SIDES[1]), enemy_piece)

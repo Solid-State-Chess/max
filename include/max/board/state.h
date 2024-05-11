@@ -125,6 +125,13 @@ typedef struct {
     max_check_t check[2];
     /// Packed data for black and white castle rights and availability of en passant.
     max_packed_state_t packed; 
+
+    #ifdef MAX_ASSERTS_SANITY
+    
+    /// Move that was played on this ply
+    max_smove_t move;
+
+    #endif
 } max_state_t;
 
 #pragma pack(pop)

@@ -8,7 +8,6 @@
 #include "max/def.h"
 #include "private/board/board.h"
 #include "private/board/movegen/king.h"
-#include <stdio.h>
 
 /// Check if a piece on the given square is pinned by an enemy slider to the friendly king.
 /// \return The pinning direction from king to `pos` if the piece is pinned, otherwise #MAX_0x88_DIR_INVALID
