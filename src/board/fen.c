@@ -4,9 +4,9 @@
 #include "max/board/side.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
+#include "private/board/state.h"
 #include <ctype.h>
 #include <stdint.h>
-#include <stdio.h>
 
 /// Tagged union type returned by parser functions to indicate that parsing can continue
 /// or has failed
@@ -180,6 +180,7 @@ max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, const char *fen
         uint8_t mask = MAX_PSTATE_ASIDE_CASTLE | MAX_PSTATE_HSIDE_CASTLE;
         state->packed &= ~(mask << MAX_PSTATE_WCASTLE_POS);
         state->packed &= ~(mask << MAX_PSTATE_BCASTLE_POS);
+        fen += 1;
     } else {
         res = max_board_parse_castle_rights(board, fen, MAX_SIDE_WHITE);
         if(!res.ok) { return res.err; }
@@ -189,11 +190,11 @@ max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, const char *fen
         fen = res.end;
     }
 
+
     fen = max_board_skip_whitespace(board, fen);
     if(*fen == '-') {
         fen = fen + 1;
     } else {
-        printf("%s\n", fen);
         max_state_t *state = max_board_state(board);
         if(*fen == '\0') { return MAX_FEN_SUCCESS; }
         uint8_t file = *fen - 'a';
@@ -202,9 +203,8 @@ max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, const char *fen
         fen += 1;
         uint8_t rank = *fen - '1';
         if(rank > 7) { return MAX_FEN_ERR_INVALID_EPSQUARE; }
-
-        state->packed &= ~MAX_PSTATE_EPFILE_INVALID;
-        state->packed |= file;
+        
+        state->packed = max_packed_state_set_epfile(state->packed, file);
     }
 
     return MAX_FEN_SUCCESS;

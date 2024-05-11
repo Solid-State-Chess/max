@@ -11,6 +11,10 @@
 #include "private/board/state.h"
 #include "private/board/zobrist.h"
 
+#ifdef MAX_ASSERTS
+#include "private/max.h"
+#endif
+
 static void max_chessboard_init_pieces(max_board_t *board) {
     for(unsigned i = 0; i < MAX_0x88_LEN; ++i) {
         board->pieces[i].v = MAX_PIECECODE_INVALID;

@@ -8,6 +8,7 @@
 #include "max/def.h"
 #include "private/board/board.h"
 #include "private/board/movegen/king.h"
+#include <stdio.h>
 
 /// Check if a piece on the given square is pinned by an enemy slider to the friendly king.
 /// \return The pinning direction from king to `pos` if the piece is pinned, otherwise #MAX_0x88_DIR_INVALID
@@ -106,7 +107,25 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
             return move.to.v == check.origin.v;
         }
     } else {
+        //Kind of a hack: put the pawn captured en passant on time out while we check for pins
+        max_0x88_t ep_square;
+        max_piececode_t ep_piece;
+        if(move.tag == MAX_MOVETAG_ENPASSANT) {
+            MAX_SANITY(max_packed_state_epfile(state->packed) != MAX_PSTATE_EPFILE_INVALID);
+            ep_square = max_0x88_new(
+                max_0x88_rank(move.from),
+                max_packed_state_epfile(state->packed)
+            );
+            ep_piece = board->pieces[ep_square.v];
+            board->pieces[ep_square.v].v = MAX_PIECECODE_EMPTY;
+        }
+
         max_0x88_dir_t pin_dir = max_board_piece_is_pinned(board, move.from);
+
+        if(move.tag == MAX_MOVETAG_ENPASSANT) {
+            board->pieces[ep_square.v] = ep_piece;
+        }
+
         if(pin_dir != MAX_0x88_DIR_INVALID) {
             max_0x88_t kpos = *max_board_side_list(board, max_board_side(board))->king.loc;
             return pin_dir == max_0x88_line(kpos, move.to);
