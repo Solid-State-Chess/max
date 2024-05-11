@@ -68,11 +68,13 @@ void max_board_movegen(max_board_t *board, max_movelist_t *list) {
     for(unsigned i = 0; i < MAX_KING_MOVES_LEN; ++i) {
         max_board_movegen_attack(board, list, enemy, from, max_0x88_move(from, MAX_KING_MOVES[i]));
     }
-
-    if(max_packed_state_hcastle(side) & state->packed) {
-        max_board_movegen_castle(board, list, pieces, MAX_CASTLE_HSIDE);
-    }
-    if(max_packed_state_acastle(side) & state->packed) {
-        max_board_movegen_castle(board, list, pieces, MAX_CASTLE_ASIDE);
+    
+    if(max_check_is_empty(state->check[0])) {
+        if(max_packed_state_hcastle(side) & state->packed) {
+            max_board_movegen_castle(board, list, pieces, MAX_CASTLE_HSIDE);
+        }
+        if(max_packed_state_acastle(side) & state->packed) {
+            max_board_movegen_castle(board, list, pieces, MAX_CASTLE_ASIDE);
+        }
     }
 }

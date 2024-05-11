@@ -4,6 +4,7 @@
 
 #include "max/board/dir.h"
 #include "max/board/loc.h"
+#include "max/board/move.h"
 #include "max/board/side.h"
 #include "max/board/zobrist.h"
 #include "max/def.h"
@@ -96,6 +97,14 @@ MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_hcastle(max_side_t side) {
 MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_acastle(max_side_t side) {
     uint8_t shift = MAX_PSTATE_WCASTLE_POS + (side << 1);
     return MAX_PSTATE_ASIDE_CASTLE << shift;
+}
+
+/// Get a bitmask for the specific bit of a packed state representing castle rights for the given side for
+/// both castling directions.
+MAX_INLINE_ALWAYS max_packed_state_t max_packed_state_castle(max_side_t side, max_castle_side_t castle) {
+    uint8_t shift = MAX_PSTATE_WCASTLE_POS + (side << 1);
+    uint8_t castle_side_msk = MAX_PSTATE_ASIDE_CASTLE >> castle;
+    return castle_side_msk << shift;
 }
 
 /// @}

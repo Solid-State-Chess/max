@@ -4,8 +4,10 @@
 #include "max/board/move.h"
 #include "max/board/movegen.h"
 #include "max/board/piececode.h"
+#include "max/board/state.h"
 #include "max/def.h"
 #include "private/board/board.h"
+#include "private/board/movegen/king.h"
 
 /// Check if a piece on the given square is pinned by an enemy slider to the friendly king.
 /// \return The pinning direction from king to `pos` if the piece is pinned, otherwise #MAX_0x88_DIR_INVALID
@@ -51,8 +53,39 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
 
     max_piececode_t moved = board->pieces[move.from.v];
     if((moved.v & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING) {
-        if(move.tag == MAX_MOVETAG_ACASTLE || move.tag == MAX_MOVETAG_HCASTLE) {
+        if((move.tag & ~MAX_MOVETAG_CAPTURE) != MAX_MOVETAG_NONE) {
+            max_side_t side = max_board_side(board);
+            MAX_SANITY(
+                max_movetag_is_castle(move.tag) &&
+                "King makes a move that is not a capture or castle"
+            );
 
+            max_castle_side_t castle_side = max_castle_side_for_movetag(move.tag);
+            MAX_SANITY(
+                (state->packed & max_packed_state_castle(side, castle_side)) != 0 &&
+                "Castle move played when the side does not have castle rights"
+            );
+
+            max_0x88_t scan = move.from;
+            max_0x88_t dest = MAX_CASTLE_KING_DEST[castle_side][side];
+
+            max_0x88_dir_t dir = max_0x88_line(scan, dest);
+            MAX_SANITY(dir != 0 && "King does not have a line to its own destination square");
+             
+            for(;;) {
+                //We don't have to see if king is in check because castle moves are not generated
+                //in the pseudolegal generator if the king is in check
+                scan = max_0x88_move(scan, dir);
+                if(max_board_square_is_attacked(board, scan)) {
+                    return false;
+                }
+
+                if(scan.v == dest.v) {
+                    break;
+                }
+            }
+
+            return true;
         } else {
             return !max_board_square_is_attacked(board, move.to);
         }
@@ -68,7 +101,7 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
         if(max_check_is_sliding(check)) {
             max_0x88_t kpos = *max_board_side_list(board, max_board_side(board))->king.loc;
             max_0x88_dir_t dir = max_0x88_line(kpos, move.to);
-            return (dir == check.ray) && (max_0x88_diff(kpos, check.origin).v > max_0x88_diff(kpos, move.to).v);
+            return (dir == check.ray) && (max_0x88_diff(kpos, check.origin).v >= max_0x88_diff(kpos, move.to).v);
         } else {
             return move.to.v == check.origin.v;
         }

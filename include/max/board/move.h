@@ -60,6 +60,11 @@ MAX_INLINE_ALWAYS bool max_movetag_is_promote(max_movetag_t tag) {
     return tag > MAX_MOVETAG_ENPASSANT && tag <= MAX_MOVETAG_PQUEEN;
 }
 
+/// Check if the given move tag represents an A or H side castling move.
+MAX_INLINE_ALWAYS bool max_movetag_is_castle(max_movetag_t tag) {
+    return tag == MAX_MOVETAG_ACASTLE || tag == MAX_MOVETAG_HCASTLE;
+}
+
 /// Lookup a piececode with the correct color and type bits set for the given
 /// promotion move tag.
 /// The movetag is assumed to be a promotion move (this is checked in with debug assertions)
