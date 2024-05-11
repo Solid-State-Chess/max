@@ -139,7 +139,7 @@ static const max_perft_count_t EXPECTED_PERFT[] = {
 
 static const unsigned EXPECTED_PERFT_LEN = sizeof(EXPECTED_PERFT) / sizeof(EXPECTED_PERFT[0]);
 
-void max_board_tests(void) {
+void max_board_perft_unit_tests(void) {
     max_state_t state_buf[12];
     max_board_t board;
     max_board_new(&board, state_buf, MAX_ZOBRIST_DEFAULT_SEED);

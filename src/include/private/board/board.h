@@ -131,7 +131,11 @@ void max_perft_count_print(max_perft_count_t const *count);
 void max_board_perft(max_board_t *board, max_perft_count_t *count, max_movelist_t moves, uint8_t depth);
 
 /// Perform unit tests for check detection
-void max_board_check_unit_test(void);
+void max_board_check_unit_tests(void);
+
+void max_board_legality_unit_tests(void);
+
+void max_board_perft_unit_tests(void);
 
 /// Perform perft and other unit tests
 void max_board_tests(void);

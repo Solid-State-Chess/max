@@ -175,12 +175,19 @@ max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, const char *fen
     board->ply = side;
 
     fen = max_board_skip_whitespace(board, fen);
-    res = max_board_parse_castle_rights(board, fen, MAX_SIDE_WHITE);
-    if(!res.ok) { return res.err; }
-    fen = res.end;
-    res = max_board_parse_castle_rights(board, fen, MAX_SIDE_BLACK);
-    if(!res.ok) { return res.err; }
-    fen = res.end;
+    if(*fen == '-') {
+        max_state_t *state = max_board_state(board);
+        uint8_t mask = MAX_PSTATE_ASIDE_CASTLE | MAX_PSTATE_HSIDE_CASTLE;
+        state->packed &= ~(mask << MAX_PSTATE_WCASTLE_POS);
+        state->packed &= ~(mask << MAX_PSTATE_BCASTLE_POS);
+    } else {
+        res = max_board_parse_castle_rights(board, fen, MAX_SIDE_WHITE);
+        if(!res.ok) { return res.err; }
+        fen = res.end;
+        res = max_board_parse_castle_rights(board, fen, MAX_SIDE_BLACK);
+        if(!res.ok) { return res.err; }
+        fen = res.end;
+    }
 
     fen = max_board_skip_whitespace(board, fen);
     if(*fen == '-') {

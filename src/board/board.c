@@ -137,6 +137,15 @@ void max_board_default_pos(max_board_t *board) {
     max_board_set_initial_rook_files(board, MAX_FILE_A, MAX_FILE_H);
 }
 
+#ifdef MAX_TESTS
+
+void max_board_tests(void) {
+    max_board_check_unit_tests();
+    max_board_legality_unit_tests();
+}
+
+#endif
+
 
 #ifdef MAX_CONSOLE
 #include <stdio.h>
