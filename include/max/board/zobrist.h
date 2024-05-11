@@ -50,6 +50,9 @@ typedef struct {
     max_zobrist_t en_passant_file[8];
 } max_zobrist_elements_t;
 
+/// Default seed for the random number generator used to create zobrist hash elements when creating a board.
+#define MAX_ZOBRIST_DEFAULT_SEED (0xfa3198db566d5520)
+
 /// @}
 
 /// @}

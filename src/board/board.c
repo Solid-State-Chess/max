@@ -10,7 +10,6 @@
 #include "private/board/piecelist.h"
 #include "private/board/state.h"
 #include "private/board/zobrist.h"
-#include "private/max.h"
 
 static void max_chessboard_init_pieces(max_board_t *board) {
     for(unsigned i = 0; i < MAX_0x88_LEN; ++i) {

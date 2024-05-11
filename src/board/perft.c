@@ -1,4 +1,3 @@
-#include "max/board/fen.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
 #include "private/board/board.h"
@@ -143,7 +142,7 @@ static const unsigned EXPECTED_PERFT_LEN = sizeof(EXPECTED_PERFT) / sizeof(EXPEC
 void max_board_tests(void) {
     max_state_t state_buf[12];
     max_board_t board;
-    max_board_new(&board, state_buf, 0xfa3198db566d5520);
+    max_board_new(&board, state_buf, MAX_ZOBRIST_DEFAULT_SEED);
     max_board_default_pos(&board);
 
     max_smove_t buf[MAX_BOARD_TEST_MOVELIST_LEN];
