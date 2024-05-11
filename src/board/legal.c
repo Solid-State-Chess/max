@@ -87,6 +87,16 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
 
             return true;
         } else {
+
+            for(uint8_t i = 0; i < 2; ++i) {
+                if(
+                    max_check_is_sliding(state->check[i]) &&
+                    max_0x88_line(move.from, state->check[i].origin) == state->check[i].ray
+                ) {
+                    return false;
+                }
+            }
+
             return !max_board_square_is_attacked(board, move.to);
         }
     }

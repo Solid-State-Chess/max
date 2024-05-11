@@ -263,11 +263,10 @@ void max_board_print(max_board_t *board) {
 
     max_state_t *sp = board->stack.plates;
     unsigned i = 1;
-    do {
+    for(unsigned i = 1; sp != board->stack.head_ptr; ++i) {
         printf("%u. %c%c%c%c\n", i, MAX_0x88_FORMAT(sp->move.from), MAX_0x88_FORMAT(sp->move.to));
         sp += 1;
-        i += 1;
-    } while(sp != board->stack.head_ptr);
+    }
 
     #endif
 }
