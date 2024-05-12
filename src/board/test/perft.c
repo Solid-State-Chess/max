@@ -28,9 +28,6 @@ void max_board_perft(max_board_t *board, max_perft_count_t *count, max_movelist_
         return;
     }
     
-    max_board_t old;
-    memcpy(&old, board, sizeof(*board));
-
     max_board_movegen(board, &moves);
     
     unsigned legal_moves = 0;

@@ -87,6 +87,8 @@ static max_check_t* max_board_update_discovered_check(max_board_t *board, max_0x
                         check->ray = dir;
                         return check + 1;
                     }
+
+                    return check;
                 }
             }
         }

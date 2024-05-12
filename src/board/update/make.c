@@ -1,3 +1,4 @@
+#include "max/board/board.h"
 #include "max/board/loc.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
@@ -13,8 +14,9 @@
 
 void max_board_make_move(max_board_t *board, max_smove_t move) {
     max_side_t side = max_board_side(board);
+    max_side_t enemy_side = max_board_enemy_side(board);
     max_pieces_t *friendly = max_board_side_list(board, side);
-    max_pieces_t *enemy    = max_board_side_list(board, max_board_enemy_side(board));
+    max_pieces_t *enemy    = max_board_side_list(board, enemy_side);
 
     MAX_SANITY_WITH(
         move.to.v != enemy->king.loc->v &&
@@ -51,17 +53,23 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
     } else if(move.from.v == friendly->initial_rook[MAX_CASTLE_HSIDE].v) {
         state.packed &= ~max_packed_state_hcastle(side);
     }
-
-    max_state_stack_push(&board->stack, state);
     
     //Shuffle the pieces as specified in the move
     if(move.tag & MAX_MOVETAG_CAPTURE) {
         max_piececode_t piece = max_board_remove_piece_from_side(board, enemy, move.to);
         MAX_SANITY(piece.v != MAX_PIECECODE_EMPTY && "Captured piece is empty");
         max_captures_add(&board->captures, piece);
+
+        if(move.to.v == enemy->initial_rook[MAX_CASTLE_ASIDE].v) {
+            state.packed &= ~max_packed_state_acastle(enemy_side);
+        } else if(move.to.v == enemy->initial_rook[MAX_CASTLE_HSIDE].v) {
+            state.packed &= ~max_packed_state_hcastle(enemy_side);
+        }
     } else {
         MAX_SANITY(board->pieces[move.to.v].v == MAX_PIECECODE_EMPTY);
     }
+
+    max_state_stack_push(&board->stack, state);
 
     switch(move.tag & ~MAX_MOVETAG_CAPTURE) {
         case MAX_MOVETAG_NONE: {
@@ -81,12 +89,13 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             max_piececode_t captured = max_board_remove_piece_from_side(board, enemy, captured_pos);
             
             //Ensure that the captured piece is actually an enemy pawn
-            MAX_SANITY(
+            MAX_SANITY_WITH(
                 captured.v == max_piececode_new(
                     max_piececode_color_for_side(max_board_enemy_side(board)),
                     MAX_PIECECODE_PAWN
                 ).v &&
-                "Piece captured en passant is not an enemy pawn"
+                "Piece captured en passant is not an enemy pawn",
+                { max_board_print(board); }
             );
 
             max_captures_add(&board->captures, captured);
@@ -97,10 +106,13 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
         case MAX_MOVETAG_ACASTLE:
         case MAX_MOVETAG_HCASTLE: {
             max_castle_side_t castle = max_castle_side_for_movetag(move.tag);
-            MAX_SANITY(
+            MAX_SANITY_WITH(
                 board->pieces[friendly->initial_rook[castle].v].v ==
                 max_piececode_new(max_piececode_color_for_side(side), MAX_PIECECODE_ROOK).v &&
-                "Friendly rook is not on required square for castling"
+                "Friendly rook is not on required square for castling",
+                {
+                    max_board_print(board);
+                }
             );
 
             max_board_move_piece_from_side(
