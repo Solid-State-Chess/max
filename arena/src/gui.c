@@ -3,6 +3,7 @@
 #include "max/board/move.h"
 #include "max/board/movegen.h"
 #include "max/engine/engine.h"
+#include "max/engine/param.h"
 #include "max/engine/tt.h"
 #include <SDL.h>
 #include <SDL_events.h>
@@ -63,7 +64,7 @@ int gui_state_new(gui_state_t *state) {
         }
     };
 
-    max_engine_new(&state->shared->engine, &init);
+    max_engine_new(&state->shared->engine, &init, max_eval_params_default());
     max_board_default_pos(&state->shared->engine.board);
     max_movelist_new(&state->shared->moves, malloc(sizeof(max_smove_t) * 128), 128);
 

@@ -8,11 +8,12 @@
 #include "private/engine/tt.h"
 
 
-void max_engine_new(max_engine_t *engine, max_engine_init_params_t *init) {
+void max_engine_new(max_engine_t *engine, max_engine_init_params_t *init, max_eval_params_t param) {
     MAX_ASSERT(init->board.capacity >= 3 & "Board state stack must be at least 3");
     max_board_new(&engine->board, init->board.stack, MAX_ZOBRIST_DEFAULT_SEED);
     max_ttbl_new(&engine->table, init->ttbl.buf, init->ttbl.nbit);
     max_movelist_new(&engine->moves, init->moves.buf, init->moves.capacity);
+    engine->param = param;
 }
 
 max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_score_t alpha, max_score_t beta, uint8_t depth) {

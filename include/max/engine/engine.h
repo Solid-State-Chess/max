@@ -1,6 +1,7 @@
 #pragma once
 #include "max/board/board.h"
 #include "max/board/state.h"
+#include "max/engine/param.h"
 #include "max/engine/tt.h"
 
 /// \defgroup engine Chess Engine
@@ -16,6 +17,8 @@ typedef struct {
     /// The engine must have ownership of this structure when a search is in progress,
     /// as it will be continually updated and must not be modified externally.
     max_board_t board;
+    /// Evaluation parameters used to fine tune the behavior of the engine.
+    max_eval_params_t param;
     /// Transposition table from which previous evaluations can be probed and reused.
     /// \see #max_ttbl_t
     max_ttbl_t table;
@@ -64,7 +67,7 @@ typedef struct {
 /// Create a new engine with the given buffers to use for lookup tables.
 /// Automatically initializes the contained board without adding any pieces,
 /// it is the user's responsibility to modify the board after this method to add a starting position.
-void max_engine_new(max_engine_t *engine, max_engine_init_params_t *init);
+void max_engine_new(max_engine_t *engine, max_engine_init_params_t *init, max_eval_params_t param);
 
 /// Perform an iterative deepening search
 void max_engine_search(max_engine_t *engine, max_search_result_t *search);
