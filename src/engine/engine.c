@@ -3,6 +3,7 @@
 #include "max/board/zobrist.h"
 #include "max/engine/eval.h"
 #include "max/engine/score.h"
+#include "private/board/state.h"
 #include "private/engine/eval.h"
 #include "private/engine/tt.h"
 
@@ -55,6 +56,7 @@ max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_s
 
 void max_engine_search(max_engine_t *engine, max_search_result_t *search) {
     search->score = MAX_SCORE_LOWEST;
+    max_state_stack_lower_head(&engine->board.stack, 3);
     max_movelist_t moves = max_movelist_slice(&engine->moves);
 
     max_board_movegen(&engine->board, &moves);

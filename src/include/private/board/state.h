@@ -75,9 +75,9 @@ MAX_INLINE_ALWAYS void max_state_stack_pop(max_state_stack_t *stack) {
 MAX_INLINE_ALWAYS void max_state_stack_lower_head(max_state_stack_t *stack, uint8_t count) {
     if(stack->head >= count) {
         max_state_t *upper_buf = stack->head_ptr - (count - 1);
-        memcpy(stack->plates, upper_buf, count);
+        memmove(stack->plates, upper_buf, count * sizeof(*upper_buf));
         stack->head = count - 1;
-        stack->head_ptr = upper_buf;
+        stack->head_ptr = stack->plates + stack->head;
     }
 }
 
