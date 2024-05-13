@@ -3,6 +3,7 @@
 #include "max/board/loc.h"
 #include "max/board/move.h"
 #include "max/board/state.h"
+#include "max/engine/engine.h"
 #include <SDL2/SDL.h>
 
 typedef struct {
@@ -26,7 +27,7 @@ typedef struct {
 typedef struct {
     max_state_t buffer[1024];
     /// Engine state including the game board
-    max_board_t engine;
+    max_engine_t engine;
     /// A list of all valid moves for the player, filled by the engine thread
     max_movelist_t moves;
     /// Lock preventing simultaneous acccess to the board

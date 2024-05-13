@@ -2,6 +2,8 @@
 #include "max/board/board.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
+#include "max/engine/engine.h"
+#include "max/engine/tt.h"
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_mouse.h>
@@ -40,19 +42,39 @@ int gui_state_new(gui_state_t *state) {
     gui_textures_load(state->render, &state->textures);
     
     state->shared = malloc(sizeof(*state->shared));
+
+    static const unsigned BOARD_STACK_CAP  = 24;
+    static const unsigned MOVELIST_CAP     = 1024;
+    static const unsigned TTBL_BUF_CAP_BIT = 16;
+    static const unsigned TTBL_BUF_CAP     = (1 << TTBL_BUF_CAP_BIT);
     
-    max_board_new(&state->shared->engine, state->shared->buffer, 0xfa3198db566d5520);
-    max_board_default_pos(&state->shared->engine);
-    max_movelist_new(&state->shared->moves, malloc(sizeof(max_smove_t) * 2056), 2056);
+    max_engine_init_params_t init = (max_engine_init_params_t){
+        .board = {
+            .stack = malloc(sizeof(max_state_t) * BOARD_STACK_CAP),
+            .capacity = BOARD_STACK_CAP
+        },
+        .ttbl = {
+            .buf = malloc(sizeof(max_ttentry_t) * TTBL_BUF_CAP),
+            .nbit = TTBL_BUF_CAP_BIT
+        },
+        .moves = {
+            .buf = malloc(sizeof(max_smove_t) * MOVELIST_CAP),
+            .capacity = MOVELIST_CAP
+        }
+    };
+
+    max_engine_new(&state->shared->engine, &init);
+    max_board_default_pos(&state->shared->engine.board);
+    max_movelist_new(&state->shared->moves, malloc(sizeof(max_smove_t) * 128), 128);
 
     state->shared->quit = false;
     state->shared->lock = SDL_CreateSemaphore(0);
 
-    /*state->thread = SDL_CreateThread(gui_engine_thread, "Engine Thread", (void*)state->shared);
+    state->thread = SDL_CreateThread(gui_engine_thread, "Engine Thread", (void*)state->shared);
     if(state->thread == NULL) {
         printf("Failed to create engine thread: %s\n", SDL_GetError());
         return -1;
-    }*/
+    }
 
     state->grabbed.grabbed = NULL;
 
@@ -103,7 +125,7 @@ static void gui_state_render(gui_state_t *state) {
             }
             SDL_RenderCopy(state->render, bg, NULL, &dest);
 
-            max_piececode_t piece = state->shared->engine.pieces[pos.v];
+            max_piececode_t piece = state->shared->engine.board.pieces[pos.v];
             if(
                 (state->grabbed.grabbed == NULL ||pos.v != state->grabbed.from.v) &&
                 piece.v != MAX_PIECECODE_EMPTY &&
@@ -127,7 +149,7 @@ static void gui_state_render(gui_state_t *state) {
             dest.y = i * state->squarey;
             SDL_RenderCopy(
                 state->render,
-                gui_texture_for_piece(state, max_piececode_new(max_board_side(&state->shared->engine), promotes[i].v)),
+                gui_texture_for_piece(state, max_piececode_new(max_board_side(&state->shared->engine.board), promotes[i].v)),
                 NULL,
                 &dest
             );
@@ -151,16 +173,11 @@ int gui_state_run(gui_state_t *state) {
     state->squarey= h / 8;
 
     volatile bool enginedone = false;
-    //SDL_SemPost(state->shared->lock);
+    SDL_SemPost(state->shared->lock);
 
     for(;;) {
     outer:
-        if(!enginedone) {
-            max_movelist_clear(&state->shared->moves);
-            max_board_movegen(&state->shared->engine, &state->shared->moves);
-            enginedone = true;
-        }
-        //enginedone = state->shared->done;
+        enginedone = state->shared->done;
         
         SDL_Event event;
         SDL_RenderClear(state->render);
@@ -207,7 +224,7 @@ int gui_state_run(gui_state_t *state) {
                                 max_movelist_t moves = state->shared->moves;
                                 for(unsigned i = 0; i < moves.len; ++i) {
                                     max_smove_t move = moves.buf[i];
-                                    if(!max_board_legal(&state->shared->engine, move)) {
+                                    if(!max_board_legal(&state->shared->engine.board, move)) {
                                         continue;
                                     }
 
@@ -226,11 +243,11 @@ int gui_state_run(gui_state_t *state) {
                                             }
                                         }
 
-                                        max_board_make_move(&state->shared->engine, move);
+                                        max_board_make_move(&state->shared->engine.board, move);
                                         gui_state_drop_grabbed(state);
                                         enginedone = false;
-                                        max_board_print(&state->shared->engine);
-                                        //SDL_SemPost(state->shared->lock);
+                                        max_board_print(&state->shared->engine.board);
+                                        SDL_SemPost(state->shared->lock);
                                         break;
                                     }
                                 }
@@ -241,7 +258,7 @@ int gui_state_run(gui_state_t *state) {
 
                         if(enginedone) {
                             if(max_0x88_valid(pos)) {
-                                max_piececode_t piece = state->shared->engine.pieces[pos.v];
+                                max_piececode_t piece = state->shared->engine.board.pieces[pos.v];
                                 if(piece.v != MAX_PIECECODE_EMPTY) {
                                     state->grabbed.from = pos;
                                     state->grabbed.grabbed = gui_texture_for_piece(state, piece);
