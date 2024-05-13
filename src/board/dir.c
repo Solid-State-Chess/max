@@ -56,5 +56,6 @@ void max_0x88_dir_unit_tests(void) {
     ASSERT(max_0x88_line(MAX_A1, MAX_F6) == MAX_0x88_DIR_UR, "");
     ASSERT(max_0x88_line(MAX_F6, MAX_A1) == MAX_0x88_DIR_DL, "");
     ASSERT(max_0x88_line(MAX_E2, MAX_E2) == MAX_0x88_DIR_INVALID, "There is a line between the same square: %d", dir);
+    ASSERT(max_0x88_line(MAX_F2, MAX_A5) == MAX_0x88_DIR_INVALID, "There is a line between two non-lined squares: %d", dir);
 }
 #endif

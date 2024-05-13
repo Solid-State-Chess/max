@@ -2,6 +2,7 @@
 #include "max/assert.h"
 #include "private/board/board.h"
 #include "private/board/loc.h"
+#include "private/board/piececode.h"
 #include "private/board/piecelist.h"
 #include "private/max.h"
 #include "private/test.h"
@@ -28,9 +29,10 @@ uint32_t _max_tests = 0;
 void max_unit_tests(void) {
     CATEGORY(max_move_unit_tests, "move unit tests");
     CATEGORY(max_loc_unit_tests,  "board index unit tests");
-    CATEGORY(max_0x88_dir_unit_tests, "0x88 difference unit tests");
-    CATEGORY(max_board_tests, "perft node count tests");
+    CATEGORY(max_0x88_dir_unit_tests, "0x88 direction unit tests");
+    CATEGORY(max_board_tests, "board unit tests");
     CATEGORY(max_pieces_unit_tests, "piece list unit tests");
+    CATEGORY(max_piececode_unit_tests, "piece code unit tests");
 }
 
 #endif

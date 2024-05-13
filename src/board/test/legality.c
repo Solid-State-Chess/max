@@ -23,6 +23,18 @@ void max_board_legality_unit_tests(void) {
         !max_board_legal(&board, testmove),
         "En passant with a horizontally pinned pawn is allowed"
     );
+
+    ASSERT(
+        max_board_parse_from_fen(&board, "rnbqkbnr/pp1ppppp/8/2p5/5P2/3P4/PPP1P1PP/RNBQKBNR b KQkq - 0 1") == MAX_FEN_SUCCESS,
+        "FEN parse when setting up legality unit test fails"
+    );
+
+    max_board_make_move(&board, max_smove_normal(MAX_D8, MAX_A5));
+
+    ASSERT(
+        max_board_legal(&board, max_smove_normal(MAX_E1, MAX_F2)),
+        "King move escaping sliding check is not marked legal"
+    );
 }
 
 #endif

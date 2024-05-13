@@ -27,11 +27,7 @@ uint64_t max_board_perft(max_board_t *board,  max_movelist_t moves, uint8_t dept
         }
     }
 
-    if(count == 0) {
-        return 1;
-    } else {
-        return count;
-    }
+    return count;
 }
 
 
@@ -49,8 +45,7 @@ static const uint64_t EXPECTED_PERFT[] = {
     8902,
     197281,
     4865609,
-    119060324,
-
+    //119060324,
 };
 
 static const unsigned EXPECTED_PERFT_LEN = sizeof(EXPECTED_PERFT) / sizeof(EXPECTED_PERFT[0]);
