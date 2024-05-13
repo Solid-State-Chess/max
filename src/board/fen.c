@@ -2,6 +2,7 @@
 #include "max/board/board.h"
 #include "max/board/piececode.h"
 #include "max/board/side.h"
+#include "max/board/squares.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/state.h"
@@ -132,6 +133,8 @@ static max_fen_parse_result_t max_board_parse_castle_rights(max_board_t *board, 
     fen += 1;
     if(chess960_style && aside_rook_file != 8 && hside_rook_file != 8) {
         max_board_set_initial_rook_files(board, aside_rook_file, hside_rook_file);
+    } else {
+        max_board_set_initial_rook_files(board, MAX_FILE_A, MAX_FILE_H);
     }
 
     return (max_fen_parse_result_t){ .ok = true, .end = fen };
@@ -208,4 +211,20 @@ max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, const char *fen
     }
 
     return MAX_FEN_SUCCESS;
+}
+
+
+const char *max_fen_parse_err_str(max_fen_parse_err_t ec) {
+    static const char *const STR[] = {
+        [MAX_FEN_SUCCESS] = "Success",
+        [MAX_FEN_ERR_EOF] = "Unexpected End of File",
+        [MAX_FEN_ERR_INVALID_CASTLE_RIGHTS] = "Invalid castle rights string",
+        [MAX_FEN_ERR_BAD_FILE_COUNT] = "Files on a rank did not add up to 8",
+        [MAX_FEN_ERR_INVALID_EPSQUARE] = "Invalid en passant square string",
+        [MAX_FEN_ERR_INVALID_PIECE] = "Invalid piece character in rank string",
+        [MAX_FEN_ERR_BAD_PLAY_SIDE] = "Invalid side to play character",
+        [MAX_FEN_ERR_BAD_RANK_COUNT] = "Number of ranks in FEN string was not 8",
+    };
+
+    return STR[ec];
 }

@@ -4,12 +4,10 @@
 #include "max/board/move.h"
 #include "max/board/movegen.h"
 #include "max/board/piececode.h"
-#include "max/board/squares.h"
 #include "max/board/state.h"
 #include "max/def.h"
 #include "private/board/board.h"
 #include "private/board/movegen/king.h"
-#include <stdio.h>
 
 
 /// Check if a piece on the given square is pinned by an enemy slider to the friendly king.
@@ -54,14 +52,17 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
     static max_smove_t buf[512];
     max_state_t *state = max_board_state(board);
 
+#ifdef MAX_ASSERTS_SANITY
     if(!max_check_is_empty(state->check[0])) {
         MAX_SANITY_WITH(
-            max_board_square_is_attacked(board, *max_board_side_list(board, max_board_side(board))->king.loc),
+            max_board_square_is_attacked(board, *max_board_side_list(board, max_board_side(board))->king.loc) &&
+            "King is marked as in check but the king square is not attacked",
             {
                 max_board_print(board);
             }
         );
     }
+#endif
 
     max_piececode_t moved = board->pieces[move.from.v];
     if((moved.v & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_KING) {
@@ -71,10 +72,6 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
                 max_movetag_is_castle(move.tag) &&
                 "King makes a move that is not a capture or castle"
             );
-
-            if(!max_check_is_empty(state->check[0])) {
-                return false;
-            }
 
             max_castle_side_t castle_side = max_castle_side_for_movetag(move.tag);
             MAX_SANITY(
@@ -103,7 +100,7 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
 
             return true;
         } else {
-
+            //Check for x-ray checks
             for(uint8_t i = 0; i < 2; ++i) {
                 if(
                     max_check_is_sliding(state->check[i]) &&

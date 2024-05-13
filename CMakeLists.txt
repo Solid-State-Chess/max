@@ -9,6 +9,7 @@ project(
 
 option(MAX_ZOBRIST_64      "Enable 64-bit zobrist over 32-bit keys" OFF)
 option(MAX_TESTS   "Enable max-tests compilation" ON)
+option(MAX_PERFTREE_BIN "Enable max-perftree binary for use with the perftree utility" OFF)
 option(MAX_DOC     "Enable Doxygen documentation build" OFF)
 option(MAX_ASSERTS "Enable internal self-check assertions for debugging" OFF)
 option(MAX_ASSERTS_SANITY "Enable extensive internal sanity checks for movegen and move make / unmake debugging" OFF)
@@ -29,9 +30,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 file(
     GLOB SRC CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*/*/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/lib.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/board/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/board/**/*.c"
 )
 
 add_library(max STATIC ${SRC})
@@ -46,6 +47,7 @@ target_compile_definitions(
     $<$<BOOL:${MAX_ASSERTS_SANITY}>:MAX_ASSERTS_SANITY>
     $<$<BOOL:${MAX_CONSOLE}>:MAX_CONSOLE>
     $<$<BOOL:${MAX_ZOBRIST_64}>:MAX_ZOBRIST_64>
+    $<$<BOOL:${MAX_PERFTREE_BIN}>:MAX_PERFTREE_BIN>
 )
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)
@@ -64,14 +66,18 @@ else()
 endif()
 
 if(MAX_TESTS)
-    file(GLOB TEST_SRC CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
-    add_executable(max-tests ${TEST_SRC})
+    add_executable(max-tests "${CMAKE_CURRENT_SOURCE_DIR}/src/bin/test.c")
     target_link_libraries(max-tests PUBLIC max)
     
     add_test(
         NAME run-max-tests
         COMMAND max-tests
     )
+endif()
+
+if(MAX_PERFTREE_BIN)
+    add_executable(max-perftree "${CMAKE_CURRENT_SOURCE_DIR}/src/bin/perftree.c")
+    target_link_libraries(max-perftree PUBLIC max)
 endif()
 
 if(MAX_DOC)

@@ -35,6 +35,10 @@ typedef enum {
 max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, char const *fen);
 
 
+/// Get a printable string for the given FEN parsing error code
+char const *max_fen_parse_err_str(max_fen_parse_err_t ec);
+
+
 /// @}
 
 /// @}
