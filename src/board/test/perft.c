@@ -7,7 +7,6 @@
 #ifdef MAX_TESTS
 
 uint64_t max_board_perft(max_board_t *board,  max_movelist_t moves, uint8_t depth) {
-
     if(depth == 0) {
         return 1;
     }
@@ -20,10 +19,15 @@ uint64_t max_board_perft(max_board_t *board,  max_movelist_t moves, uint8_t dept
         max_smove_t move = moves.buf[i];
         if(max_board_legal(board, move)) {
             legal_moves += 1;
+            
+            if(depth > 1) {
+                max_board_make_move(board, move);
+                count += max_board_perft(board, max_movelist_slice(&moves), depth - 1);
+                max_board_unmake_move(board, move);
 
-            max_board_make_move(board, move);
-            count += max_board_perft(board, max_movelist_slice(&moves), depth - 1);
-            max_board_unmake_move(board, move);
+            } else {
+                count += 1;
+            }
         }
     }
 
@@ -45,7 +49,7 @@ static const uint64_t EXPECTED_PERFT[] = {
     8902,
     197281,
     4865609,
-    //119060324,
+    119060324,
 };
 
 static const unsigned EXPECTED_PERFT_LEN = sizeof(EXPECTED_PERFT) / sizeof(EXPECTED_PERFT[0]);

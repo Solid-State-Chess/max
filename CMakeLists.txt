@@ -16,7 +16,6 @@ option(MAX_ASSERTS_SANITY "Enable extensive internal sanity checks for movegen a
 option(MAX_CONSOLE "Enable console formatting functions, mostly for debugging boards" OFF)
 
 if(MAX_TESTS)
-    set(MAX_ASSERTS ON)
     set(MAX_CONSOLE ON)
 endif()
 

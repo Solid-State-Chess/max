@@ -147,15 +147,7 @@ MAX_INLINE_ALWAYS max_smove_t max_smove_normal(max_0x88_t from, max_0x88_t to) {
 /// of memory usage.
 typedef struct {
     /// User-provided buffer to write moves to
-    /// @{
-
-#ifdef MAX_PACKED_MOVE
-    max_pmove_t *buf;
-#else
     max_smove_t *buf;
-#endif
-
-    /// @}
 
     /// User-specified capacity of the buffer, used by debug assertions
     /// to ensure we don't overrun the array

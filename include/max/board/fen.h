@@ -34,9 +34,12 @@ typedef enum {
 /// Also sets the castle rights, en passant file, and side to move from the string
 max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, char const *fen);
 
+#ifdef MAX_CONSOLE
 
 /// Get a printable string for the given FEN parsing error code
 char const *max_fen_parse_err_str(max_fen_parse_err_t ec);
+
+#endif
 
 
 /// @}

@@ -105,6 +105,18 @@ void max_board_update_check(max_board_t *board, max_0x88_t from, max_0x88_t to) 
     //Update the check pointer if the given piece delivers check itself
     check = max_board_piece_delivers_check(board, kpos, to, check);
     check = max_board_update_discovered_check(board, kpos, from, check);
+
+#ifdef MAX_ASSERTS_SANITY
+    if(!max_check_is_empty(state->check[0])) {
+        MAX_SANITY_WITH(
+            max_board_square_is_attacked(board, *max_board_side_list(board, max_board_side(board))->king.loc) &&
+            "King is marked as in check but the king square is not attacked",
+            {
+                max_board_print(board);
+            }
+        );
+    }
+#endif
 }
 
 static MAX_INLINE_ALWAYS bool max_board_attack_lookup(max_board_t *board, max_0x88_t pos, max_piececode_t mask) {

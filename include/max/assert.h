@@ -12,6 +12,7 @@
     } while(0)
 #else
 #define MAX_ASSERT(...)
+#define MAX_ASSERT_WITH(...)
 #endif
 
 #ifdef MAX_ASSERTS_SANITY
@@ -26,4 +27,5 @@
     } while(0)
 #else
 #define MAX_SANITY(...)
+#define MAX_SANITY_WITH(...)
 #endif
