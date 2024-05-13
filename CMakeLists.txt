@@ -32,6 +32,8 @@ file(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/lib.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/board/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/board/**/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/engine/**/*.c"
 )
 
 add_library(max STATIC ${SRC})
