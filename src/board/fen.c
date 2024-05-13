@@ -49,7 +49,7 @@ static max_fen_parse_result_t max_board_parse_fen_rank(max_board_t *board, char 
             }
 
             max_side_t side = (isupper(c) == 0);
-            max_piececode_t piece = max_piececode_new(max_piececode_color_for_side(side), piece_kind);
+            max_piececode_t piece = max_piececode_new(side, piece_kind);
             max_board_add_piece(
                 board,
                 max_0x88_new(rank, file),

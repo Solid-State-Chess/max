@@ -21,9 +21,9 @@ void max_piececode_unit_tests(void) {
     max_piececode_t pawn = max_piececode_new(MAX_PIECECODE_WHITE, MAX_PIECECODE_PAWN);
 
     max_piececode_t nonsliders[] = {
-        max_piececode_new(MAX_PIECECODE_WHITE, MAX_PIECECODE_PAWN),
-        max_piececode_new(MAX_PIECECODE_WHITE, MAX_PIECECODE_KNIGHT),
-        max_piececode_new(MAX_PIECECODE_WHITE, MAX_PIECECODE_KING)
+        max_piececode_new(MAX_SIDE_WHITE, MAX_PIECECODE_PAWN),
+        max_piececode_new(MAX_SIDE_WHITE, MAX_PIECECODE_KNIGHT),
+        max_piececode_new(MAX_SIDE_WHITE, MAX_PIECECODE_KING)
     };
 
     const unsigned nonsliders_len = sizeof(nonsliders) / sizeof(nonsliders[0]);

@@ -118,8 +118,8 @@ max_piececode_t max_board_remove_piece_from_side(max_board_t *board, max_pieces_
 
 static void max_board_add_mirrored(max_board_t *board, max_0x88_t pos, uint8_t piecetype) {
     max_0x88_t mirrored = max_0x88_mirror_y(pos);
-    max_board_add_piece_to_side(board, &board->side.white, pos, max_piececode_new(MAX_PIECECODE_WHITE, piecetype));
-    max_board_add_piece_to_side(board, &board->side.black, mirrored, max_piececode_new(MAX_PIECECODE_BLACK, piecetype));
+    max_board_add_piece_to_side(board, &board->side.white, pos, max_piececode_new(MAX_SIDE_WHITE, piecetype));
+    max_board_add_piece_to_side(board, &board->side.black, mirrored, max_piececode_new(MAX_SIDE_BLACK, piecetype));
 }
 
 void max_board_default_pos(max_board_t *board) {

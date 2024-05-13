@@ -73,15 +73,16 @@ enum {
 
 /// @}
 
-/// Helper function to create a piececode from a side and type tag
-MAX_INLINE_ALWAYS max_piececode_t max_piececode_new(uint8_t side, uint8_t type) {
-    return (max_piececode_t){.v = side | type };
-}
-
 /// Get a side mask to use in either #max_piecemask_t or in #max_piececode_new representing the color
 /// bits that will be set for pieces of the given side.
 MAX_INLINE_ALWAYS uint8_t max_piececode_color_for_side(max_side_t side) {
     return MAX_PIECECODE_WHITE << side;
+}
+
+/// Helper function to create a piececode from a side and type tag
+MAX_INLINE_ALWAYS max_piececode_t max_piececode_new(max_side_t side, uint8_t type) {
+    MAX_ASSERT(side == MAX_SIDE_WHITE || side == MAX_SIDE_BLACK);
+    return (max_piececode_t){.v = (MAX_PIECECODE_WHITE << side) | type };
 }
 
 /// Get a #max_side_t representing the color of the given piece.

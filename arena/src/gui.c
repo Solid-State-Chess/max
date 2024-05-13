@@ -124,8 +124,13 @@ static void gui_state_render(gui_state_t *state) {
 
         for(unsigned i = 0; i < 4; ++i) {
             dest.x = max_0x88_file(state->promote.promote_sq) * state->squarex;
-            dest.y = (7 - i) * state->squarey;
-            SDL_RenderCopy(state->render, gui_texture_for_piece(state, max_piececode_new(MAX_PIECECODE_BLACK, promotes[i].v)), NULL, &dest);
+            dest.y = i * state->squarey;
+            SDL_RenderCopy(
+                state->render,
+                gui_texture_for_piece(state, max_piececode_new(max_board_side(&state->shared->engine), promotes[i].v)),
+                NULL,
+                &dest
+            );
         }
     }
 }
@@ -182,10 +187,10 @@ int gui_state_run(gui_state_t *state) {
                         if(state->promote.selecting) {
                             uint8_t selection = max_0x88_rank(to);
                             switch(selection) {
-                                case 0: state->promote.selected = MAX_MOVETAG_PQUEEN; break;
-                                case 1: state->promote.selected = MAX_MOVETAG_PROOK; break;
-                                case 2: state->promote.selected = MAX_MOVETAG_PBISHOP; break;
-                                case 3: state->promote.selected = MAX_MOVETAG_PKNIGHT; break;
+                                case 7: state->promote.selected = MAX_MOVETAG_PQUEEN; break;
+                                case 6: state->promote.selected = MAX_MOVETAG_PROOK; break;
+                                case 5: state->promote.selected = MAX_MOVETAG_PBISHOP; break;
+                                case 4: state->promote.selected = MAX_MOVETAG_PKNIGHT; break;
                                 default: continue;
                             }
 
