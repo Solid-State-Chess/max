@@ -123,8 +123,11 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
 
     if(pin_dir != MAX_0x88_DIR_INVALID) {
         max_0x88_t kpos = *max_board_side_list(board, max_board_side(board))->king.loc;
-        return pin_dir == max_0x88_line(kpos, move.to);
+        if(pin_dir != max_0x88_line(kpos, move.to)) {
+            return false;
+        }
     }
+    
 
     if(!max_check_is_empty(state->check[0])) {
         //Only king moves are allowed when in double check
