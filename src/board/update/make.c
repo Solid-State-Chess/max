@@ -91,7 +91,7 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             //Ensure that the captured piece is actually an enemy pawn
             MAX_SANITY_WITH(
                 captured.v == max_piececode_new(
-                    max_piececode_color_for_side(max_board_enemy_side(board)),
+                    max_board_enemy_side(board),
                     MAX_PIECECODE_PAWN
                 ).v &&
                 "Piece captured en passant is not an enemy pawn",
