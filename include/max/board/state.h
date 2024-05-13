@@ -81,6 +81,7 @@ MAX_INLINE_ALWAYS bool max_packed_state_has_ep(max_packed_state_t state) {
     return (state & MAX_PSTATE_EPFILE_INVALID) == 0;
 }
 
+
 /// Get a file number between 0 and 7 if the given packed state has en passant on a file,
 /// or an invalid file number if the state has no en passant possible.
 MAX_INLINE_ALWAYS uint8_t max_packed_state_epfile(max_packed_state_t state) {

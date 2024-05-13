@@ -1,13 +1,14 @@
 #include "max/assert.h"
 #include "max/board/board.h"
 #include "max/board/dir.h"
+#include "max/board/move.h"
+#include "max/board/movegen/pawn.h"
 #include "max/board/piececode.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/movegen.h"
 #include "private/board/movegen/king.h"
 #include "private/board/movegen/knight.h"
-#include "private/board/movegen/pawn.h"
 
 /// Efficiently see if a piece on the given square attacks the given position `kpos`.
 /// If check is detected, the given #max_check_t structure is updated with sliding / jumping data, and an incremented pointer is returned
@@ -97,14 +98,23 @@ static max_check_t* max_board_update_discovered_check(max_board_t *board, max_0x
     return check;
 }
 
-void max_board_update_check(max_board_t *board, max_0x88_t from, max_0x88_t to) {
+void max_board_update_check(max_board_t *board, max_smove_t move) {
     max_state_t *state = max_board_state(board);
     max_check_t *check = state->check;
     max_0x88_t kpos = *max_board_side_list(board, max_board_side(board))->king.loc;
 
     //Update the check pointer if the given piece delivers check itself
-    check = max_board_piece_delivers_check(board, kpos, to, check);
-    check = max_board_update_discovered_check(board, kpos, from, check);
+    check = max_board_piece_delivers_check(board, kpos, move.to, check);
+
+    if(move.tag == MAX_MOVETAG_ENPASSANT) {
+        check = max_board_update_discovered_check(board, kpos, move.from, check);
+        if(check != state->check + 2) {
+            max_0x88_t epcapture = max_0x88_move(move.to, MAX_PAWN_ADVANCE_DIR[max_board_side(board)]);
+            check = max_board_update_discovered_check(board, kpos, epcapture, check);
+        }
+    } else {
+        check = max_board_update_discovered_check(board, kpos, move.from, check);
+    }
 
 #ifdef MAX_ASSERTS_SANITY
     if(!max_check_is_empty(state->check[0])) {

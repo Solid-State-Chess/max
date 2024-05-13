@@ -1,9 +1,9 @@
 #include "max/board/move.h"
 #include "max/board/movegen.h"
+#include "max/board/movegen/pawn.h"
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
 #include "private/board/movegen/king.h"
-#include "private/board/movegen/pawn.h"
 #include "private/board/state.h"
 
 

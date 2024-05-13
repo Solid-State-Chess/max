@@ -3,7 +3,6 @@
 #include "max/board/move.h"
 #include "max/board/side.h"
 #include "max/board/squares.h"
-#include "private/board/move.h"
 
 
 max_0x88_dir_t MAX_KING_MOVES[MAX_KING_MOVES_LEN] = {

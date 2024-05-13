@@ -4,7 +4,6 @@
 #include "private/board/loc.h"
 #include "private/board/piececode.h"
 #include "private/board/piecelist.h"
-#include "private/max.h"
 #include "private/test.h"
 #include "private/board/move.h"
 #include "private/board/dir.h"

@@ -2,13 +2,13 @@
 #include "max/board/loc.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
+#include "max/board/movegen/pawn.h"
 #include "max/board/squares.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
 #include "private/board/movegen.h"
 #include "private/board/movegen/king.h"
-#include "private/board/movegen/pawn.h"
 #include "private/board/state.h"
 
 
@@ -143,9 +143,10 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             );
         } break;
     }
+    
 
+    board->ply += 1;
 
     //Increment the ply to indicate that the other side is now to move 
-    board->ply += 1;
-    max_board_update_check(board, move.from, move.to);
+    max_board_update_check(board, move);
 }

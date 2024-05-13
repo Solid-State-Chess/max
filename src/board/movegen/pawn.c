@@ -2,11 +2,11 @@
 #include "max/board/dir.h"
 #include "max/board/loc.h"
 #include "max/board/move.h"
+#include "max/board/movegen/pawn.h"
 #include "max/board/piececode.h"
 #include "max/board/squares.h"
 #include "max/board/state.h"
 #include "private/board/board.h"
-#include "private/board/move.h"
 
 
 max_0x88_dir_t MAX_PAWN_ATTACK_SIDES[MAX_PAWN_ATTACK_SIDE_LEN] = {

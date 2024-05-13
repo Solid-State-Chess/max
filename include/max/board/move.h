@@ -70,6 +70,7 @@ MAX_INLINE_ALWAYS bool max_movetag_is_castle(max_movetag_t tag) {
 /// The movetag is assumed to be a promotion move (this is checked in with debug assertions)
 max_piececode_t max_piececode_for_movetag_promote(max_movetag_t tag, max_side_t side);
 
+
 /// Wrapper typedef for the side that a king is castling with, defined as
 /// A and H side castling to fit with chess960 terminology.
 ///
