@@ -73,11 +73,6 @@ enum {
 
 /// @}
 
-/// Get a side mask to use in either #max_piecemask_t or in #max_piececode_new representing the color
-/// bits that will be set for pieces of the given side.
-MAX_INLINE_ALWAYS uint8_t max_piececode_color_for_side(max_side_t side) {
-    return MAX_PIECECODE_WHITE << side;
-}
 
 /// Helper function to create a piececode from a side and type tag
 MAX_INLINE_ALWAYS max_piececode_t max_piececode_new(max_side_t side, uint8_t type) {

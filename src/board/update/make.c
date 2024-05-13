@@ -108,7 +108,7 @@ void max_board_make_move(max_board_t *board, max_smove_t move) {
             max_castle_side_t castle = max_castle_side_for_movetag(move.tag);
             MAX_SANITY_WITH(
                 board->pieces[friendly->initial_rook[castle].v].v ==
-                max_piececode_new(max_piececode_color_for_side(side), MAX_PIECECODE_ROOK).v &&
+                max_piececode_new(side, MAX_PIECECODE_ROOK).v &&
                 "Friendly rook is not on required square for castling",
                 {
                     max_board_print(board);
