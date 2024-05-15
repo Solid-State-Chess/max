@@ -19,17 +19,23 @@ int gui_engine_thread(void *_data) {
             uint64_t start = SDL_GetTicks64();
             max_engine_search(&data->engine, &search);
             double time = (double)(SDL_GetTicks64() - start) / 1000;
-            /*double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
-            double tt_hits = (double)(data->engine.diagnostic.tt_hits);*/
+            double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
+            uint64_t tt_hits = data->engine.diagnostic.ttbl_hits;
+            uint64_t tt_used = data->engine.diagnostic.ttbl_used;
+            double util_rate = (double)(tt_used) / (double)(tt_hits);
 
-            //double mn_s = meganodes / time;
+            double mn_s = meganodes / time;
             printf(
-                //"%.3f MN - %.2f s [%.2f MN/s] @ %i (%.0f TT Hits) (depth %d)\n",
-                "%c%c%c%c - %d [%.2f s]\n",
+                "%c%c%c%c @ %d [%.2f s][%.2f MN | %.2f MN/s] %zu / %zu TT Used / Hits (%.3f TTUR)\n",
                 MAX_0x88_FORMAT(search.best.from),
                 MAX_0x88_FORMAT(search.best.to),
                 search.score,
-                time
+                time,
+                meganodes,
+                mn_s,
+                tt_used,
+                tt_hits,
+                util_rate
             );
 
             max_board_make_move(&data->engine.board, search.best);

@@ -4,6 +4,7 @@
 #include "max/board/movegen.h"
 #include "max/engine/engine.h"
 #include "max/engine/param.h"
+#include "max/engine/score.h"
 #include "max/engine/tt.h"
 #include <SDL.h>
 #include <SDL_events.h>
@@ -45,8 +46,8 @@ int gui_state_new(gui_state_t *state) {
     state->shared = malloc(sizeof(*state->shared));
 
     static const unsigned BOARD_STACK_CAP  = 24;
-    static const unsigned MOVELIST_CAP     = 1024;
-    static const unsigned TTBL_BUF_CAP_BIT = 16;
+    static const unsigned MOVELIST_CAP     = 26 * MAX_ENGINE_MAX_MOVES_PER_PLY;
+    static const unsigned TTBL_BUF_CAP_BIT = 20;
     static const unsigned TTBL_BUF_CAP     = (1 << TTBL_BUF_CAP_BIT);
     
     max_engine_init_params_t init = (max_engine_init_params_t){
@@ -247,7 +248,6 @@ int gui_state_run(gui_state_t *state) {
                                         max_board_make_move(&state->shared->engine.board, move);
                                         gui_state_drop_grabbed(state);
                                         enginedone = false;
-                                        max_board_print(&state->shared->engine.board);
                                         SDL_SemPost(state->shared->lock);
                                         break;
                                     }

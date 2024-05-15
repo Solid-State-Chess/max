@@ -1,6 +1,7 @@
 /// \file score.h
 #pragma once
 #include "max/board/move.h"
+#include "max/def.h"
 #include <stdint.h>
 
 
@@ -65,5 +66,34 @@ typedef struct {
     /// Depth that the move was scored up to.
     uint8_t depth;
 } max_nodescore_t;
+
+/// Maximum number of moves to analyze per game ply - this limit is used to
+/// stop recursion before we overflow the move list, and to limit the capacity of score lists for each ply.
+#define MAX_ENGINE_MAX_MOVES_PER_PLY (80)
+
+/// A list containing both moves and associated scores, used to sort move lists during alpha-beta search and in between iterations
+/// of iterative deepening to ensure that the most promising nodes are re-evaluated first
+typedef struct {
+    /// A list of scores associated with the moves stored in the movelist, the length of this static array is determined by the
+    /// length of the moves list.
+    max_score_t scores[MAX_ENGINE_MAX_MOVES_PER_PLY];
+    /// The move list containing moves that are associated with scores at the same index in the #
+    max_movelist_t moves;
+} max_scorelist_t;
+
+/// Reset the given scores list, setting its moves to the given movelist.
+/// Note that scores will be left undefined and must be reassigned with max_scorelist_score
+MAX_INLINE_ALWAYS void max_scorelist_reset(max_scorelist_t *scorelist, max_movelist_t moves) {
+    scorelist->moves = moves;
+}
+
+/// Assign as score to the move located at the given index in the movelist.
+MAX_INLINE_ALWAYS void max_scorelist_score(max_scorelist_t *scorelist, uint8_t idx, max_score_t score) {
+    scorelist->scores[idx] = score;
+}
+
+/// Sort the given list by the contained scores, also sorting the contained move list in place.
+/// Sorting the move list before evaluation improves alpha beta search by encouraging beta cutoffs.
+void max_scorelist_sort(max_scorelist_t *scorelist);
 
 /// @}

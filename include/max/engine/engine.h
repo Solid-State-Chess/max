@@ -8,6 +8,16 @@
 /// The actual chess engine including search algorithm and transposition table.
 /// @{
 
+#ifdef MAX_ENGINE_DIAGNOSTIC
+
+typedef struct {
+    uint64_t nodes;
+    uint64_t ttbl_hits;
+    uint64_t ttbl_used;
+} max_engine_diagnostic_t;
+
+#endif
+
 /// All state required by the chess engine to search a game tree and evaluate positions.
 /// Includes a pointer to a #max_board_t that will be used to search a tree by making and unmaking moves,
 /// and configurable evaluation parameters.
@@ -19,6 +29,14 @@ typedef struct {
     max_board_t board;
     /// Evaluation parameters used to fine tune the behavior of the engine.
     max_eval_params_t param;
+    
+    #ifdef MAX_ENGINE_DIAGNOSTIC
+
+    /// Diagonistics reset after every search
+    max_engine_diagnostic_t diagnostic;
+    
+    #endif
+
     /// Transposition table from which previous evaluations can be probed and reused.
     /// \see #max_ttbl_t
     max_ttbl_t table;

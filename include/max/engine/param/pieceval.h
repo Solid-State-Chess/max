@@ -7,12 +7,16 @@
 /// \ingroup param
 /// @{
 
-typedef struct {
-    max_score_t pawn;
-    max_score_t knight;
-    max_score_t bishop;
-    max_score_t rook;
-    max_score_t queen;
+typedef union {
+    struct {
+        max_score_t pawn;
+        max_score_t knight;
+        max_score_t bishop;
+        max_score_t rook;
+        max_score_t queen;
+    };
+    
+    max_score_t array[MAX_PIECEINDEX_LEN];
 } max_piece_value_t;
 
 /// Get sensible default values for material

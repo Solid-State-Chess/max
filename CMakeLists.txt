@@ -11,6 +11,7 @@ option(MAX_ZOBRIST_64      "Enable 64-bit zobrist over 32-bit keys" OFF)
 option(MAX_TESTS   "Enable max-tests compilation" ON)
 option(MAX_PERFTREE_BIN "Enable max-perftree binary for use with the perftree utility" OFF)
 option(MAX_DOC     "Enable Doxygen documentation build" OFF)
+option(MAX_ENGINE_DIAGNOSTIC "Enable internal engine diagnostic tracking" OFF)
 option(MAX_ASSERTS "Enable internal self-check assertions for debugging" OFF)
 option(MAX_ASSERTS_SANITY "Enable extensive internal sanity checks for movegen and move make / unmake debugging" OFF)
 option(MAX_CONSOLE "Enable console formatting functions, mostly for debugging boards" OFF)
@@ -49,6 +50,7 @@ target_compile_definitions(
     $<$<BOOL:${MAX_CONSOLE}>:MAX_CONSOLE>
     $<$<BOOL:${MAX_ZOBRIST_64}>:MAX_ZOBRIST_64>
     $<$<BOOL:${MAX_PERFTREE_BIN}>:MAX_PERFTREE_BIN>
+    $<$<BOOL:${MAX_ENGINE_DIAGNOSTIC}>:MAX_ENGINE_DIAGNOSTIC>
 )
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)
