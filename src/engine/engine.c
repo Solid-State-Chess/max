@@ -3,6 +3,8 @@
 #include "max/board/zobrist.h"
 #include "max/engine/eval.h"
 #include "max/engine/score.h"
+#include "max/engine/tt.h"
+#include "private/board/board.h"
 #include "private/board/state.h"
 #include "private/engine/eval.h"
 #include "private/engine/tt.h"
@@ -22,9 +24,37 @@ max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_s
         //return max_engine_quiesce(engine, moves, 3);
     }
 
+    max_zobrist_t hash = max_board_state(&engine->board)->position;
+    max_ttentry_t const *probed = max_ttbl_probe_read(&engine->table, hash);
+    if(probed != NULL && max_ttentry_pattr_depth(probed->attr) >= depth) {
+        switch(probed->attr & MAX_TTENTRY_PATTR_KIND_MASK) {
+            case (MAX_NODEKIND_PV << MAX_TTENTRY_PATTR_KIND_POS): {
+                if(probed->score > beta) {
+                    return beta;
+                }
+
+                if(probed->score > alpha) {
+                    return probed->score;
+                }
+            } break;
+
+            case (MAX_NODEKIND_ALL << MAX_TTENTRY_PATTR_KIND_POS): {
+                if(probed->score < beta) {
+                    beta = probed->score;
+                }
+            } break;
+
+            case (MAX_NODEKIND_CUT << MAX_TTENTRY_PATTR_KIND_POS): {
+                if(probed->score > beta) {
+                    return beta;
+                }
+            } break;
+        }
+    }
+
     max_nodescore_t score = (max_nodescore_t){
-        .score = alpha,
-        .kind = MAX_NODEKIND_CUT,
+        .score = MAX_SCORE_LOWEST,
+        .kind = MAX_NODEKIND_ALL,
         .depth = depth,
     };
 
@@ -45,12 +75,21 @@ max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_s
             break;
         }
 
-        if(node > alpha) {
-            alpha = node;
+        if(node > score.score) {
             score.score = node;
-            score.kind = MAX_NODEKIND_PV;
+            score.kind = MAX_NODEKIND_ALL;
         }
     }
+
+    if(score.score > alpha) {
+        score.kind = MAX_NODEKIND_PV;
+    }
+
+    max_ttbl_probe_insert(
+        &engine->table,
+        hash,
+        score
+    );
 
     return score.score;
 }

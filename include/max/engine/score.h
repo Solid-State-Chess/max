@@ -1,5 +1,6 @@
 /// \file score.h
 #pragma once
+#include "max/board/move.h"
 #include <stdint.h>
 
 
@@ -55,8 +56,10 @@ typedef uint8_t max_nodekind_t;
 /// This is used by the search algorithm in order to store the results of iterative deepening between calls to
 /// #max_engine_search.
 typedef struct {
+    /// The move that raised alpha or caused a beta cutoff.
+    max_smove_t bestmove;
     /// Score determined for the given move the last time it was searched.
-    max_score_t score;
+    max_score_t score; 
     /// How this node was actually evaluated - determines what the associated score means in context.
     max_nodekind_t kind;
     /// Depth that the move was scored up to.

@@ -25,10 +25,12 @@
 #ifdef MAX_ZOBRIST_64
 
 typedef uint64_t max_zobrist_t;
+#define MAX_ZOBRIST_BITWIDTH (64)
 
 #else
 
 typedef uint32_t max_zobrist_t;
+#define MAX_ZOBRIST_BITWIDTH (32)
 
 #endif
 
