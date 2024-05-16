@@ -4,6 +4,7 @@
 #include "max/board/move.h"
 #include "max/board/movegen.h"
 #include "max/board/perft.h"
+#include "max/board/piececode.h"
 #include "max/board/zobrist.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -92,6 +93,15 @@ int main(int argc, char *argv[]) {
             }
 
             max_smove_t move = parse_move(&moves);
+            if(board.pieces[move.to.v].v != MAX_PIECECODE_EMPTY) {
+                move.tag |= MAX_MOVETAG_CAPTURE;
+            }
+
+            if((board.pieces[move.from.v].v & MAX_PIECECODE_TYPE_MASK) == MAX_PIECECODE_PAWN) {
+                if(abs((int)max_0x88_rank(move.from) - (int)max_0x88_rank(move.to)) == 2) {
+                    move.tag = MAX_MOVETAG_DOUBLE;
+                }
+            }
             max_board_make_move(&board, move);
         }
     }

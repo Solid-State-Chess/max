@@ -153,7 +153,12 @@ bool max_board_legal(max_board_t *board, max_smove_t move) {
                 }
             }
         } else {
-            return move.to.v == check.origin.v;
+            if(move.tag == MAX_MOVETAG_ENPASSANT) {
+                max_0x88_t captured_pos = ep_square;
+                return ep_square.v == check.origin.v;
+            } else {
+                return move.to.v == check.origin.v;
+            }
         }
     }
 

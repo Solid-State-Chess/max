@@ -109,7 +109,7 @@ void max_board_update_check(max_board_t *board, max_smove_t move) {
     if(move.tag == MAX_MOVETAG_ENPASSANT) {
         check = max_board_update_discovered_check(board, kpos, move.from, check);
         if(check != state->check + 2) {
-            max_0x88_t epcapture = max_0x88_move(move.to, MAX_PAWN_ADVANCE_DIR[max_board_side(board)]);
+            max_0x88_t epcapture = max_0x88_move(move.to, -MAX_PAWN_ADVANCE_DIR[max_board_side(board)]);
             check = max_board_update_discovered_check(board, kpos, epcapture, check);
         }
     } else {
