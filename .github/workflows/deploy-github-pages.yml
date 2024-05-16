@@ -22,7 +22,7 @@ jobs:
           submodules: true
       - name: Configure CMake
         run: >
-          cmake -B {{ github.workspace }}/build
+          cmake -B ${{ github.workspace }}/build
           -DMAX_DOC=ON
       - name: Build Doxygen HTML
         run: >
