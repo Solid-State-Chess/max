@@ -26,7 +26,7 @@ jobs:
           -DMAX_DOC=ON
       - name: Build Doxygen HTML
         run: >
-          cmake --build ${{ github.workspace }}/build max-doc
+          cmake --build ${{ github.workspace }}/build -t max-doc
       - name: Deploy to Github Pages Branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
