@@ -1,7 +1,6 @@
 /// \file eval.h
 #pragma once
 #include "max/board/loc.h"
-#include "max/board/move.h"
 #include "max/board/piececode.h"
 #include "max/board/piecelist.h"
 #include "max/def.h"
@@ -37,7 +36,6 @@ MAX_INLINE_ALWAYS max_score_t max_engine_score_positions_single(max_pstbl_t tbl,
 
     return score;
 }
-
 
 MAX_INLINE_ALWAYS max_score_t max_engine_score_positions(max_engine_t *engine, max_pieces_t *pieces, max_side_t side) {
     return

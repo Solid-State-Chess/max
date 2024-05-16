@@ -18,6 +18,10 @@ int gui_engine_thread(void *_data) {
             
             uint64_t start = SDL_GetTicks64();
             max_engine_search(&data->engine, &search);
+            if(search.gameover) {
+                printf("checkmate\n");
+                return 0;
+            }
             double time = (double)(SDL_GetTicks64() - start) / 1000;
             double meganodes = (double)(data->engine.diagnostic.nodes) / 1000000;
             uint64_t tt_hits = data->engine.diagnostic.ttbl_hits;
@@ -26,10 +30,11 @@ int gui_engine_thread(void *_data) {
 
             double mn_s = meganodes / time;
             printf(
-                "%c%c%c%c @ %d [%.2f s][%.2f MN | %.2f MN/s] %zu / %zu TT Used / Hits (%.3f TTUR)\n",
+                "%c%c%c%c @ %d - depth %u [%.2f s][%.2f MN | %.2f MN/s] %zu / %zu TT Used / Hits (%.3f TTUR)\n",
                 MAX_0x88_FORMAT(search.best.from),
                 MAX_0x88_FORMAT(search.best.to),
                 search.score,
+                search.depth,
                 time,
                 meganodes,
                 mn_s,
@@ -37,6 +42,15 @@ int gui_engine_thread(void *_data) {
                 tt_hits,
                 util_rate
             );
+            
+            unsigned count = 0;
+            for(unsigned i = 0; i < (1 << data->engine.table.nbit); ++i) {
+                if(data->engine.table.buf[i].key != 0) {
+                    count += 1;
+                }
+            }
+
+            printf("%u TT entries used\n", count);
 
             max_board_make_move(&data->engine.board, search.best);
 

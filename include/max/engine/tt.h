@@ -40,7 +40,7 @@ typedef uint16_t max_ttentry_pattr_t;
 
 enum {
     /// Mask for the lowest 6 bits of a #max_ttentry_pattr_t to get the packed move source square
-    MAX_TTENTRY_PATTR_SOURCE_MASK = 0x007F,
+    MAX_TTENTRY_PATTR_SOURCE_MASK = 0x003F,
     /// Mask for bits [11, 6] of a #max_ttentry_pattr_t to get the packed move destination square
     MAX_TTENTRY_PATTR_DEST_MASK   = 0x0FC0,
     /// Bit offset from the LSB that the 6 destination square bits are located at
@@ -105,6 +105,9 @@ typedef struct {
     /// Packed attributes including the best or refutation move's source and destination squares, and
     /// the kind of node score and depth that the node was searched to.
     max_ttentry_pattr_t attr;
+
+    uint8_t age;
+    uint8_t depth;
 } max_ttentry_t;
 
 #pragma pack(pop)
@@ -128,7 +131,7 @@ MAX_INLINE_ALWAYS uint32_t max_ttbl_get_index(max_ttbl_t *tbl, max_zobrist_t has
 
 /// Get the key part of a zobrist hash used to detect index collisions in the tranposition table.
 MAX_INLINE_ALWAYS max_ttentry_key_t max_ttbl_get_key(max_ttbl_t *tbl, max_zobrist_t hash) {
-    return hash >> (MAX_ZOBRIST_BITWIDTH - tbl->nbit);
+    return hash >> tbl->nbit;
 }
 
 /// Get a read-only pointer to the transposition table entry corresponding to a saved analysis of the given position.
@@ -136,7 +139,7 @@ MAX_INLINE_ALWAYS max_ttentry_key_t max_ttbl_get_key(max_ttbl_t *tbl, max_zobris
 max_ttentry_t const* max_ttbl_probe_read(max_ttbl_t *tbl, max_zobrist_t hash);
 
 /// Insert a new node score into the transposition table, potentially overwriting the previous stored score
-void max_ttbl_probe_insert(max_ttbl_t *tbl, max_zobrist_t hash, max_nodescore_t score);
+void max_ttbl_probe_insert(max_ttbl_t *tbl, max_zobrist_t hash, max_nodescore_t score, uint16_t ply);
 
 /// @}
 

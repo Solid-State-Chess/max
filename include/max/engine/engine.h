@@ -42,6 +42,8 @@ typedef struct {
     max_ttbl_t table;
     /// Move list used to store moves that lead to lower positions in the game tree search
     max_movelist_t moves;
+
+    uint64_t time;
 } max_engine_t;
 
 /// Parameters used to initialize a #max_engine_t
@@ -80,6 +82,8 @@ typedef struct {
 typedef struct {
     max_score_t score;
     max_smove_t best;
+    uint8_t depth;
+    bool gameover;
 } max_search_result_t;
 
 /// Create a new engine with the given buffers to use for lookup tables.

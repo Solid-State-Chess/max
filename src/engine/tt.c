@@ -2,6 +2,7 @@
 #include "max/assert.h"
 #include "private/engine/tt.h"
 #include <stddef.h>
+#include <stdio.h>
 
 void max_ttbl_new(max_ttbl_t *tbl, max_ttentry_t *buf, uint8_t nbits) {
     MAX_ASSERT(nbits < 32 && "Cannot create a transposition table with a buffer larger than 4GiB");
@@ -27,17 +28,20 @@ max_ttentry_t const* max_ttbl_probe_read(max_ttbl_t *tbl, max_zobrist_t hash) {
     }
 }
 
-void max_ttbl_probe_insert(max_ttbl_t *tbl, max_zobrist_t hash, max_nodescore_t score) {
+void max_ttbl_probe_insert(max_ttbl_t *tbl, max_zobrist_t hash, max_nodescore_t score, uint16_t ply) {
     max_ttentry_t *entry = &tbl->buf[max_ttbl_get_index(tbl, hash)];
 
     if(entry->key != MAX_TTENTRY_KEY_GRAVESTONE) {
-        if(score.depth < max_ttentry_pattr_depth(entry->attr)) {
+        return;
+        if(score.depth < entry->depth && (ply - entry->age) < 3) {
             return;
         }
     }
 
     entry->key = max_ttbl_get_key(tbl, hash);
     entry->score = score.score;
+    entry->depth = score.depth;
+    entry->age = ply;
     entry->attr = max_ttentry_pattr_new(
         score.bestmove.from,
         score.bestmove.to,

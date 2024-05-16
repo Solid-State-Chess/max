@@ -45,9 +45,9 @@ int gui_state_new(gui_state_t *state) {
     
     state->shared = malloc(sizeof(*state->shared));
 
-    static const unsigned BOARD_STACK_CAP  = 24;
-    static const unsigned MOVELIST_CAP     = 26 * MAX_ENGINE_MAX_MOVES_PER_PLY;
-    static const unsigned TTBL_BUF_CAP_BIT = 20;
+    static const unsigned BOARD_STACK_CAP  = 100;
+    static const unsigned MOVELIST_CAP     = 70 * MAX_ENGINE_MAX_MOVES_PER_PLY;
+    static const unsigned TTBL_BUF_CAP_BIT = 23;
     static const unsigned TTBL_BUF_CAP     = (1 << TTBL_BUF_CAP_BIT);
     
     max_engine_init_params_t init = (max_engine_init_params_t){
