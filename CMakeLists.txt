@@ -105,12 +105,15 @@ if(MAX_DOC)
             "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile.cmake.in"
             ${DOXYFILE_OUT}
         )
-    
-        doxygen_add_docs(
+
+        file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc")
+
+        add_custom_target(
             max-doc
-            ${SRC}
-            ${INCLUDE_FILES}
-            CONFIG_FILE "${DOXYFILE_OUT}"
+            COMMAND Doxygen::doxygen ${DOXYFILE_OUT}
+            WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc"
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM
         )
     endif()
 endif()

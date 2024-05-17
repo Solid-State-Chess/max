@@ -65,9 +65,11 @@ max_score_t max_engine_quiesce(max_engine_t *engine, max_movelist_t moves, max_s
     return alpha;
 }
 
-max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_score_t alpha, max_score_t beta, uint8_t depth) {
+
+max_engine_stop_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_score_t alpha, max_score_t beta, max_nodescore_t *score, uint8_t depth) {
     if(depth == 0) {
-        return max_engine_quiesce(engine, moves, alpha, beta, 3);
+        score->score = max_engine_quiesce(engine, moves, alpha, beta, 3);
+        return MAX_ENGINE_STOP_SEARCH_DONE;
     }
 
     max_zobrist_t hash = max_board_state(&engine->board)->position;
@@ -79,19 +81,24 @@ max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_s
             case (MAX_NODEKIND_PV << MAX_TTENTRY_PATTR_KIND_POS): {
                 if(probed->score >= beta) {
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
-                    return beta;
+                    score->score = beta;
+                    return MAX_ENGINE_STOP_SEARCH_DONE;
+                    //return beta;
                 }
 
                 if(probed->score >= alpha && probed->score < beta) {
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
-                    return probed->score;
+                    score->score = probed->score;
+                    return MAX_ENGINE_STOP_SEARCH_DONE;
+                   // return probed->score;
                 }
             } break;
 
             case (MAX_NODEKIND_ALL << MAX_TTENTRY_PATTR_KIND_POS): {
                 if(probed->score <= alpha) {
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
-                    beta = probed->score;
+                    score->score = alpha;
+                    return MAX_ENGINE_STOP_SEARCH_DONE;
                     return alpha;
                 }
             } break;
@@ -99,13 +106,15 @@ max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_s
             case (MAX_NODEKIND_CUT << MAX_TTENTRY_PATTR_KIND_POS): {
                 if(probed->score >= beta) {
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
+                    score->score = beta;
+                    return MAX_ENGINE_STOP_SEARCH_DONE;
                     return beta;
                 }
             } break;
         }
     }
 
-    max_nodescore_t score = (max_nodescore_t){
+    *score = (max_nodescore_t){
         .score = MAX_SCORE_LOWEST + 20,
         .kind = MAX_NODEKIND_ALL,
         .depth = depth,
@@ -113,93 +122,150 @@ max_score_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves, max_s
 
     max_board_movegen(&engine->board, &moves);
     max_engine_sortmoves(engine, moves);
-
+    
     uint8_t legal_count = 0;
-    for(unsigned i = 0; i < moves.len; ++i) {
-        if(time(NULL) - engine->time >= 25) {
-            return alpha;
+   
+    max_smove_t first = moves.buf[0];
+    if(max_board_legal(&engine->board, first)) {
+        legal_count += 1;
+        max_board_make_move(&engine->board, first);
+        max_engine_negamax(engine, max_movelist_slice(&moves), -beta, -alpha, score, depth - 1);
+        score->score = -score->score;
+        max_board_unmake_move(&engine->board, first);
+        if(score->score >= beta) {
+            score->kind = MAX_NODEKIND_CUT;
+            return MAX_ENGINE_STOP_SEARCH_DONE;
         }
+
+        alpha = score->score;
+    }
+
+    for(unsigned i = 1; i < moves.len; ++i) {
+        if(time(NULL) - engine->time >= 7) {
+            return MAX_ENGINE_STOP_TIMECONTROL;
+        }
+
         max_smove_t move = moves.buf[i];
         if(!max_board_legal(&engine->board, move)) {
             continue;
         }
 
         legal_count += 1;
-
+        
+        max_nodescore_t node;
         max_board_make_move(&engine->board, move);
-        max_score_t node = -max_engine_negamax(engine, max_movelist_slice(&moves), -beta, -alpha, depth - 1);
+        max_engine_stop_t stop = max_engine_negamax(engine, max_movelist_slice(&moves), -alpha - 1, -alpha, &node, depth - 1);
+        if(stop == MAX_ENGINE_STOP_TIMECONTROL) {
+            max_board_unmake_move(&engine->board, move);
+            return MAX_ENGINE_STOP_TIMECONTROL;
+        }
+        node.score = -node.score;
+
+
+         if(node.score > alpha && node.score < beta) {
+            if(max_engine_negamax(engine, max_movelist_slice(&moves), -beta, -alpha, &node, depth - 1) == MAX_ENGINE_STOP_TIMECONTROL) {
+
+                max_board_unmake_move(&engine->board, move);
+                return MAX_ENGINE_STOP_TIMECONTROL;
+            }
+            node.score = -node.score;
+            if(node.score > alpha) {
+                alpha = node.score;
+            }
+        }
+
         max_board_unmake_move(&engine->board, move);
+        if(node.score > score->score) {
+            score->score = node.score;
+            if(node.score >= beta) {
+                score->kind = MAX_NODEKIND_CUT;
+                break;
+            }
 
-        if(node > beta) {
-            score.score = node;
-            score.kind = MAX_NODEKIND_CUT;
-            score.bestmove = move;
-            break;
-        }
-
-        if(node > score.score) {
-            score.score = node;
-            score.bestmove = move;
-        }
-
-        if(node > alpha) {
-            alpha = node;
-            score.kind = MAX_NODEKIND_PV;
+            if(node.score == alpha) {
+                score->kind = MAX_NODEKIND_PV;
+            }
         }
     }
 
     if(legal_count == 0) {
         if(!max_check_is_empty(max_board_state(&engine->board)->check[0])) {
-            return -20000 - depth;
+            score->score = -20000 - depth;
         } else {
-            return -depth;
+            score->score = -depth;
         }
     }
 
     max_ttbl_probe_insert(
         &engine->table,
         hash,
-        score,
+        *score,
         engine->board.ply
     );
 
-    return score.score;
+    return MAX_ENGINE_STOP_SEARCH_DONE;
+
 }
 
-bool max_engine_search_moves(max_engine_t *engine, max_scorelist_t *scored_moves, max_search_result_t *search, uint8_t depth) {
+max_engine_stop_t max_engine_search_moves(max_engine_t *engine, max_scorelist_t *scored_moves, max_search_result_t *search, uint8_t depth) {
     max_scorelist_sort(scored_moves);
     uint8_t nlegal = 0;
-    for(unsigned i = 0; i < scored_moves->moves.len; ++i) {
-        if(time(NULL) - engine->time >= 25) {
-            return false;
-        }
+
+    uint8_t moves_to_search = scored_moves->moves.len;
+    uint8_t reduced = 20 - depth;
+    if(depth >= 5 && moves_to_search >= reduced) {
+        moves_to_search = reduced;
+    }
+
+    for(unsigned i = 0; i < moves_to_search; ++i) {
         max_smove_t move = scored_moves->moves.buf[i];
         if(!max_board_legal(&engine->board, move)) {
+            if(moves_to_search < scored_moves->moves.len) {
+                moves_to_search += 1;
+            }
             continue;
         }
 
         nlegal += 1;
+        if(time(NULL) - engine->time >= 7) {
+            return MAX_ENGINE_STOP_SEARCH_DONE;
+        }
 
         max_board_make_move(&engine->board, move);
-        max_score_t node = -max_engine_negamax(
+        max_nodescore_t node;
+        if(max_engine_negamax(
             engine,
             max_movelist_slice(&scored_moves->moves),
             MAX_SCORE_LOWEST + 20,
             MAX_SCORE_HIGHEST - 20,
+            &node,
             depth - 1
-        );
-        printf("%c%c%c%c @ %d - depth %u\n", MAX_0x88_FORMAT(move.from), MAX_0x88_FORMAT(move.to), node, depth);
-        max_board_unmake_move(&engine->board, move);
-        max_scorelist_score(scored_moves, i, node);
+        ) == MAX_ENGINE_STOP_TIMECONTROL) {
+            max_board_unmake_move(&engine->board, move);
+            return MAX_ENGINE_STOP_TIMECONTROL;
+        }
 
-        if(node + depth * 20 > search->score + search->depth * 20 || (move.from.v == search->best.from.v && move.to.v == search->best.to.v)) {
+        node.score = -node.score;
+
+        //printf("%c%c%c%c @ %d - depth %u\n", MAX_0x88_FORMAT(move.from), MAX_0x88_FORMAT(move.to), node.score, depth);
+        max_board_unmake_move(&engine->board, move);
+        max_scorelist_score(scored_moves, i, node.score);
+
+        if(node.score + depth * 20 > search->score + search->depth * 20 || (move.from.v == search->best.from.v && move.to.v == search->best.to.v)) {
             search->best = move;
-            search->score = node;
+            search->score = node.score;
             search->depth = depth;
         }
     }
+
     
-    return nlegal == 0;
+    if(nlegal == 0) {
+        if(!max_check_is_empty(max_board_state(&engine->board)->check[0])) {
+            return MAX_ENGINE_STOP_CHECKMATE;
+        }
+    }
+
+    return MAX_ENGINE_STOP_SEARCH_DONE;
 }
 
 void max_engine_search(max_engine_t *engine, max_search_result_t *search) {
@@ -223,12 +289,24 @@ void max_engine_search(max_engine_t *engine, max_search_result_t *search) {
 
     engine->time = time(NULL);
     for(uint8_t depth = 2; ; depth += 1) {
-        if(time(NULL) - engine->time >= 25) {
+        if(time(NULL) - engine->time >= 7) {
             return;
         }
 
-        if(max_engine_search_moves(engine, &scored_moves, search, depth)) {
-            search->gameover = true;
+        switch(max_engine_search_moves(engine, &scored_moves, search, depth)) {
+            case MAX_ENGINE_STOP_CHECKMATE: {
+                search->gameover = true;
+                return;
+            } break;
+
+            case MAX_ENGINE_STOP_TIMECONTROL: {
+                return;
+            } break;
+
+            case MAX_ENGINE_STOP_SEARCH_DONE: break;
+        }
+
+        if(depth == 7) {
             break;
         }
     }

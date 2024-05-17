@@ -30,7 +30,7 @@ int gui_engine_thread(void *_data) {
 
             double mn_s = meganodes / time;
             printf(
-                "%c%c%c%c @ %d - depth %u [%.2f s][%.2f MN | %.2f MN/s] %zu / %zu TT Used / Hits (%.3f TTUR)\n",
+                "%c%c%c%c @ %-5d - depth %-2u [%-1.2f s][%3.2f MN | %-1.2f MN/s] %8zu / %-8zu TT Used / Hits (%.3f TTUR)\n",
                 MAX_0x88_FORMAT(search.best.from),
                 MAX_0x88_FORMAT(search.best.to),
                 search.score,
@@ -42,15 +42,6 @@ int gui_engine_thread(void *_data) {
                 tt_hits,
                 util_rate
             );
-            
-            unsigned count = 0;
-            for(unsigned i = 0; i < (1 << data->engine.table.nbit); ++i) {
-                if(data->engine.table.buf[i].key != 0) {
-                    count += 1;
-                }
-            }
-
-            printf("%u TT entries used\n", count);
 
             max_board_make_move(&data->engine.board, search.best);
 

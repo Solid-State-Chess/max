@@ -16,10 +16,10 @@ typedef int16_t max_score_t;
 
 /// The highest score possible to store in a #max_score_t, used to create a null window
 /// for alpha-beta search.
-#define MAX_SCORE_HIGHEST (INT16_MAX)
+#define MAX_SCORE_HIGHEST (INT16_MAX - 1000)
 /// The lowest score possible to store in a #max_score_t, used to create a null window for
 /// alpha-beta search.
-#define MAX_SCORE_LOWEST  (INT16_MIN)
+#define MAX_SCORE_LOWEST  (INT16_MIN + 1000)
 
 /// A signed score in centipawns in the range [-128, 127].
 /// This is a compressed version of #max_score_t used to store piece-square tables and other lookup
