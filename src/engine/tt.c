@@ -33,7 +33,8 @@ void max_ttbl_probe_insert(max_ttbl_t *tbl, max_zobrist_t hash, max_nodescore_t 
 
     if(entry->key != MAX_TTENTRY_KEY_GRAVESTONE) {
         return;
-        if(score.depth < entry->depth && (ply - entry->age) < 3) {
+        uint8_t age = ply - entry->age;
+        if(score.depth < (entry->depth + (age >> 1)) && (ply - entry->age) < 6) {
             return;
         }
     }

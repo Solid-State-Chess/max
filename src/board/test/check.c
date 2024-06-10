@@ -23,6 +23,7 @@ void max_board_check_unit_tests(void) {
     );
 
     max_board_make_move(&board, max_smove_new(MAX_B5, MAX_C6, MAX_MOVETAG_ENPASSANT));
+
     ASSERT(
         !max_check_is_empty(max_board_state(&board)->check[0]) &&
         max_check_is_sliding(max_board_state(&board)->check[0]),
