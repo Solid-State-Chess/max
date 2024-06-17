@@ -13,10 +13,12 @@
 /// \ingroup eval
 /// @{
 
-/// \defgroup material Material Scores
+/// \defgroup material Material Scoring
+/// Lookup tables used to score the basic value of each chess piece, to be augmented by more complex analysis.
 /// @{
 
-/// Configuration for the material values in centipawns of each chess piece
+/// Configuration for the material values in centipawns of each chess piece.
+/// Data can be indexed by the name of the piece type or #max_pieceindex_t.
 typedef union {
     struct {
         max_score_t pawn;
@@ -29,7 +31,8 @@ typedef union {
     max_score_t array[MAX_PIECEINDEX_LEN];
 } max_engine_material_cfg_t;
 
-/// Get sensible default values for material
+/// Get sensible default values for material scores of each chess piece.
+/// \return #max_engine_material_cfg_t
 MAX_INLINE_ALWAYS max_engine_material_cfg_t max_engine_material_cfg_default(void) {
     return (max_engine_material_cfg_t){
         .pawn = 100,

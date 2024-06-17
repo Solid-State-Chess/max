@@ -1,8 +1,6 @@
 /// \file eval.h
 #pragma once
 #include "max/engine/engine.h"
-#include "max/engine/eval/material.h"
-#include "max/engine/eval/pstbl.h"
 #include "max/engine/score.h"
 
 /// \ingroup engine
