@@ -1,11 +1,16 @@
 /// \file pstbl.h
 #pragma once
+
 #include "max/board/loc.h"
 #include "max/def.h"
 #include "max/engine/score.h"
 
-/// \ingroup param
+/// \ingroup eval
 /// @{
+
+/// \defgroup Piece-Square Tables
+/// @{
+
 
 typedef max_smallscore_t max_pstbl_t[MAX_6BIT_LEN];
 
@@ -84,5 +89,7 @@ MAX_INLINE_ALWAYS max_position_param_t max_position_param_default(void) {
         }
     };
 }
+
+/// @}
 
 /// @}

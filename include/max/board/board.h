@@ -40,10 +40,10 @@ typedef struct {
     /// Statically initialized arrays used to iteratively compute zobrist hash keys.
     max_zobrist_elements_t zobrist_state;
 
-    /// Piece type and color data array indexed by a packed board location #max_loc_t.
+    /// Piece type and color data array indexed by a packed board location #max_0x88_t.
     /// This array is the most commonly accessed during most operations, as it allows us to
     /// find a piece by location.
-    /// The locations of each piece on this board must be kept in sync with the #sides piece lists
+    /// The locations of each piece on this board must be kept in sync with the #side piece lists
     /// during all operations on the board.
     max_piececode_t pieces[MAX_0x88_LEN];
     

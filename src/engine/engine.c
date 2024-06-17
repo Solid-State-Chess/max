@@ -5,7 +5,7 @@
 #include "max/board/movegen.h"
 #include "max/board/state.h"
 #include "max/board/zobrist.h"
-#include "max/engine/eval.h"
+#include "max/engine/eval/eval.h"
 #include "max/engine/score.h"
 #include "max/engine/tt.h"
 #include "private/board/board.h"

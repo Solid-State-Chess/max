@@ -5,7 +5,6 @@
 #include "max/board/piecelist.h"
 #include "max/def.h"
 #include "max/engine/engine.h"
-#include "max/engine/param/pstbl.h"
 #include "max/engine/score.h"
 
 

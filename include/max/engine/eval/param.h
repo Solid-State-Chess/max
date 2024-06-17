@@ -1,15 +1,11 @@
 /// \file param.h
 #pragma once
-#include "max/def.h"
-#include "max/engine/param/pieceval.h"
-#include "max/engine/param/pstbl.h"
 
 
-/// \ingroup engine
-/// @{
+#include "max/engine/eval/material.h"
+#include "max/engine/eval/pstbl.h"
 
-/// \defgroup param Engine Parameters
-/// Configurable engine parameters to be used in evaluation
+/// \ingroup eval
 /// @{
 
 /// Evaluation parameters for the engine including 
@@ -27,7 +23,5 @@ MAX_INLINE_ALWAYS max_eval_params_t max_eval_params_default(void) {
         .position = max_position_param_default(),
     };
 }
-
-/// @}
 
 /// @}

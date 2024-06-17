@@ -19,7 +19,7 @@
 /// This type is an index into a #max_loclist_t
 typedef uint8_t max_lidx_t;
 
-/// A piece list storing the locations of one piece type indexed by #max_plidx_t.
+/// A piece list storing the locations of one piece type indexed by #max_lidx_t.
 /// This typedef has a variable size, and is thus only operated on by pointers.
 /// In practice, it is provided so that piece list functions have a uniform interface
 /// for piece lists of different static sizes.

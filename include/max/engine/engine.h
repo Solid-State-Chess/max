@@ -1,7 +1,7 @@
 #pragma once
 #include "max/board/board.h"
 #include "max/board/state.h"
-#include "max/engine/param.h"
+#include "max/engine/eval/param.h"
 #include "max/engine/tt.h"
 
 /// \defgroup engine Chess Engine

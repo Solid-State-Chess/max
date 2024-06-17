@@ -1,3 +1,4 @@
+RECURSE                = YES
 INPUT                  = @SRC_LIST@ @INCLUDE_LIST@
 GENERATE_TREEVIEW      = YES
 DISABLE_INDEX = NO

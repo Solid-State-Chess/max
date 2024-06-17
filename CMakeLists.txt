@@ -90,10 +90,8 @@ if(MAX_DOC)
         set(DOXYGEN_VERBATIM_VARS )
         
         file(
-            GLOB INCLUDE_FILES CONFIGURE_DEPENDS
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/max.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/max/*/*.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/*/*/*.h"
+            GLOB_RECURSE INCLUDE_FILES CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
         )
     
         list(JOIN SRC " " SRC_LIST)

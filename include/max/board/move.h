@@ -20,7 +20,6 @@
 /// other than simply shifting pieces - attacks, promotions, en passant, and castling.
 /// \see max_pmove_t
 /// \see max_smove_t
-/// @{
 typedef uint8_t max_movetag_t;
 
 enum {
@@ -103,8 +102,6 @@ MAX_INLINE_ALWAYS max_castle_side_t max_castle_side_for_movetag(max_movetag_t ta
     return tag >> MAX_MOVETAG_HCASTLE_POS;
 }
 
-/// @}
-
 
 /// A move with from and to square, plus flags stored in a separate byte.
 /// This structure uses three bytes to represent a move with positions already stored
@@ -138,8 +135,6 @@ MAX_INLINE_ALWAYS max_smove_t max_smove_capture(max_0x88_t from, max_0x88_t to) 
 MAX_INLINE_ALWAYS max_smove_t max_smove_normal(max_0x88_t from, max_0x88_t to) {
     return max_smove_new(from, to, MAX_MOVETAG_NONE);
 }
-
-/// @}
 
 /// A list of (optionally packed) moves filled during movegen and searched
 /// by the engine. Because the engine must perform move ordering to maximize
