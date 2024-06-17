@@ -5,16 +5,7 @@
 #include "max/board/squares.h"
 
 
-max_0x88_dir_t MAX_KING_MOVES[MAX_KING_MOVES_LEN] = {
-    MAX_0x88_DIR_UP,
-    MAX_0x88_DIR_UR,
-    MAX_0x88_DIR_RIGHT,
-    MAX_0x88_DIR_DR,
-    MAX_0x88_DIR_DOWN,
-    MAX_0x88_DIR_DL,
-    MAX_0x88_DIR_LEFT,
-    MAX_0x88_DIR_UL,
-};
+max_0x88_dir_t *MAX_KING_MOVES = MAX_0x88_RAYS;
 
 max_0x88_t MAX_CASTLE_KING_DEST[MAX_CASTLES_LEN][MAX_SIDES_LEN] = {
     [MAX_CASTLE_ASIDE] = {

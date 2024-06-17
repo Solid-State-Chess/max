@@ -28,8 +28,6 @@ typedef uint16_t max_ttentry_key_t;
 
 /// @}
 
-#pragma pack(push, 1)
-
 /// Packed attributes for a #max_ttentry_t, including the best move's from and to square,
 /// the kind of node stored, and depth that the node was searched to.
 /// ## Bit Layout
@@ -88,6 +86,9 @@ MAX_INLINE_ALWAYS max_0x88_t max_ttentry_pattr_dest(max_ttentry_pattr_t packed) 
 MAX_INLINE_ALWAYS uint8_t max_ttentry_pattr_depth(max_ttentry_pattr_t packed) {
     return ((packed & MAX_TTENTRY_PATTR_DEPTH_MASK) >> MAX_TTENTRY_PATTR_DEPTH_POS) << 1;
 }
+
+
+#pragma pack(push, 1)
 
 /// An entry in the transposition table containing the result of a prior evaluation.
 /// The size of this entry has massive effects on the memory footprint of the program as the transposition table

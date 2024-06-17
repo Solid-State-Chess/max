@@ -9,7 +9,7 @@ void max_engine_sort();
 typedef enum {
     MAX_ENGINE_STOP_SEARCH_DONE,
     MAX_ENGINE_STOP_TIMECONTROL,
-    MAX_ENGINE_STOP_CHECKMATE,
+    MAX_ENGINE_STOP_GAMEOVER,
 } max_engine_stop_t;
 
 /// Perform negamax search of the current engine node, returning the best possible score for the side to play.

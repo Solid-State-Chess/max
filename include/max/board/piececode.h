@@ -98,10 +98,13 @@ MAX_INLINE_ALWAYS max_side_t max_piececode_side(max_piececode_t piece) {
 /// errors when combining piece codes
 typedef struct { uint8_t msk; } max_piecemask_t;
 
+/// A piece mask that does not match any piece codes
 #define MAX_PIECEMASK_EMPTY    ((max_piecemask_t){ .msk = 0 })
 
+/// Piece mask that will match bishops and queens of any color
 #define MAX_PIECEMASK_DIAGONAL ((max_piecemask_t){ .msk = MAX_PIECECODE_BISHOP })
 
+/// Piece mask that will match rooks and queens of any color
 #define MAX_PIECEMASK_CARDINAL ((max_piecemask_t){ .msk = MAX_PIECECODE_ROOK   })
 
 

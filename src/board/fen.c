@@ -12,13 +12,22 @@
 /// Tagged union type returned by parser functions to indicate that parsing can continue
 /// or has failed
 typedef struct {
+    /// Discriminant determining if the result contains error code or end pointer
     bool ok;
     union {
+        /// Error code filled if `ok` is false
         max_fen_parse_err_t err;
+        /// Pointer to the first character that the parser did not consume
         char const *end;
     };
 } max_fen_parse_result_t;
 
+/// Parse a single rank string as FEN
+/// Note that this function performs no bounds checking on piece lists and should not be used with untrusted FEN
+/// \param fen pointer to beginning of a FEN rank string - if the terminating '/' character is present, it will be consumed
+/// and the result structure will point past the end of the '/' character
+/// \param rank Rank index from 0 to 7 to add parsed pieces to
+/// \return tagged
 static max_fen_parse_result_t max_board_parse_fen_rank(max_board_t *board, char const *fen, uint8_t rank) {
     uint8_t file = 0;
     for(;;) {
@@ -87,8 +96,10 @@ static max_fen_parse_result_t max_board_parse_fen_rank(max_board_t *board, char 
     };
 }
 
-/// Parse two castle rights characters, of the form KQ or HA.
-/// If HA (chess960 FEN), the initial rook file will be set to the file
+/// Parse castle rights supported either chess960 style HAha or standard KQkq notation to determine the starting files of both rooks.
+/// Sets the castle right bits on the top state plate for A and H side rooks for the given side.
+/// \param side Side to set castle rights for - note that parsing is case-insensitive and does not require capital letters for black
+/// nor lower case for white
 static max_fen_parse_result_t max_board_parse_castle_rights(max_board_t *board, char const *fen, max_side_t side) {
     max_state_t *state = max_board_state(board);
     
@@ -200,7 +211,7 @@ max_fen_parse_err_t max_board_parse_from_fen(max_board_t *board, const char *fen
     } else {
         max_state_t *state = max_board_state(board);
         if(*fen == '\0') { return MAX_FEN_SUCCESS; }
-        uint8_t file = *fen - 'a';
+        uint8_t file = tolower(*fen) - 'a';
         if(file > 7) { return MAX_FEN_ERR_INVALID_EPSQUARE; }
 
         fen += 1;

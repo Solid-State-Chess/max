@@ -5,6 +5,7 @@
 #pragma once
 
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "max/board/capturelist.h"
@@ -94,6 +95,21 @@ void max_board_reset(max_board_t *board);
 /// Clear the given board, then add pieces in their default positions.
 /// This effectively begins a new game on the board, clearing all prior state.
 void max_board_default_pos(max_board_t *board);
+
+/// Check if the given board has drawn by threefold repetition.
+/// Note that the state stack must have at least three elements in
+/// order to compare past positions.
+/// \return true if a position has been repeated three times
+MAX_INLINE_ALWAYS bool max_board_threefold(max_board_t *board) {
+    if(board->stack.head < 2) {
+        return false;
+    }
+
+    max_state_t *head = board->stack.head_ptr;
+
+    return head->position ==(head - 1)->position &&
+        head->position == (head - 2)->position;
+}
 
 /// Get a side flag for the current side to play on the board's ply
 MAX_INLINE_ALWAYS max_side_t max_board_side(max_board_t *board) {

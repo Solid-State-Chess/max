@@ -19,6 +19,7 @@ typedef struct {
     max_pstbl_t king;
 } max_position_param_t;
 
+
 MAX_INLINE_ALWAYS max_position_param_t max_position_param_default(void) {
     return (max_position_param_t){
         .pawn = {

@@ -1,4 +1,5 @@
 #include "max/engine/engine.h"
+#include "max/board/board.h"
 #include "max/board/loc.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
@@ -17,6 +18,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define TMP_TIME_CONTROL (10)
 
 void max_engine_new(max_engine_t *engine, max_engine_init_params_t *init, max_eval_params_t param) {
     MAX_ASSERT(init->board.capacity >= 3 && "Board state stack must be at least 3");
@@ -72,6 +74,12 @@ max_engine_stop_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves,
         return MAX_ENGINE_STOP_SEARCH_DONE;
     }
 
+    if(max_board_threefold(&engine->board)) {
+        puts("THREEFOLD REPETITION");
+        score->score = 0;
+        return MAX_ENGINE_STOP_SEARCH_DONE;
+    }
+
     max_zobrist_t hash = max_board_state(&engine->board)->position;
     max_ttentry_t const *probed = max_ttbl_probe_read(&engine->table, hash);
 
@@ -83,14 +91,12 @@ max_engine_stop_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves,
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
                     score->score = beta;
                     return MAX_ENGINE_STOP_SEARCH_DONE;
-                    //return beta;
                 }
 
                 if(probed->score >= alpha && probed->score < beta) {
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
                     score->score = probed->score;
                     return MAX_ENGINE_STOP_SEARCH_DONE;
-                   // return probed->score;
                 }
             } break;
 
@@ -99,8 +105,9 @@ max_engine_stop_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves,
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
                     score->score = alpha;
                     return MAX_ENGINE_STOP_SEARCH_DONE;
-                    return alpha;
                 }
+
+                
             } break;
 
             case (MAX_NODEKIND_CUT << MAX_TTENTRY_PATTR_KIND_POS): {
@@ -108,7 +115,6 @@ max_engine_stop_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves,
                     DIAGNOSTIC(engine->diagnostic.ttbl_used += 1);
                     score->score = beta;
                     return MAX_ENGINE_STOP_SEARCH_DONE;
-                    return beta;
                 }
             } break;
         }
@@ -141,7 +147,7 @@ max_engine_stop_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves,
     }
 
     for(unsigned i = 1; i < moves.len; ++i) {
-        if(time(NULL) - engine->time >= 7) {
+        if(time(NULL) - engine->time >= TMP_TIME_CONTROL) {
             return MAX_ENGINE_STOP_TIMECONTROL;
         }
 
@@ -208,13 +214,17 @@ max_engine_stop_t max_engine_negamax(max_engine_t *engine, max_movelist_t moves,
 }
 
 max_engine_stop_t max_engine_search_moves(max_engine_t *engine, max_scorelist_t *scored_moves, max_search_result_t *search, uint8_t depth) {
+    if(max_board_threefold(&engine->board)) {
+        return MAX_ENGINE_STOP_GAMEOVER;
+    }
+
     max_scorelist_sort(scored_moves);
     uint8_t nlegal = 0;
 
     uint8_t moves_to_search = scored_moves->moves.len;
     uint8_t reduced = 20 - depth;
     if(depth >= 5 && moves_to_search >= reduced) {
-        moves_to_search = reduced;
+        //moves_to_search = reduced;
     }
 
     for(unsigned i = 0; i < moves_to_search; ++i) {
@@ -227,7 +237,7 @@ max_engine_stop_t max_engine_search_moves(max_engine_t *engine, max_scorelist_t 
         }
 
         nlegal += 1;
-        if(time(NULL) - engine->time >= 7) {
+        if(time(NULL) - engine->time >= TMP_TIME_CONTROL) {
             return MAX_ENGINE_STOP_SEARCH_DONE;
         }
 
@@ -261,7 +271,7 @@ max_engine_stop_t max_engine_search_moves(max_engine_t *engine, max_scorelist_t 
     
     if(nlegal == 0) {
         if(!max_check_is_empty(max_board_state(&engine->board)->check[0])) {
-            return MAX_ENGINE_STOP_CHECKMATE;
+            return MAX_ENGINE_STOP_GAMEOVER;
         }
     }
 
@@ -289,12 +299,12 @@ void max_engine_search(max_engine_t *engine, max_search_result_t *search) {
 
     engine->time = time(NULL);
     for(uint8_t depth = 2; ; depth += 1) {
-        if(time(NULL) - engine->time >= 7) {
+        if(time(NULL) - engine->time >= TMP_TIME_CONTROL) {
             return;
         }
 
         switch(max_engine_search_moves(engine, &scored_moves, search, depth)) {
-            case MAX_ENGINE_STOP_CHECKMATE: {
+            case MAX_ENGINE_STOP_GAMEOVER: {
                 search->gameover = true;
                 return;
             } break;
