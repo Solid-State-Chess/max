@@ -7,7 +7,7 @@
 #include "max/board/state.h"
 #include "private/board/board.h"
 #include "private/board/movegen.h"
-#include "private/board/movegen/king.h"
+#include "max/board/movegen/king.h"
 #include "private/board/movegen/knight.h"
 
 /// Efficiently see if a piece on the given square attacks the given position `kpos`.

@@ -13,16 +13,6 @@
 /// @{
 
 
-/// Score the material for one side of the chessboard according to the piece tables configured in the engine.
-MAX_INLINE_ALWAYS max_score_t max_engine_score_material(max_engine_t *engine, max_pieces_t *pieces) {
-    return 
-        pieces->pawn.len * engine->param.material.pawn +
-        pieces->knight.len * engine->param.material.knight +
-        pieces->bishop.len * engine->param.material.bishop +
-        pieces->rook.len * engine->param.material.rook +
-        pieces->queen.len * engine->param.material.queen;
-}
-
 MAX_INLINE_ALWAYS max_score_t max_engine_score_positions_single(max_pstbl_t tbl, max_loclist_t *list, max_side_t side) {
     max_score_t score = 0;
     for(unsigned i = 0; i < list->len; ++i) {

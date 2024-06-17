@@ -7,7 +7,7 @@
 #include "max/board/state.h"
 #include "max/def.h"
 #include "private/board/board.h"
-#include "private/board/movegen/king.h"
+#include "max/board/movegen/king.h"
 
 
 /// Check if a piece on the given square is pinned by an enemy slider to the friendly king.

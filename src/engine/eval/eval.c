@@ -1,6 +1,7 @@
 #include "max/engine/eval/eval.h"
 #include "max/board/piececode.h"
 #include "max/board/side.h"
+#include "max/engine/eval/material.h"
 #include "private/engine/engine.h"
 #include "private/engine/eval.h"
 
@@ -30,8 +31,8 @@ max_score_t max_engine_eval(max_engine_t *engine) {
     max_score_t score = 0;
     
     score +=
-        max_engine_score_material(engine, &engine->board.side.white) - 
-        max_engine_score_material(engine, &engine->board.side.black);
+        max_engine_score_material(&engine->param.material, &engine->board.side.white) - 
+        max_engine_score_material(&engine->param.material, &engine->board.side.black);
 
     score +=
         max_engine_score_positions(engine, &engine->board.side.white, MAX_SIDE_WHITE) -

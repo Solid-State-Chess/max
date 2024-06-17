@@ -8,7 +8,7 @@
 #include "private/board/board.h"
 #include "private/board/capturelist.h"
 #include "private/board/movegen.h"
-#include "private/board/movegen/king.h"
+#include "max/board/movegen/king.h"
 #include "private/board/state.h"
 
 
