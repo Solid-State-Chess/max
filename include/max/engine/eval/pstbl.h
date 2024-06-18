@@ -8,13 +8,18 @@
 /// \ingroup eval
 /// @{
 
-/// \defgroup Piece-Square Tables
+/// \defgroup psqtbl Piece-Square Tables
+/// Piece-square tables give static bonuses to each piece based only on location.
 /// @{
 
 
+/// A piece-square table mapping a chess position to a score.
+/// Stored with packed 6 bit indices to reduce the memory requirements of table lookups.
+/// \see #max_engine_psqt_param_t
 typedef max_smallscore_t max_pstbl_t[MAX_6BIT_LEN];
 
-/// Scores to assign for the value of a piece located on any square
+/// A collection of square score tables for each piece type used to provide basic position
+/// evaluation in conjuction with more complex analysis.
 typedef struct {
     max_pstbl_t pawn;
     max_pstbl_t knight;
@@ -22,11 +27,12 @@ typedef struct {
     max_pstbl_t rook;
     max_pstbl_t queen;
     max_pstbl_t king;
-} max_position_param_t;
+} max_engine_psqt_param_t;
 
-
-MAX_INLINE_ALWAYS max_position_param_t max_position_param_default(void) {
-    return (max_position_param_t){
+/// Get a default #max_position_param_t with tables that encourage midgame pawn advancement and knight centering.
+/// \return #max_position_param_t with default values
+MAX_INLINE_ALWAYS max_engine_psqt_param_t max_engine_psqt_param_default(void) {
+    return (max_engine_psqt_param_t){
         .pawn = {
              0,  0,  0,  0,  0,  0,  0,  0,
             50, 50, 50, 50, 50, 50, 50, 50,

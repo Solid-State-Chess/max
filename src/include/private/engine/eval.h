@@ -15,10 +15,7 @@
 MAX_INLINE_ALWAYS max_score_t max_engine_score_positions_single(max_pstbl_t tbl, max_loclist_t *list, max_side_t side) {
     max_score_t score = 0;
     for(unsigned i = 0; i < list->len; ++i) {
-        max_0x88_t pos = list->loc[i];
-        if(side == MAX_SIDE_WHITE) {
-            pos = max_0x88_mirror_y(pos);
-        }
+        max_0x88_t pos = max_0x88_mirror_side(list->loc[i], side);
         
         score += tbl[max_0x88_to_6bit(pos).v];
     }

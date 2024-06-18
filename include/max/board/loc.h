@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "max/assert.h"
+#include "max/board/side.h"
 #include "max/def.h"
 
 /// \ingroup board
@@ -64,6 +65,14 @@ MAX_INLINE_ALWAYS max_0x88_t max_0x88_raw(uint8_t v) {
 /// Mirror the given location's y coordinate across the board
 MAX_INLINE_ALWAYS max_0x88_t max_0x88_mirror_y(max_0x88_t pos) {
     return max_0x88_raw(pos.v ^ 0x70);
+}
+
+/// Mirror the Y coordinate of the given 0x88 position based on the given side.
+/// Meant for use in non-symmetric piece square tables.
+/// \param pos The position to modify and return
+/// \param side If black, the position passed will be mirrored, otherwise 
+MAX_INLINE_ALWAYS max_0x88_t max_0x88_mirror_side(max_0x88_t pos, max_side_t side) {
+    return max_0x88_raw(pos.v ^ (0x70 & (0x0F << (side << 2))));
 }
 
 /// Get the rank in the range [0..7] of the given 0x88 encoded position.

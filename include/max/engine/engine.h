@@ -91,7 +91,9 @@ typedef struct {
 /// it is the user's responsibility to modify the board after this method to add a starting position.
 void max_engine_new(max_engine_t *engine, max_engine_init_params_t *init, max_eval_params_t param);
 
-/// Perform an iterative deepening search
+/// Attempt to locate the best move for the current side to play with iterative deepening.
+/// \param [in] engine The engine containing the currently analyzed chess board
+/// \param [out] search Pointer to an uninitialized search result theat will be filled with the result of the search.
 void max_engine_search(max_engine_t *engine, max_search_result_t *search);
 
 /// @}

@@ -7,9 +7,6 @@
 #include "max/engine/score.h"
 
 
-/// \ingroup engine
-/// @{
-
 /// \ingroup eval
 /// @{
 
@@ -55,8 +52,6 @@ MAX_INLINE_ALWAYS max_score_t max_engine_score_material(max_engine_material_cfg_
         pieces->rook.len   * material->rook +
         pieces->queen.len  * material->queen;
 }
-
-/// @}
 
 /// @}
 
