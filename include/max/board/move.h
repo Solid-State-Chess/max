@@ -116,7 +116,10 @@ typedef struct {
     max_0x88_t from;
 } max_smove_t;
 
-/// Create a new sparse move from the given source and destination square, and metadata
+/// Create a new sparse move from the given source and destination square, and metadata.
+/// \param from Source square of the move
+/// \param to Destination square of the move - specifically this is the square that the moved piece lands on
+/// \param tag Metadata for the move including if the move is a capture
 MAX_INLINE_ALWAYS max_smove_t max_smove_new(max_0x88_t from, max_0x88_t to, max_movetag_t tag) {
     return (max_smove_t){
         .tag = tag,
