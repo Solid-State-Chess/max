@@ -7,17 +7,19 @@
 extern uint32_t _max_failed_tests;
 extern uint32_t _max_tests;
 
-#define ASSERT(expr, ...) do {          \
-    _max_tests += 1;                    \
-    if(!(expr)) {                       \
+#define MAX_TEST_ASSERT_WITH(expr, ...) do {                          \
+    _max_tests += 1;                                                  \
+    if(!(expr)) {                                                     \
         fprintf(stderr, "    [FAIL] - " __FILE__ ": %d\n", __LINE__); \
-        fputs(#expr, stderr);           \
-        fputc('\n', stderr);            \
-        fprintf(stderr, __VA_ARGS__);   \
-        fputc('\n', stderr);            \
-        _max_failed_tests += 1;         \
-    }                                   \
+        fputs(#expr, stderr);                                         \
+        fputc('\n', stderr);                                          \
+        __VA_ARGS__                                                   \
+        fputc('\n', stderr);                                          \
+        _max_failed_tests += 1;                                       \
+    }                                                                 \
 } while(0)
+
+#define ASSERT(expr, ...) MAX_TEST_ASSERT_WITH(expr, fprintf(stderr, __VA_ARGS__);)
 
 #define CATEGORY(func, name) do {             \
     uint32_t before = _max_tests;             \

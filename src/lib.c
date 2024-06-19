@@ -5,6 +5,7 @@
 #include "private/board/move.h"
 #include "private/board/piececode.h"
 #include "private/board/piecelist.h"
+#include "private/engine/eval.h"
 #include "private/test.h"
 #include "private/board/dir.h"
 
@@ -32,6 +33,7 @@ void max_unit_tests(void) {
     CATEGORY(max_board_tests, "board unit tests");
     CATEGORY(max_pieces_unit_tests, "piece list unit tests");
     CATEGORY(max_piececode_unit_tests, "piece code unit tests");
+    CATEGORY(max_engine_eval_tests, "engine evaluation unit tests");
     printf("Max Unit Tests Summary - %u / %u passed\n", _max_tests - _max_failed_tests, _max_tests);
 }
 

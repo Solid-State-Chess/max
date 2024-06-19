@@ -1,5 +1,4 @@
 #pragma once
-#include "max/board/board.h"
 #include "max/board/loc.h"
 #include "max/board/move.h"
 #include "max/board/state.h"

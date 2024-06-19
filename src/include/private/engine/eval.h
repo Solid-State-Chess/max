@@ -38,4 +38,11 @@ MAX_INLINE_ALWAYS max_score_t max_engine_score_piece(max_engine_t *engine, max_p
     return engine->param.material.array[max_piececode_kind_index(piece)];
 }
 
+#ifdef MAX_TESTS
+
+/// Ensure that basic position heuristics are properly functioning
+void max_engine_eval_tests(void);
+
+#endif
+
 /// @}

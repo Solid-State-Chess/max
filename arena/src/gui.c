@@ -1,10 +1,8 @@
 #include "gui.h"
 #include "max/board/board.h"
-#include "max/board/fen.h"
 #include "max/board/move.h"
 #include "max/board/movegen.h"
 #include "max/engine/engine.h"
-#include "max/engine/param.h"
 #include "max/engine/score.h"
 #include "max/engine/tt.h"
 #include <SDL.h>

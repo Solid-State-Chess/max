@@ -4,6 +4,7 @@
 
 #include "max/engine/eval/material.h"
 #include "max/engine/eval/pstbl.h"
+#include "max/engine/eval/strategy.h"
 
 /// \ingroup eval
 /// @{
@@ -16,6 +17,8 @@ typedef struct {
     /// Piece-square tables for the mid and endgame that encourage basic positional play by scoring certain squares
     /// higher.
     max_engine_psqt_param_t position;
+    /// Scores assigned to more complex analysis
+    max_engine_strat_param_t strategy;
 } max_eval_params_t;
 
 /// Get sensible defaults for all evaluation parameters.
@@ -26,6 +29,7 @@ MAX_INLINE_ALWAYS max_eval_params_t max_eval_params_default(void) {
     return (max_eval_params_t){
         .material = max_engine_material_cfg_default(),
         .position = max_engine_psqt_param_default(),
+        .strategy = max_engine_strat_param_default(),
     };
 }
 

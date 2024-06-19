@@ -1,6 +1,7 @@
 /// \file side.h
 
 #pragma once
+#include "max/def.h"
 #include <stdint.h>
 
 /// \ingroup board
@@ -24,6 +25,11 @@ enum {
     /// Index into arrays for the black side as stored in a #max_side_t
     MAX_SIDE_BLACK = 1,
 };
+
+/// Get the opposite side to the passed side.
+MAX_INLINE_ALWAYS max_side_t max_side_enemy(max_side_t friendly) {
+    return friendly ^ 1;
+}
 
 /// Required size of a lookup table when indexed by a #max_side_t
 #define MAX_SIDES_LEN (2)
